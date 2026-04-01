@@ -97,10 +97,16 @@ As a project maintainer, I want a one-time ingestion workflow that indexes all t
 - **FR-011**: The system MUST provide a one-time ingestion process that processes all eligible lesson files and indexes retrievable chunks.
 - **FR-012**: Indexed content records MUST retain source lesson identity and module identity to support traceable citations.
 - **FR-013**: The ingestion process MUST output per-file progress and final indexed count for operator verification.
-- **FR-014**: The delivered scope MUST exclude user accounts, user personalization, and out-of-scope infrastructure expansion beyond the approved baseline product boundaries.
+- **FR-014**: The delivered scope MUST include bonus-track capabilities for Urdu translation, authenticated learner access, personalized chapter adaptation, and reusable intelligence workflows.
 - **FR-015**: The published frontend MUST support static hosting deployment with chatbot connectivity to the deployed backend service.
 - **FR-016**: The assistant system MUST persist chat session history in a relational store so follow-up questions can be answered with prior conversation context.
 - **FR-017**: The project deliverable MUST include a submission package containing a public repository URL, live deployed textbook URL, demo video link not exceeding 90 seconds, and contact number.
+- **FR-018**: The relational store for persisted session history and learner profile data MUST be Neon Postgres.
+- **FR-019**: The system MUST provide signup/signin and MUST collect learner software/hardware background at signup for personalization input.
+- **FR-020**: The system MUST allow logged-in learners to trigger chapter-level personalization that adapts content to their stored background profile.
+- **FR-021**: The system MUST allow learners to trigger in-page Urdu translation at chapter start.
+- **FR-022**: The project workflow MUST include reusable intelligence artifacts for authoring support (subagents and/or skills) with repository evidence.
+- **FR-023**: Chat responses in the widget MUST display sources as a visible file-name list under each answer.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -117,7 +123,7 @@ As a project maintainer, I want a one-time ingestion workflow that indexes all t
 - Selected-text interaction is required on all content pages where text can be highlighted.
 - One-time ingestion is manually triggered by maintainers, not automatically run during deployment.
 - The deployment target accepts static frontend hosting and separately hosted backend APIs.
-- The project prioritizes deterministic, scope-limited delivery over optional bonus features.
+- The project includes both base deliverables and bonus-track deliverables in the same implementation roadmap.
 
 ### Dependencies
 
@@ -138,3 +144,7 @@ As a project maintainer, I want a one-time ingestion workflow that indexes all t
 - **SC-006**: Health endpoint checks report service availability in at least 99% of probes during a continuous 24-hour monitoring window post-deployment.
 - **SC-007**: At least 85% of pilot learners report that the embedded assistant improved their understanding of lesson content.
 - **SC-008**: 100% of required submission artifacts (public repo, live deployment, <=90-second demo, contact details) are prepared and validated before final submission.
+- **SC-009**: 100% of learner accounts collected during pilot signup include software/hardware background fields required for personalization.
+- **SC-010**: At least 90% of sampled personalized chapter renders reflect the learner’s stored background profile.
+- **SC-011**: At least 95% of sampled Urdu-translation requests return translated chapter content without breaking lesson structure.
+- **SC-012**: 100% of sampled chat responses display source file names in a visible list format under the answer.
