@@ -208,3 +208,10 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- Python 3.11+ (backend/scripts), TypeScript/React (Docusaurus frontend integration) + Docusaurus v3, FastAPI, Pydantic, OpenAI-compatible client/Agents SDK (Groq endpoint), google-generativeai, qdrant-client, BetterAuth, PostgreSQL driver/ORM for Neon (001-textbook-rag-platform)
+- Qdrant Cloud (`textbook` collection) + Neon Postgres (chat history, learner profiles) (001-textbook-rag-platform)
+
+## Recent Changes
+- 001-textbook-rag-platform: Added Python 3.11+ (backend/scripts), TypeScript/React (Docusaurus frontend integration) + Docusaurus v3, FastAPI, Pydantic, OpenAI-compatible client/Agents SDK (Groq endpoint), google-generativeai, qdrant-client, BetterAuth, PostgreSQL driver/ORM for Neon
