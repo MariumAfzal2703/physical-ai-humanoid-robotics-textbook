@@ -23,3 +23,14 @@ Implemented foundational scaffolding:
 3. rendering assistant answer + sources in the same widget panel.
 
 The backend is wired with an OpenAI-compatible client (`openai` SDK) pointing to Groq (`https://api.groq.com/openai/v1`) in `backend/clients.py`, satisfying the OpenAI-style adapter requirement for the hackathon flow.
+
+## Bonus D Evidence: Subagents & Skills (T064)
+
+This repository includes concrete evidence of reusable intelligence workflows:
+
+- **Skill workflow execution**: `/sp.implement` was used to drive phased implementation from spec artifacts (`specs/001-textbook-rag-platform/tasks.md`, `plan.md`).
+- **Task orchestration evidence**: implementation was tracked and executed with explicit task IDs and completion updates in `specs/001-textbook-rag-platform/tasks.md`.
+- **Prompt history artifacts**: reusable prompt records for this feature are stored in `history/prompts/001-textbook-rag-platform/` (e.g., `0008-continue-sp-implement-us1.green.prompt.md`, `0011-continue-sp-implement-us2.green.prompt.md`, `0015-subagent-skill-evidence.misc.prompt.md`).
+- **Constitution and governance artifacts**: supporting workflow constraints and reasoning are retained under `history/prompts/constitution/`.
+
+This evidence demonstrates repeatable use of skill-driven execution and agent-assisted implementation traces suitable for evaluator verification.

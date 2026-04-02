@@ -187,7 +187,7 @@
 
 ## Phase 10: Bonus D - Subagents & Skills Evidence (+50)
 
-- [ ] T064 Add reusable subagent/skill evidence documentation in `history/prompts/` and `README.md`
+- [x] T064 Add reusable subagent/skill evidence documentation in `history/prompts/` and `README.md`
 
 ---
 
