@@ -8,13 +8,13 @@ import SelectionPopup from '../components/SelectionPopup';
 export default function Root({children}: Props): React.JSX.Element {
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedContext, setSelectedContext] = useState<string | undefined>(undefined);
-  const [, setAuthToken] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
   return (
     <>
       {children}
       <AuthPanel onAuthenticated={(token) => setAuthToken(token)} />
-      <ChapterActions />
+      <ChapterActions authToken={authToken} />
       <SelectionPopup
         onAskAboutSelection={(contextText) => {
           setSelectedContext(contextText);

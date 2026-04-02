@@ -48,6 +48,19 @@ def translate_chapter_urdu(chapter_id: str) -> str:
     )
 
 
+def personalize_chapter(chapter_id: str, software_background: str, hardware_background: str, focus: str | None = None) -> str:
+    chapter = _load_chapter_content(chapter_id)
+    focus_line = f"Focus: {focus}\n" if focus else ""
+    return (
+        "Personalized chapter view\n"
+        f"Software background: {software_background}\n"
+        f"Hardware background: {hardware_background}\n"
+        f"{focus_line}\n"
+        "Adapted guidance:\n"
+        f"{chapter[:2200]}"
+    )
+
+
 def generate_answer(question: str, context_text: str | None = None) -> tuple[str, list[str]]:
     if context_text and context_text.strip():
         selected = context_text.strip()

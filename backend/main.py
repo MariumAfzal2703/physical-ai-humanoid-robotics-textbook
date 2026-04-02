@@ -1,8 +1,16 @@
-from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import auth, chat_store, rag
-from .schemas import AuthResponse, ChapterTransformResponse, ChatRequest, ChatResponse, SigninRequest, SignupRequest
+from .schemas import (
+    AuthResponse,
+    ChapterActionRequest,
+    ChapterTransformResponse,
+    ChatRequest,
+    ChatResponse,
+    SigninRequest,
+    SignupRequest,
+)
 from .settings import get_settings
 
 app = FastAPI(title="Physical AI Textbook Backend")
@@ -73,6 +81,33 @@ def signin(payload: SigninRequest) -> AuthResponse:
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     return AuthResponse(user_id=user_id, token=token)
+
+
+@api_router.post("/chapters/{chapter_id}/personalize", response_model=ChapterTransformResponse)
+def personalize_chapter(
+    chapter_id: str,
+    payload: ChapterActionRequest,
+    authorization: str | None = Header(default=None),
+) -> ChapterTransformResponse:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+
+    token = authorization.replace("Bearer ", "", 1).strip()
+    user = auth.get_user_by_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    try:
+        content = rag.personalize_chapter(
+            chapter_id=chapter_id,
+            software_background=user.software_background,
+            hardware_background=user.hardware_background,
+            focus=payload.focus,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    return ChapterTransformResponse(chapter_id=chapter_id, content=content)
 
 
 app.include_router(api_router)

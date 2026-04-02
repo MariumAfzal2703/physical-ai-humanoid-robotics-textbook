@@ -96,6 +96,27 @@ export async function postChapterTranslation(chapterId: string): Promise<Chapter
   return (await response.json()) as ChapterTransformResult;
 }
 
+export async function postChapterPersonalization(
+  chapterId: string,
+  token: string,
+  focus?: string
+): Promise<ChapterTransformResult> {
+  const response = await fetch(`${BACKEND_URL}/chapters/${encodeURIComponent(chapterId)}/personalize`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({focus}),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Chapter personalization failed (${response.status})`);
+  }
+
+  return (await response.json()) as ChapterTransformResult;
+}
+
 export async function getHealth(): Promise<{status: string}> {
   const response = await fetch(`${BACKEND_URL}/health`);
   if (!response.ok) {

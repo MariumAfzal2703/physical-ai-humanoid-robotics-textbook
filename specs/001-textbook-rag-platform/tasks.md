@@ -182,8 +182,8 @@
 
 ## Phase 9: Bonus C - Personalization (+50)
 
-- [ ] T062 Implement chapter personalization endpoint in `backend/main.py`
-- [ ] T063 Implement personalized chapter trigger UI in `src/components/ChapterActions.tsx`
+- [x] T062 Implement chapter personalization endpoint in `backend/main.py`
+- [x] T063 Implement personalized chapter trigger UI in `src/components/ChapterActions.tsx`
 
 ## Phase 10: Bonus D - Subagents & Skills Evidence (+50)
 
