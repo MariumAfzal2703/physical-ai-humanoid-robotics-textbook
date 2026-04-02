@@ -70,6 +70,12 @@ const config: Config = {
           position: 'left',
           label: 'Curriculum',
         },
+        {
+          label: 'Login',
+          position: 'right',
+          to: '/docs/intro?auth=1',
+          className: 'navbar-login-trigger',
+        },
       ],
     },
     footer: {

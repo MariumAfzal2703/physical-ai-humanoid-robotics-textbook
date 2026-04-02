@@ -1,8 +1,30 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
+import {useLocation} from '@docusaurus/router';
 import {postChapterPersonalization, postChapterTranslation} from './api';
 
 type ChapterActionsProps = {
   authToken?: string | null;
+};
+
+const actionButtonStyle: React.CSSProperties = {
+  background: '#25c2a0',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 10,
+  padding: '10px 12px',
+  fontWeight: 700,
+  cursor: 'pointer',
+};
+
+const cardStyle: React.CSSProperties = {
+  marginTop: 8,
+  background: 'var(--ifm-background-color)',
+  color: 'var(--ifm-font-color-base)',
+  border: '1px solid var(--ifm-color-emphasis-300)',
+  borderRadius: 10,
+  padding: 12,
+  maxHeight: 260,
+  overflowY: 'auto',
 };
 
 export default function ChapterActions({authToken}: ChapterActionsProps): React.JSX.Element | null {
@@ -11,16 +33,14 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
   const [focus, setFocus] = useState('');
   const [loadingUrdu, setLoadingUrdu] = useState(false);
   const [loadingPersonalized, setLoadingPersonalized] = useState(false);
+  const {pathname} = useLocation();
 
-  const chapterId = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return '';
-    }
+  const chapterId = useMemo(() => pathname.replace(/^\/docs\//, '').replace(/^\//, ''), [pathname]);
 
-    const raw = window.location.pathname;
-    const normalized = raw.replace(/^\/docs\//, '').replace(/^\//, '');
-    return normalized;
-  }, []);
+  useEffect(() => {
+    setTranslatedContent('');
+    setPersonalizedContent('');
+  }, [chapterId]);
 
   if (!chapterId || chapterId === 'intro') {
     return null;
@@ -40,7 +60,6 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
 
   async function handlePersonalize() {
     if (!authToken) {
-      setPersonalizedContent('Sign in first to personalize this chapter.');
       return;
     }
 
@@ -56,57 +75,60 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
   }
 
   return (
-    <div style={{position: 'fixed', left: 16, bottom: 16, zIndex: 1000, maxWidth: 440}}>
-      <div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-        <button className="button button--secondary" onClick={handleUrduTranslate} disabled={loadingUrdu}>
-          {loadingUrdu ? 'Translating...' : 'Read this chapter in Urdu'}
-        </button>
+    <div style={{position: 'fixed', top: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 1200, width: 'min(94vw, 900px)'}}>
+      <div
+        style={{
+          background: 'var(--ifm-background-color)',
+          color: 'var(--ifm-font-color-base)',
+          border: '1px solid var(--ifm-color-emphasis-300)',
+          borderRadius: 12,
+          padding: 12,
+          boxShadow: '0 10px 22px rgba(0, 0, 0, 0.18)',
+        }}
+      >
+        <div style={{display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap'}}>
+          <button style={actionButtonStyle} onClick={handleUrduTranslate} disabled={loadingUrdu}>
+            {loadingUrdu ? 'Translating...' : 'Read this chapter in Urdu'}
+          </button>
 
-        <button className="button button--secondary" onClick={handlePersonalize} disabled={loadingPersonalized}>
-          {loadingPersonalized ? 'Personalizing...' : 'Personalize this chapter'}
-        </button>
+          {authToken ? (
+            <button style={actionButtonStyle} onClick={handlePersonalize} disabled={loadingPersonalized}>
+              {loadingPersonalized ? 'Personalizing...' : 'Personalize this chapter'}
+            </button>
+          ) : null}
+        </div>
+
+        {authToken ? (
+          <input
+            value={focus}
+            onChange={(event) => setFocus(event.target.value)}
+            placeholder="Optional focus (e.g., control systems, beginner path)"
+            style={{
+              width: '100%',
+              marginTop: 8,
+              padding: '10px 12px',
+              borderRadius: 10,
+              border: '1px solid var(--ifm-color-emphasis-300)',
+              color: 'var(--ifm-font-color-base)',
+              background: 'var(--ifm-background-color)',
+            }}
+          />
+        ) : null}
+
+        {translatedContent ? (
+          <div style={cardStyle}>
+            <strong>Urdu Chapter View</strong>
+            <div style={{marginTop: 8, whiteSpace: 'pre-wrap'}}>{translatedContent}</div>
+          </div>
+        ) : null}
+
+        {personalizedContent ? (
+          <div style={cardStyle}>
+            <strong>Personalized Chapter View</strong>
+            <div style={{marginTop: 8, whiteSpace: 'pre-wrap'}}>{personalizedContent}</div>
+          </div>
+        ) : null}
       </div>
-
-      <input
-        value={focus}
-        onChange={(event) => setFocus(event.target.value)}
-        placeholder="Optional focus (e.g., control systems, beginner path)"
-        style={{width: '100%', marginTop: 8}}
-      />
-
-      {translatedContent ? (
-        <div
-          style={{
-            marginTop: 8,
-            background: '#fff',
-            border: '1px solid #ddd',
-            borderRadius: 10,
-            padding: 12,
-            maxHeight: 230,
-            overflowY: 'auto',
-          }}
-        >
-          <strong>Urdu Chapter View</strong>
-          <div style={{marginTop: 8, whiteSpace: 'pre-wrap'}}>{translatedContent}</div>
-        </div>
-      ) : null}
-
-      {personalizedContent ? (
-        <div
-          style={{
-            marginTop: 8,
-            background: '#fff',
-            border: '1px solid #ddd',
-            borderRadius: 10,
-            padding: 12,
-            maxHeight: 230,
-            overflowY: 'auto',
-          }}
-        >
-          <strong>Personalized Chapter View</strong>
-          <div style={{marginTop: 8, whiteSpace: 'pre-wrap'}}>{personalizedContent}</div>
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -17,6 +17,8 @@ export type AuthPayload = {
   password: string;
 };
 
+export type OAuthProvider = 'google' | 'github';
+
 export type SignupPayload = AuthPayload & {
   software_background: string;
   hardware_background: string;
@@ -75,6 +77,22 @@ export async function postSignin(payload: AuthPayload): Promise<AuthResult> {
 
   if (!response.ok) {
     throw new Error(`Signin failed (${response.status})`);
+  }
+
+  return (await response.json()) as AuthResult;
+}
+
+export async function postOAuthSignin(provider: OAuthProvider): Promise<AuthResult> {
+  const response = await fetch(`${BACKEND_URL}/auth/oauth/${encodeURIComponent(provider)}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    throw new Error(`${provider} signin failed (${response.status})`);
   }
 
   return (await response.json()) as AuthResult;

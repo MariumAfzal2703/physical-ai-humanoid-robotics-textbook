@@ -83,6 +83,15 @@ def signin(payload: SigninRequest) -> AuthResponse:
     return AuthResponse(user_id=user_id, token=token)
 
 
+@api_router.post("/auth/oauth/{provider}", response_model=AuthResponse)
+def oauth_signin(provider: str) -> AuthResponse:
+    try:
+        user_id, token = auth.oauth_signin(provider)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return AuthResponse(user_id=user_id, token=token)
+
+
 @api_router.post("/chapters/{chapter_id}/personalize", response_model=ChapterTransformResponse)
 def personalize_chapter(
     chapter_id: str,
