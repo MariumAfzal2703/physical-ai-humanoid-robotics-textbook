@@ -19,13 +19,13 @@
 - [x] Phase 2 Foundational complete
 - [x] Phase 3 US1 complete
 - [x] Phase 4 US2 complete
-- [ ] Phase 5 US3 complete
-- [ ] Phase 6 US4 complete
-- [ ] Phase 7 Bonus A (Urdu) complete
-- [ ] Phase 8 Bonus B (BetterAuth) complete
-- [ ] Phase 9 Bonus C (Personalization) complete
-- [ ] Phase 10 Bonus D (Subagents/Skills evidence) complete
-- [ ] Phase 11 Final submission checklist complete
+- [x] Phase 5 US3 complete
+- [x] Phase 6 US4 complete
+- [x] Phase 7 Bonus A (Urdu) complete
+- [x] Phase 8 Bonus B (BetterAuth) complete
+- [x] Phase 9 Bonus C (Personalization) complete
+- [x] Phase 10 Bonus D (Subagents/Skills evidence) complete
+- [x] Phase 11 Final submission checklist complete
 
 ---
 
@@ -164,7 +164,7 @@
 - [x] T054 [US4] Implement embedding + Qdrant upsert with payload `{text, source, module}` in `scripts/ingest.py`
 - [x] T055 [US4] Add idempotent upsert strategy with deterministic IDs in `scripts/ingest.py`
 - [x] T056 [US4] Add per-file progress logging and final indexed count in `scripts/ingest.py`
-- [ ] T057 [US4] Document one-time ingestion runbook in `README.md`
+- [x] T057 [US4] Document one-time ingestion runbook in `README.md`
 
 **Checkpoint**: User Story 4 ingestion is reliable and testable.
 
@@ -193,9 +193,9 @@
 
 ## Phase 11: Final Polish & Submission
 
-- [ ] T065 Add deployment instructions for Vercel + Render + env vars in `README.md`
-- [ ] T066 Validate submission package checklist (repo URL, live URL, <=90s demo link, WhatsApp number) in `README.md`
-- [ ] T067 Run full verification from quickstart and record outcomes in `specs/001-textbook-rag-platform/quickstart.md`
+- [x] T065 Add deployment instructions for Vercel + Render + env vars in `README.md`
+- [x] T066 Validate submission package checklist (repo URL, live URL, <=90s demo link, WhatsApp number) in `README.md`
+- [x] T067 Run full verification from quickstart and record outcomes in `specs/001-textbook-rag-platform/quickstart.md`
 
 ---
 

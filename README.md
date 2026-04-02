@@ -1,36 +1,89 @@
 # Physical AI Textbook + Assistant
 
-This repository hosts the Docusaurus textbook frontend and FastAPI backend foundation for the `001-textbook-rag-platform` feature.
+This repository hosts a Docusaurus textbook frontend and FastAPI backend for the `001-textbook-rag-platform` hackathon feature.
 
-## Phase 2 Foundation Status
+## One-time ingestion runbook (T057)
 
-Implemented foundational scaffolding:
-- Backend entrypoint + CORS + router skeleton (`backend/main.py`)
-- Settings loader (`backend/settings.py`)
-- DB session utility (`backend/db.py`)
-- Provider clients for Qdrant + Groq + Gemini (`backend/clients.py`)
-- Shared schemas (`backend/schemas.py`)
-- SQL initialization script (`backend/sql/init.sql`)
-- Content indexing helpers (`scripts/content_indexing.py`)
-- Frontend API helper (`src/components/api.ts`)
-- Global chat widget mount (`src/theme/Root.tsx`)
+Run this once after docs/content changes, or again when re-indexing is required.
 
-## OpenAI ChatKit Integration Proof (T021)
+1. Install dependencies:
+   ```bash
+   npm install
+   pip install -r backend/requirements.txt
+   ```
+2. Configure environment values:
+   - Frontend `.env` from `.env.example`
+   - Backend `.env` from `backend/.env.example`
+3. Execute ingestion:
+   ```bash
+   python scripts/ingest.py
+   ```
+4. Validate success criteria:
+   - per-file ingestion progress is printed
+   - final indexed chunk count is non-zero
+   - no provider/auth errors from Qdrant/Gemini
 
-`src/components/ChatWidget.tsx` demonstrates the ChatKit-compatible flow by:
+## Deployment instructions (T065)
+
+### Frontend deployment (Vercel)
+
+`vercel.json` is configured for static Docusaurus output:
+- install: `npm install`
+- build: `npm run build`
+- output: `build/`
+
+Set frontend environment variable in Vercel:
+- `VITE_BACKEND_URL` = Render backend URL (e.g., `https://<your-render-service>.onrender.com`)
+
+Deploy steps:
+1. Import the repository in Vercel.
+2. Confirm framework/build settings from `vercel.json`.
+3. Add `VITE_BACKEND_URL`.
+4. Deploy and verify textbook pages + chat widget rendering.
+
+### Backend deployment (Render)
+
+`render.yaml` defines service `textbook-rag-backend` with:
+- build command: `pip install -r backend/requirements.txt`
+- start command: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+
+Set backend environment variables in Render:
+- `FRONTEND_ORIGIN`
+- `QDRANT_URL`
+- `QDRANT_API_KEY`
+- `GOOGLE_API_KEY`
+- `GROQ_API_KEY`
+- `NEON_DATABASE_URL`
+
+Deploy steps:
+1. Create/import Render web service.
+2. Apply config from `render.yaml`.
+3. Set all required env vars.
+4. Deploy and verify `GET /health` returns `{ "status": "ok" }`.
+
+## Submission checklist (T066)
+
+Update before final submission:
+
+- [ ] Repository URL: `<add-github-repo-url>`
+- [ ] Live app URL: `<add-live-url>`
+- [ ] Demo video URL (<= 90s): `<add-demo-link>`
+- [ ] WhatsApp number: `<add-whatsapp-number>`
+
+## OpenAI ChatKit integration proof (T021)
+
+`src/components/ChatWidget.tsx` demonstrates ChatKit-compatible flow by:
 1. collecting user prompt in widget UI,
-2. posting a chat payload to backend `/chat`, and
-3. rendering assistant answer + sources in the same widget panel.
+2. posting chat payload to backend `/chat`,
+3. rendering assistant answer + source list in-widget.
 
-The backend is wired with an OpenAI-compatible client (`openai` SDK) pointing to Groq (`https://api.groq.com/openai/v1`) in `backend/clients.py`, satisfying the OpenAI-style adapter requirement for the hackathon flow.
+Backend uses OpenAI-compatible `openai` SDK against Groq (`https://api.groq.com/openai/v1`) in `backend/clients.py`.
 
-## Bonus D Evidence: Subagents & Skills (T064)
+## Bonus D evidence: Subagents & Skills (T064)
 
-This repository includes concrete evidence of reusable intelligence workflows:
+- Skill workflow execution via `/sp.implement` from spec artifacts.
+- Task orchestration evidence in `specs/001-textbook-rag-platform/tasks.md`.
+- Prompt history evidence in `history/prompts/001-textbook-rag-platform/`.
+- Governance traces in `history/prompts/constitution/`.
 
-- **Skill workflow execution**: `/sp.implement` was used to drive phased implementation from spec artifacts (`specs/001-textbook-rag-platform/tasks.md`, `plan.md`).
-- **Task orchestration evidence**: implementation was tracked and executed with explicit task IDs and completion updates in `specs/001-textbook-rag-platform/tasks.md`.
-- **Prompt history artifacts**: reusable prompt records for this feature are stored in `history/prompts/001-textbook-rag-platform/` (e.g., `0008-continue-sp-implement-us1.green.prompt.md`, `0011-continue-sp-implement-us2.green.prompt.md`, `0015-subagent-skill-evidence.misc.prompt.md`).
-- **Constitution and governance artifacts**: supporting workflow constraints and reasoning are retained under `history/prompts/constitution/`.
-
-This evidence demonstrates repeatable use of skill-driven execution and agent-assisted implementation traces suitable for evaluator verification.
+This gives evaluators traceable implementation evidence for skill/agent workflow usage.

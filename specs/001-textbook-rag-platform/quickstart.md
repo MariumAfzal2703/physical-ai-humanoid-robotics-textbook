@@ -31,7 +31,25 @@ Create frontend environment file:
 cp .env.example .env
 ```
 Set:
-- `NEXT_PUBLIC_BACKEND_URL`
+- `VITE_BACKEND_URL`
+
+## 3.1) Verification outcomes (T067)
+
+Verification run date: 2026-04-03
+
+- ✅ `npm run test:run`
+  - Result: 3/3 frontend integration tests passed.
+- ✅ `python3 -m pytest`
+  - Result: 8/8 contract/integration/unit tests passed.
+- ✅ `npm run build`
+  - Result: production build succeeded; static output generated in `build/`.
+
+Observed warnings (non-blocking):
+- Vite CJS Node API deprecation notice during tests.
+- Python dependency support warnings (`google.api_core` Python 3.10 EOL timeline, requests dependency warning).
+- `google.generativeai` deprecation warning in ingestion module.
+
+Conclusion: quickstart verification checks pass for current repository state.
 
 ## 4) Run frontend
 ```bash
