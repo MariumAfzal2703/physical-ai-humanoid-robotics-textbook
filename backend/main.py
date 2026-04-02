@@ -1,8 +1,8 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import chat_store, rag
-from .schemas import ChatRequest, ChatResponse
+from .schemas import ChapterTransformResponse, ChatRequest, ChatResponse
 from .settings import get_settings
 
 app = FastAPI(title="Physical AI Textbook Backend")
@@ -41,6 +41,15 @@ def chat(payload: ChatRequest) -> ChatResponse:
     chat_store.append_message(session.session_id, role="assistant", text=answer, sources=sources)
 
     return ChatResponse(answer=answer, sources=sources, session_id=session.session_id)
+
+
+@api_router.post("/chapters/{chapter_id}/translate-urdu", response_model=ChapterTransformResponse)
+def translate_chapter(chapter_id: str) -> ChapterTransformResponse:
+    try:
+        content = rag.translate_chapter_urdu(chapter_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return ChapterTransformResponse(chapter_id=chapter_id, content=content)
 
 
 app.include_router(api_router)

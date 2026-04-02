@@ -130,17 +130,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T042 [P] [US3] Add frontend interaction test for selection popup in `tests/integration/test_selection_popup_flow.ts`
-- [ ] T043 [P] [US3] Add backend integration test for selected-context priority in `tests/integration/test_context_priority.py`
+- [x] T042 [P] [US3] Add frontend interaction test for selection popup in `tests/integration/test_selection_popup_flow.ts`
+- [x] T043 [P] [US3] Add backend integration test for selected-context priority in `tests/integration/test_context_priority.py`
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Create text-selection popup component in `src/components/SelectionPopup.tsx`
-- [ ] T045 [US3] Wire popup click action to open chat and prefill context in `src/components/SelectionPopup.tsx`
-- [ ] T046 [US3] Integrate popup/widget state in `src/theme/Root.tsx`
-- [ ] T047 [US3] Update chat payload to include optional `context_text` in `src/components/ChatWidget.tsx`
-- [ ] T048 [US3] Prioritize selected context over retrieved chunks in `backend/rag.py`
-- [ ] T049 [US3] Enforce long-selection truncation guard in `src/components/SelectionPopup.tsx`
+- [x] T044 [US3] Create text-selection popup component in `src/components/SelectionPopup.tsx`
+- [x] T045 [US3] Wire popup click action to open chat and prefill context in `src/components/SelectionPopup.tsx`
+- [x] T046 [US3] Integrate popup/widget state in `src/theme/Root.tsx`
+- [x] T047 [US3] Update chat payload to include optional `context_text` in `src/components/ChatWidget.tsx`
+- [x] T048 [US3] Prioritize selected context over retrieved chunks in `backend/rag.py`
+- [x] T049 [US3] Enforce long-selection truncation guard in `src/components/SelectionPopup.tsx`
 
 **Checkpoint**: User Story 3 independently functional.
 
@@ -154,16 +154,16 @@
 
 ### Tests for User Story 4
 
-- [ ] T050 [P] [US4] Add ingestion parser/chunker unit tests in `tests/unit/test_ingest_chunking.py`
-- [ ] T051 [P] [US4] Add ingestion integration test with mocked services in `tests/integration/test_ingest_pipeline.py`
+- [x] T050 [P] [US4] Add ingestion parser/chunker unit tests in `tests/unit/test_ingest_chunking.py`
+- [x] T051 [P] [US4] Add ingestion integration test with mocked services in `tests/integration/test_ingest_pipeline.py`
 
 ### Implementation for User Story 4
 
-- [ ] T052 [US4] Implement MDX discovery and cleanup in `scripts/ingest.py`
-- [ ] T053 [US4] Implement chunking logic (800 tokens, 100 overlap) in `scripts/ingest.py`
-- [ ] T054 [US4] Implement embedding + Qdrant upsert with payload `{text, source, module}` in `scripts/ingest.py`
-- [ ] T055 [US4] Add idempotent upsert strategy with deterministic IDs in `scripts/ingest.py`
-- [ ] T056 [US4] Add per-file progress logging and final indexed count in `scripts/ingest.py`
+- [x] T052 [US4] Implement MDX discovery and cleanup in `scripts/ingest.py`
+- [x] T053 [US4] Implement chunking logic (800 tokens, 100 overlap) in `scripts/ingest.py`
+- [x] T054 [US4] Implement embedding + Qdrant upsert with payload `{text, source, module}` in `scripts/ingest.py`
+- [x] T055 [US4] Add idempotent upsert strategy with deterministic IDs in `scripts/ingest.py`
+- [x] T056 [US4] Add per-file progress logging and final indexed count in `scripts/ingest.py`
 - [ ] T057 [US4] Document one-time ingestion runbook in `README.md`
 
 **Checkpoint**: User Story 4 ingestion is reliable and testable.
@@ -172,8 +172,8 @@
 
 ## Phase 7: Bonus A - Urdu Translation (+50)
 
-- [ ] T058 Implement chapter translation endpoint in `backend/main.py` and `backend/rag.py`
-- [ ] T059 Implement chapter Urdu button and in-page rendering in `src/components/ChapterActions.tsx`
+- [x] T058 Implement chapter translation endpoint in `backend/main.py` and `backend/rag.py`
+- [x] T059 Implement chapter Urdu button and in-page rendering in `src/components/ChapterActions.tsx`
 
 ## Phase 8: Bonus B - BetterAuth Signup/Signin (+50)
 

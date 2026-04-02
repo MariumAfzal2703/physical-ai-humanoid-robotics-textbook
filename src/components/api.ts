@@ -12,6 +12,11 @@ export type ChatResult = {
   session_id?: string;
 };
 
+export type ChapterTransformResult = {
+  chapter_id: string;
+  content: string;
+};
+
 export async function postChat(payload: ChatPayload): Promise<ChatResult> {
   const response = await fetch(`${BACKEND_URL}/chat`, {
     method: 'POST',
@@ -26,6 +31,22 @@ export async function postChat(payload: ChatPayload): Promise<ChatResult> {
   }
 
   return (await response.json()) as ChatResult;
+}
+
+export async function postChapterTranslation(chapterId: string): Promise<ChapterTransformResult> {
+  const response = await fetch(`${BACKEND_URL}/chapters/${encodeURIComponent(chapterId)}/translate-urdu`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Chapter translation failed (${response.status})`);
+  }
+
+  return (await response.json()) as ChapterTransformResult;
 }
 
 export async function getHealth(): Promise<{status: string}> {
