@@ -10,7 +10,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     sources: list[str]
-    session_id: str | None = None
+    session_id: str
 
 
 class SignupRequest(BaseModel):

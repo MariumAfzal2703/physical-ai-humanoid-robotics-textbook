@@ -18,7 +18,7 @@
 - [x] Phase 1 Setup complete
 - [x] Phase 2 Foundational complete
 - [x] Phase 3 US1 complete
-- [ ] Phase 4 US2 complete
+- [x] Phase 4 US2 complete
 - [ ] Phase 5 US3 complete
 - [ ] Phase 6 US4 complete
 - [ ] Phase 7 Bonus A (Urdu) complete
@@ -104,19 +104,19 @@
 
 ### Tests for User Story 2
 
-- [ ] T032 [P] [US2] Add contract tests for `/health` and `/chat` in `tests/contract/test_chat_api.py`
-- [ ] T033 [P] [US2] Add integration test for chat history persistence in `tests/integration/test_chat_session_history.py`
+- [x] T032 [P] [US2] Add contract tests for `/health` and `/chat` in `tests/contract/test_chat_api.py`
+- [x] T033 [P] [US2] Add integration test for chat history persistence in `tests/integration/test_chat_session_history.py`
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Implement `/health` endpoint in `backend/main.py`
-- [ ] T035 [US2] Implement chat retrieval/generation pipeline in `backend/rag.py`
-- [ ] T036 [US2] Implement `/chat` endpoint with fallback behavior in `backend/main.py`
-- [ ] T037 [US2] Implement chat session/message persistence in `backend/chat_store.py`
-- [ ] T038 [US2] Integrate persistence into `/chat` flow in `backend/main.py`
-- [ ] T039 [US2] Build floating widget UI in `src/components/ChatWidget.tsx`
-- [ ] T040 [US2] Connect widget to backend `/chat` and render source filename list in `src/components/ChatWidget.tsx`
-- [ ] T041 [US2] Ensure widget mounts globally via `src/theme/Root.tsx`
+- [x] T034 [US2] Implement `/health` endpoint in `backend/main.py`
+- [x] T035 [US2] Implement chat retrieval/generation pipeline in `backend/rag.py`
+- [x] T036 [US2] Implement `/chat` endpoint with fallback behavior in `backend/main.py`
+- [x] T037 [US2] Implement chat session/message persistence in `backend/chat_store.py`
+- [x] T038 [US2] Integrate persistence into `/chat` flow in `backend/main.py`
+- [x] T039 [US2] Build floating widget UI in `src/components/ChatWidget.tsx`
+- [x] T040 [US2] Connect widget to backend `/chat` and render source filename list in `src/components/ChatWidget.tsx`
+- [x] T041 [US2] Ensure widget mounts globally via `src/theme/Root.tsx`
 
 **Checkpoint**: User Story 2 works independently on any page.
 

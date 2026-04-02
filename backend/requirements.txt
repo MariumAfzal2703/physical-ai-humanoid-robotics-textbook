@@ -8,3 +8,6 @@ pydantic
 psycopg[binary]
 sqlalchemy
 alembic
+pytest
+httpx
+email-validator
