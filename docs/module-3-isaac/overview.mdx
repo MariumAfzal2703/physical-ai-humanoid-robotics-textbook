@@ -3,31 +3,45 @@ title: Module 3 Overview
 sidebar_position: 1
 ---
 
-Module 3 introduces NVIDIA Isaac-based pipelines for humanoid simulation and control. You will connect perception and control loops in a way that mirrors production constraints, including timing budgets and asynchronous sensor updates. The emphasis is on stable behavior under realistic physics and noisy observations.
+Module 3 moves from generic simulation to Isaac-oriented humanoid pipelines. You will design a loop that keeps observation timing, policy inference, and command execution coherent under realistic physics and noisy sensing. Isaac lets you model complexity quickly, but reliable behavior still depends on disciplined interfaces and runtime observability.
 
-As projects grow, isolated demos are no longer enough. You need a coherent loop that ingests observations, computes actions, and applies controls while logging outcomes for analysis. Isaac tooling helps prototype this loop quickly, but quality still depends on clear interfaces and monitoring.
+This module emphasizes end-to-end control integrity: every observation should map to a justified action, and every action should be logged with enough context to reproduce mistakes.
 
 ```python
-class ControlLoop:
-    def step(self, observation: dict) -> dict:
-        # placeholder policy logic
-        action = {"hip_pitch": 0.02, "knee_pitch": -0.01}
-        return action
+from dataclasses import dataclass
+
+@dataclass
+class IsaacStep:
+    t_ms: int
+    observation_ready: bool
+    inference_ms: float
+    command_sent: bool
+
+
+def loop_health(step: IsaacStep, max_inference_ms: float = 30.0) -> bool:
+    return step.observation_ready and step.command_sent and step.inference_ms <= max_inference_ms
 ```
 
 ```mermaid
 sequenceDiagram
-  participant S as Simulator
-  participant P as Policy
-  participant C as Controller
-  S->>P: observation_t
-  P->>C: action_t
-  C->>S: control command
-  S-->>P: observation_t+1
+  participant Sim as Isaac Simulator
+  participant Obs as Observation Pipeline
+  participant Policy as Policy Runtime
+  participant Ctrl as Low-Level Controller
+  Sim->>Obs: sensor frames
+  Obs->>Policy: state tensor
+  Policy->>Ctrl: action vector
+  Ctrl->>Sim: actuator command
+  Sim-->>Obs: next frame
 ```
+
+## Lessons in this module
+
+- [Isaac Observation and Action Interfaces](./isaac-observation-action-interfaces)
+- [Policy Runtime and Failure Diagnostics](./policy-runtime-diagnostics)
 
 ## Key Takeaways
 
-- Isaac workflows help approximate real control constraints in simulation.
-- Stable observation→action loops are central to humanoid control quality.
-- Logging and interface discipline are required for reliable policy iteration.
+- Isaac acceleration does not remove the need for strict interface contracts.
+- Control-loop latency budgets must be monitored continuously.
+- Reproducible diagnostics are essential for scaling policy iteration.

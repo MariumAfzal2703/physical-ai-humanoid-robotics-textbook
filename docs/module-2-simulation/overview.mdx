@@ -3,31 +3,42 @@ title: Module 2 Overview
 sidebar_position: 1
 ---
 
-Module 2 focuses on simulation-first development so you can test behavior safely before touching hardware. You will use repeatable simulation scenarios to validate locomotion, navigation constraints, and failure handling. This approach lowers risk and speeds up iteration when model, planner, or controller changes are introduced.
+Module 2 is where you convert robotics ideas into measurable evidence. Instead of asking “does it look okay in sim?”, you define objective pass/fail gates for stability, collision risk, and task completion. This module teaches simulation as an engineering system, not only as a visualization tool.
 
-A strong simulation workflow includes world setup, deterministic test runs, metrics capture, and regression checks. Instead of relying on visual success only, we define measurable outcomes such as goal completion, collision count, and time-to-stability. This gives the team objective evidence for improvements across iterations.
+You will build deterministic scenario loops, evaluate policy updates against baseline metrics, and enforce promotion gates before any controller change reaches hardware testing.
 
 ```python
-def evaluate_episode(success: bool, collisions: int, settle_time_s: float) -> dict[str, float | bool]:
-    return {
-        "success": success,
-        "collisions": collisions,
-        "settle_time_s": settle_time_s,
-    }
+from dataclasses import dataclass
+
+@dataclass
+class EpisodeMetrics:
+    success: bool
+    collisions: int
+    settle_time_s: float
+    energy_score: float
+
+
+def promote_candidate(m: EpisodeMetrics) -> bool:
+    return m.success and m.collisions == 0 and m.settle_time_s < 2.0 and m.energy_score >= 0.7
 ```
 
 ```mermaid
-flowchart TD
-  A[Scenario Setup] --> B[Run Simulation]
-  B --> C[Collect Metrics]
-  C --> D[Regression Check]
-  D --> E{Pass Criteria?}
-  E -- Yes --> F[Promote Change]
-  E -- No --> G[Fix and Re-run]
+flowchart LR
+  A[Scenario Builder] --> B[Deterministic Simulation Run]
+  B --> C[Metrics Collector]
+  C --> D[Regression Comparator]
+  D --> E{Promotion Gate}
+  E -- Pass --> F[Approve Controller Revision]
+  E -- Fail --> G[Investigate + Iterate]
 ```
+
+## Lessons in this module
+
+- [Deterministic World and Scenario Design](./deterministic-scenarios)
+- [Metrics, Regression, and Release Gates](./metrics-regression-gates)
 
 ## Key Takeaways
 
-- Simulation-first workflows reduce safety and integration risk.
-- Deterministic scenarios make robotics testing repeatable.
-- Metrics-driven evaluation gives clear pass/fail gates for iteration.
+- Simulation quality comes from deterministic inputs and explicit metrics.
+- Regression comparisons are required for safe iteration speed.
+- Hardware testing should only start after simulation promotion gates pass.

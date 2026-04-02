@@ -1,0 +1,62 @@
+---
+title: ROS 2 Nodes, Topics, and QoS
+sidebar_position: 2
+---
+
+A humanoid robot is a distributed system. Cameras, inertial sensors, planners, and controllers all run as separate components. ROS 2 gives these components a common transport and message contract, but your architecture quality depends on how carefully you define topics, rates, and QoS profiles.
+
+### Designing topic contracts
+
+For each topic, define:
+1. Producer ownership (exact node responsible)
+2. Update rate target (for example, 100Hz for low-level state)
+3. Allowed staleness window
+4. QoS policy and fallback behavior
+
+This prevents hidden assumptions like “planner always has fresh state.”
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class TopicContract:
+    name: str
+    hz: int
+    qos_reliability: str
+    max_staleness_ms: int
+
+
+JOINT_STATE_CONTRACT = TopicContract(
+    name="/joint_states",
+    hz=100,
+    qos_reliability="reliable",
+    max_staleness_ms=40,
+)
+
+
+def is_stale(last_update_ms: int, now_ms: int, max_staleness_ms: int) -> bool:
+    return (now_ms - last_update_ms) > max_staleness_ms
+```
+
+```mermaid
+flowchart TD
+  A[Sensor Driver Node] --> B[/imu/raw]
+  A --> C[/joint_states]
+  C --> D[State Estimator]
+  D --> E[/robot_state]
+  E --> F[Planner]
+  F --> G[/planned_motion]
+  G --> H[Controller]
+```
+
+### Practical QoS guidance
+
+- Use `reliable` for low-frequency, critical state transitions.
+- Use `best_effort` for high-rate streams where occasional drops are acceptable.
+- Keep history depth explicit; default settings often hide overload issues.
+
+## Key Takeaways
+
+- Topic design should be explicit and reviewed like an API contract.
+- QoS must reflect control-criticality and freshness needs.
+- Staleness checks prevent silent degradation in downstream policies.

@@ -3,27 +3,40 @@ title: Module 1 Overview
 sidebar_position: 1
 ---
 
-Module 1 builds a practical ROS 2 foundation for humanoid robotics projects. You will learn how nodes exchange information, how packages are structured, and how to reason about data flow before writing larger autonomy stacks. The goal is to make every experiment reproducible, observable, and easy to debug from the command line.
+Module 1 gives you a production-grade ROS 2 mental model for humanoid robotics. Instead of treating ROS 2 as a set of isolated commands, we treat it as a contract system: nodes publish typed state, subscribers consume it with timing guarantees, and launch files define reproducible runtime topology.
 
-In this module, we treat ROS 2 as an integration backbone rather than a set of isolated tools. You should be able to launch a node, publish telemetry, subscribe to updates, and inspect timing behavior with confidence. This baseline is required before simulation, perception, and VLA workflows in later modules.
+By the end of this module, you should be able to design a small but complete control stack: sensor ingestion, state estimation, command generation, and actuator output. You will also learn how to debug message timing and QoS mismatches early, which is one of the most common causes of integration failures in robotics teams.
 
-```bash
-source /opt/ros/humble/setup.bash
-ros2 run demo_nodes_cpp talker
-# in another terminal
-ros2 run demo_nodes_cpp listener
+```python
+from dataclasses import dataclass
+
+@dataclass
+class JointState:
+    name: str
+    position: float
+    velocity: float
+
+
+def command_is_safe(position: float, min_pos: float = -1.2, max_pos: float = 1.2) -> bool:
+    return min_pos <= position <= max_pos
 ```
 
 ```mermaid
 flowchart LR
-  A[Sensor Node] --> B[Topic: /joint_states]
-  B --> C[State Estimator]
+  A[IMU / Encoders] --> B[State Publisher Node]
+  B --> C[/joint_states topic]
   C --> D[Controller Node]
-  D --> E[Actuator Interface]
+  D --> E[/actuator_cmd topic]
+  E --> F[Hardware Interface]
 ```
+
+## Lessons in this module
+
+- [ROS 2 Nodes, Topics, and QoS](./nodes-topics-qos)
+- [Launch, Parameters, and Debugging](./launch-params-debugging)
 
 ## Key Takeaways
 
-- ROS 2 communication patterns (publish/subscribe) are the base of humanoid system coordination.
-- Reproducible CLI workflows reduce debugging time in multi-node robotics systems.
-- Observability from day one prevents hidden integration failures in later modules.
+- ROS 2 is most effective when treated as a typed communication contract between subsystems.
+- QoS and timing decisions are design decisions, not afterthoughts.
+- Reproducible launch/config workflows dramatically reduce integration drift across machines.

@@ -3,25 +3,41 @@ title: Module 4 Overview
 sidebar_position: 1
 ---
 
-Module 4 covers vision-language-action (VLA) systems that map task instructions and visual context into robot actions. You will study how grounding works, how prompts influence behavior, and how to keep generated plans constrained by safety and task boundaries. This module connects high-level intent with low-level execution.
+Module 4 teaches vision-language-action (VLA) systems for humanoid autonomy: how to map natural-language intent and visual context into executable, safety-constrained behavior. This is where high-level reasoning meets low-level control boundaries.
 
-A practical VLA stack uses retrieval and context filtering to avoid hallucinated actions. It also requires explicit verification before command execution, especially for high-risk actions. The objective is to make autonomy useful while preserving predictability in edge cases.
+A production VLA stack is not just a model prompt. It requires context retrieval, planning constraints, action validation, and execution monitoring. In this module, you will design that complete loop and learn how to prevent hallucinated or unsafe plans from reaching actuators.
 
 ```python
-def build_vla_prompt(task: str, context: str) -> str:
-    return f"Task: {task}\nContext: {context}\nReturn only safe executable steps."
+from dataclasses import dataclass
+
+@dataclass
+class PlanStep:
+    step: str
+    risk_level: str
+
+
+def is_executable(step: PlanStep) -> bool:
+    return step.risk_level in {"low", "medium"}
 ```
 
 ```mermaid
 flowchart LR
-  A[Task Instruction] --> B[Context Retrieval]
-  B --> C[VLA Planner]
-  C --> D[Safety Filter]
-  D --> E[Action Execution]
+  A[Task Instruction] --> B[Perception Context]
+  B --> C[Retrieval + Memory]
+  C --> D[VLA Planner]
+  D --> E[Safety + Feasibility Filter]
+  E --> F[Controller Execution]
+  F --> G[Telemetry + Feedback]
 ```
+
+## Lessons in this module
+
+- [Grounding and Context-Aware Planning](./grounding-and-planning)
+- [Action Safety and Runtime Verification](./action-safety-runtime-verification)
+- [Capstone: Autonomous Humanoid Workflow](./capstone-autonomous-humanoid)
 
 ## Key Takeaways
 
-- VLA systems combine language reasoning with action constraints.
-- Grounding and retrieval are essential for reliable task execution.
-- Safety filters must gate generated actions before execution.
+- VLA reliability depends on grounding quality and constraint enforcement.
+- Plans must be verified against robot capability and safety policy before execution.
+- Closed-loop telemetry is required to improve VLA behavior over time.

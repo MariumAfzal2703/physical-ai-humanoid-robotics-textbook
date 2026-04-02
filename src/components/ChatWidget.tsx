@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {postChat} from './api';
 
 type ChatTurn = {
@@ -7,12 +7,42 @@ type ChatTurn = {
   sources?: string[];
 };
 
-export default function ChatWidget(): React.JSX.Element {
+type ChatWidgetProps = {
+  isOpen?: boolean;
+  prefillContextText?: string;
+  onClose?: () => void;
+  onContextConsumed?: () => void;
+};
+
+export default function ChatWidget({
+  isOpen,
+  prefillContextText,
+  onClose,
+  onContextConsumed,
+}: ChatWidgetProps = {}): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState('');
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [loading, setLoading] = useState(false);
+  const [contextText, setContextText] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (typeof isOpen === 'boolean') {
+      setOpen(isOpen);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!prefillContextText) {
+      return;
+    }
+
+    setOpen(true);
+    setContextText(prefillContextText);
+    setQuestion('Can you explain this selected passage in simple steps?');
+    onContextConsumed?.();
+  }, [prefillContextText, onContextConsumed]);
 
   async function submitQuestion() {
     if (!question.trim()) {
@@ -25,12 +55,17 @@ export default function ChatWidget(): React.JSX.Element {
 
     setLoading(true);
     try {
-      const result = await postChat({question: userQuestion, session_id: sessionId});
+      const result = await postChat({
+        question: userQuestion,
+        session_id: sessionId,
+        context_text: contextText,
+      });
       setSessionId(result.session_id);
       setTurns((prev) => [
         ...prev,
         {role: 'assistant', text: result.answer, sources: result.sources},
       ]);
+      setContextText(undefined);
     } catch {
       setTurns((prev) => [
         ...prev,
@@ -48,11 +83,34 @@ export default function ChatWidget(): React.JSX.Element {
           Ask AI
         </button>
       ) : (
-        <div style={{width: 360, background: '#fff', border: '1px solid #ddd', borderRadius: 12, padding: 12}}>
+        <div style={{width: 380, background: '#fff', border: '1px solid #ddd', borderRadius: 12, padding: 12}}>
           <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8}}>
             <strong>Textbook Assistant</strong>
-            <button onClick={() => setOpen(false)}>×</button>
+            <button
+              onClick={() => {
+                setOpen(false);
+                onClose?.();
+              }}
+            >
+              ×
+            </button>
           </div>
+
+          {contextText ? (
+            <div
+              style={{
+                background: '#eef6ff',
+                border: '1px solid #b8d7ff',
+                borderRadius: 8,
+                padding: 8,
+                marginBottom: 8,
+                fontSize: 12,
+              }}
+            >
+              <strong>Selected context:</strong>
+              <div style={{marginTop: 4, maxHeight: 72, overflowY: 'auto'}}>{contextText}</div>
+            </div>
+          ) : null}
 
           <div style={{maxHeight: 220, overflowY: 'auto', marginBottom: 8}}>
             {turns.map((turn, index) => (

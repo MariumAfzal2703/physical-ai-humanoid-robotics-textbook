@@ -18,23 +18,40 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Module 1 - ROS 2 Foundations',
-      items: ['module-1-ros2/overview'],
+      items: [
+        'module-1-ros2/overview',
+        'module-1-ros2/nodes-topics-qos',
+        'module-1-ros2/launch-params-debugging',
+      ],
     },
     {
       type: 'category',
       label: 'Module 2 - Simulation',
-      items: ['module-2-simulation/overview'],
+      items: [
+        'module-2-simulation/overview',
+        'module-2-simulation/deterministic-scenarios',
+        'module-2-simulation/metrics-regression-gates',
+      ],
     },
     {
       type: 'category',
       label: 'Module 3 - Isaac Workflows',
-      items: ['module-3-isaac/overview'],
+      items: [
+        'module-3-isaac/overview',
+        'module-3-isaac/isaac-observation-action-interfaces',
+        'module-3-isaac/policy-runtime-diagnostics',
+      ],
     },
     {
       type: 'category',
       label: 'Module 4 - VLA Systems',
-      items: ['module-4-vla/overview', 'module-4-vla/capstone-autonomous-humanoid'],
-    },
+      items: [
+        'module-4-vla/overview',
+        'module-4-vla/grounding-and-planning',
+        'module-4-vla/action-safety-runtime-verification',
+        'module-4-vla/capstone-autonomous-humanoid',
+      ],
+    }
   ],
 };
 
