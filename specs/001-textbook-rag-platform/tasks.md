@@ -17,7 +17,7 @@
 
 - [x] Phase 1 Setup complete
 - [x] Phase 2 Foundational complete
-- [ ] Phase 3 US1 complete
+- [x] Phase 3 US1 complete
 - [ ] Phase 4 US2 complete
 - [ ] Phase 5 US3 complete
 - [ ] Phase 6 US4 complete
@@ -78,19 +78,19 @@
 
 ### Tests for User Story 1
 
-- [ ] T022 [P] [US1] Add content quality validator script for prose/code/mermaid/takeaways checks in `scripts/validate_lessons.py`
-- [ ] T023 [US1] Add content validation command wiring in `package.json`
+- [x] T022 [P] [US1] Add content quality validator script for prose/code/mermaid/takeaways checks in `scripts/validate_lessons.py`
+- [x] T023 [US1] Add content validation command wiring in `package.json`
 
 ### Implementation for User Story 1
 
-- [ ] T024 [P] [US1] Create Module 1 lesson files in `docs/module-1-ros2/`
-- [ ] T025 [P] [US1] Create Module 2 lesson files in `docs/module-2-simulation/`
-- [ ] T026 [P] [US1] Create Module 3 lesson files in `docs/module-3-isaac/`
-- [ ] T027 [P] [US1] Create Module 4 lesson files in `docs/module-4-vla/`
-- [ ] T028 [US1] Add capstone lesson in `docs/module-4-vla/capstone-autonomous-humanoid.mdx`
-- [ ] T029 [US1] Configure Mermaid support in `docusaurus.config.ts`
-- [ ] T030 [US1] Generate structured sidebar entries in `sidebars.ts`
-- [ ] T031 [US1] Run lesson quality validator and fix all failing lessons in `docs/module-*/**/*.mdx`
+- [x] T024 [P] [US1] Create Module 1 lesson files in `docs/module-1-ros2/`
+- [x] T025 [P] [US1] Create Module 2 lesson files in `docs/module-2-simulation/`
+- [x] T026 [P] [US1] Create Module 3 lesson files in `docs/module-3-isaac/`
+- [x] T027 [P] [US1] Create Module 4 lesson files in `docs/module-4-vla/`
+- [x] T028 [US1] Add capstone lesson in `docs/module-4-vla/capstone-autonomous-humanoid.mdx`
+- [x] T029 [US1] Configure Mermaid support in `docusaurus.config.ts`
+- [x] T030 [US1] Generate structured sidebar entries in `sidebars.ts`
+- [x] T031 [US1] Run lesson quality validator and fix all failing lessons in `docs/module-*/**/*.mdx`
 
 **Checkpoint**: User Story 1 complete and independently demoable.
 
