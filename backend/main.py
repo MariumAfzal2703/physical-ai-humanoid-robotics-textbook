@@ -1,8 +1,8 @@
 from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import chat_store, rag
-from .schemas import ChapterTransformResponse, ChatRequest, ChatResponse
+from . import auth, chat_store, rag
+from .schemas import AuthResponse, ChapterTransformResponse, ChatRequest, ChatResponse, SigninRequest, SignupRequest
 from .settings import get_settings
 
 app = FastAPI(title="Physical AI Textbook Backend")
@@ -50,6 +50,29 @@ def translate_chapter(chapter_id: str) -> ChapterTransformResponse:
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return ChapterTransformResponse(chapter_id=chapter_id, content=content)
+
+
+@api_router.post("/auth/signup", response_model=AuthResponse)
+def signup(payload: SignupRequest) -> AuthResponse:
+    try:
+        user_id, token = auth.signup(
+            email=payload.email,
+            password=payload.password,
+            software_background=payload.software_background,
+            hardware_background=payload.hardware_background,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return AuthResponse(user_id=user_id, token=token)
+
+
+@api_router.post("/auth/signin", response_model=AuthResponse)
+def signin(payload: SigninRequest) -> AuthResponse:
+    try:
+        user_id, token = auth.signin(email=payload.email, password=payload.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    return AuthResponse(user_id=user_id, token=token)
 
 
 app.include_router(api_router)

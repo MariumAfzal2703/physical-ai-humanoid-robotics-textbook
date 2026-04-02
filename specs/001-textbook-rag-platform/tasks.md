@@ -177,8 +177,8 @@
 
 ## Phase 8: Bonus B - BetterAuth Signup/Signin (+50)
 
-- [ ] T060 Implement signup/signin endpoints and profile capture in `backend/main.py` and `backend/auth.py`
-- [ ] T061 Implement frontend auth forms with software/hardware background in `src/components/AuthPanel.tsx`
+- [x] T060 Implement signup/signin endpoints and profile capture in `backend/main.py` and `backend/auth.py`
+- [x] T061 Implement frontend auth forms with software/hardware background in `src/components/AuthPanel.tsx`
 
 ## Phase 9: Bonus C - Personalization (+50)
 

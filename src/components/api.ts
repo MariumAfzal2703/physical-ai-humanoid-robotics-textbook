@@ -12,6 +12,21 @@ export type ChatResult = {
   session_id?: string;
 };
 
+export type AuthPayload = {
+  email: string;
+  password: string;
+};
+
+export type SignupPayload = AuthPayload & {
+  software_background: string;
+  hardware_background: string;
+};
+
+export type AuthResult = {
+  user_id: string;
+  token: string;
+};
+
 export type ChapterTransformResult = {
   chapter_id: string;
   content: string;
@@ -31,6 +46,38 @@ export async function postChat(payload: ChatPayload): Promise<ChatResult> {
   }
 
   return (await response.json()) as ChatResult;
+}
+
+export async function postSignup(payload: SignupPayload): Promise<AuthResult> {
+  const response = await fetch(`${BACKEND_URL}/auth/signup`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Signup failed (${response.status})`);
+  }
+
+  return (await response.json()) as AuthResult;
+}
+
+export async function postSignin(payload: AuthPayload): Promise<AuthResult> {
+  const response = await fetch(`${BACKEND_URL}/auth/signin`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Signin failed (${response.status})`);
+  }
+
+  return (await response.json()) as AuthResult;
 }
 
 export async function postChapterTranslation(chapterId: string): Promise<ChapterTransformResult> {
