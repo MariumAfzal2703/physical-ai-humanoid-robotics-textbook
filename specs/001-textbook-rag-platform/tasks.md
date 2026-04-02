@@ -15,8 +15,8 @@
 
 ## Follow-up Progress Checklist
 
-- [ ] Phase 1 Setup complete
-- [ ] Phase 2 Foundational complete
+- [x] Phase 1 Setup complete
+- [x] Phase 2 Foundational complete
 - [ ] Phase 3 US1 complete
 - [ ] Phase 4 US2 complete
 - [ ] Phase 5 US3 complete
@@ -54,17 +54,17 @@
 
 **⚠️ CRITICAL**: Complete this phase before user story work.
 
-- [ ] T011 Create backend app entrypoint skeleton and router registration in `backend/main.py`
-- [ ] T012 [P] Configure CORS middleware for localhost + deployed frontend origin in `backend/main.py`
-- [ ] T013 [P] Create backend settings loader for required env vars in `backend/settings.py`
-- [ ] T014 [P] Create Neon database connection + session utilities in `backend/db.py`
-- [ ] T015 [P] Create Qdrant + Gemini + Groq client setup helpers in `backend/clients.py`
-- [ ] T016 Create shared Pydantic schemas for chat/auth/chapter actions in `backend/schemas.py`
-- [ ] T017 [P] Create SQL schema/migration script for `users`, `chat_sessions`, `chat_messages`, and transformation logs in `backend/sql/init.sql`
-- [ ] T018 [P] Create reusable textbook content indexing helper module in `scripts/content_indexing.py`
-- [ ] T019 Create global frontend API helper for backend requests in `src/components/api.ts`
-- [ ] T020 Create global chat widget mount point in `src/theme/Root.tsx`
-- [ ] T021 Add OpenAI ChatKit integration proof task by wiring adapter/usage notes in `src/components/ChatWidget.tsx` and `README.md`
+- [x] T011 Create backend app entrypoint skeleton and router registration in `backend/main.py`
+- [x] T012 [P] Configure CORS middleware for localhost + deployed frontend origin in `backend/main.py`
+- [x] T013 [P] Create backend settings loader for required env vars in `backend/settings.py`
+- [x] T014 [P] Create Neon database connection + session utilities in `backend/db.py`
+- [x] T015 [P] Create Qdrant + Gemini + Groq client setup helpers in `backend/clients.py`
+- [x] T016 Create shared Pydantic schemas for chat/auth/chapter actions in `backend/schemas.py`
+- [x] T017 [P] Create SQL schema/migration script for `users`, `chat_sessions`, `chat_messages`, and transformation logs in `backend/sql/init.sql`
+- [x] T018 [P] Create reusable textbook content indexing helper module in `scripts/content_indexing.py`
+- [x] T019 Create global frontend API helper for backend requests in `src/components/api.ts`
+- [x] T020 Create global chat widget mount point in `src/theme/Root.tsx`
+- [x] T021 Add OpenAI ChatKit integration proof task by wiring adapter/usage notes in `src/components/ChatWidget.tsx` and `README.md`
 
 **Checkpoint**: Foundation ready; user stories can proceed.
 

@@ -1,2 +1,30 @@
 # Windows alternate data stream metadata
 *:Zone.Identifier
+
+# Node / Docusaurus
+node_modules/
+build/
+dist/
+coverage/
+.docusaurus/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!backend/.env.example
+
+# Universal
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
