@@ -3,203 +3,499 @@ title: Grounding and Planning
 sidebar_position: 2
 ---
 
-# Grounding and Cognitive Planning Pipeline
+# Grounding, Planning, and LLM Tool Calling for Robots
 
 ## 🌍 Real World Scenario
 
-The LLM is strategist, ROS 2 is executor. One decides what should happen, the other guarantees how it happens in real space under constraints.
+The LLM says "pick up the red cup." But your robot doesn't see "red cups." It sees a 640×480 array of RGB pixels and a pointcloud. Grounding is the bridge between language and perception. Without it, your robot is deaf to meaning.
 
----
+This is the hardest and most exciting frontier in VLA research. Language models are excellent at symbolic reasoning, but robots live in geometry, uncertainty, and contact dynamics. If your system cannot map words like “red cup on the left shelf” to a precise 3D pose with confidence bounds, planning collapses before execution begins.
+
+Many demos hide this with curated scenes and handpicked prompts. Real robots cannot rely on demo conditions. They need grounding that works when lighting changes, object appearance varies, and human instructions are ambiguous.
 
 ## What You Will Learn
 
-- Explain why tool calling matters before implementation choices.
-- Apply beginner analogies to understand grounding and cognitive planning pipeline.
-- Use robotics-specific code patterns with clear comments and safe defaults.
-- Read comparison tables to choose architecture and tool tradeoffs correctly.
-- Practice with graded exercises from beginner to advanced.
-- Prepare chapter knowledge for capstone integration decisions.
+- Why semantic grounding is the core bridge between language and robot action.
+- How CLIP builds a shared embedding space for image-text alignment.
+- How open-vocabulary detection (Grounding DINO + SAM) upgrades robot perception flexibility.
+- How to convert 2D detections into 3D robot coordinates using depth and camera intrinsics.
+- How cognitive planning decomposes high-level tasks into executable ROS 2 steps.
+- How to use LLM tool/function calling to expose robot capabilities safely.
+- How the ReAct loop (Reason + Act) improves multi-step task robustness.
+- How prompt engineering shapes safer, more reliable robot behavior.
 
----
+## Why grounding is the central unsolved problem
 
-## Why This Topic Exists
+A command like “pick the red cup near the sink” compresses multiple reasoning layers:
 
-Tool calling, openai function schemas, clip grounding, and prompt engineering for robotic commands is a response to real deployment pain, not academic theory. Teams that ignore this layer usually pay later with unstable integration, confusing failures, and costly rework. This chapter opens with why so your implementation decisions stay grounded under pressure.
+1. Parse language intent.
+2. Ground object category and attributes in vision.
+3. Resolve relational phrase (“near the sink”).
+4. Estimate object 3D pose and graspability.
+5. Select action sequence with collision/safety constraints.
 
-When you understand why a component exists, you can make better tradeoffs. You will know which defaults are safe, which shortcuts are risky, and which metrics reveal hidden instability. This perspective is especially important for hackathon delivery where speed matters but safety and clarity still decide quality.
+Each step can fail independently. If grounding is wrong, planning can be perfectly logical and still physically wrong.
 
-## Deep Explanation with Analogies
+This is why language-grounded robotics is not “just LLM integration.” It is a full perception-reasoning-action alignment problem.
 
-Complex robotics concepts become easier when anchored in analogy. Nodes are smartphone apps with focused jobs. Topics are TV channels where many listeners can tune in. Services are phone calls that wait for a response. Actions are food-delivery tracking with progress updates. QoS is choosing between guaranteed delivery and low-latency streaming.
+## Semantic grounding with CLIP: contrastive learning in one shared space
 
-These analogies are not substitutes for technical rigor; they are entry ramps. After intuition, we translate directly into contracts, command flows, and error-handling behavior. You should always ask: where can this fail, and how will I know quickly?
+CLIP (Contrastive Language-Image Pretraining) learns aligned embeddings for text and images. During training, it pushes matching image-caption pairs close in embedding space and mismatched pairs apart.
 
-## Engineering Patterns and Tradeoffs
+Why this matters for robotics:
+- You can query visual scenes with text prompts (“red mug”, “screwdriver”, “whiteboard marker”).
+- You can rank candidate detections by language similarity without retraining fixed class heads.
+- You get open-ended semantic matching beyond closed label sets.
 
-For grounding and cognitive planning pipeline, tradeoffs are inevitable. Conservative settings improve safety but may reduce throughput. Aggressive settings increase performance but can amplify instability. Balanced design means selecting policies by subsystem risk profile, then validating with objective evidence rather than preference.
+Conceptually:
+- Image encoder maps image crops to vectors.
+- Text encoder maps phrases to vectors.
+- Similarity score (e.g., cosine) estimates semantic match.
 
-Professional teams document these tradeoffs in tables, diagrams, and runtime metrics so decisions are reviewable. This chapter follows the same discipline to help you build communication habits valued in production environments.
+In robot stacks, CLIP often provides semantic priors while dedicated detectors provide localization precision.
 
-## Common Mistakes and Exact Corrections
+## Open-vocabulary perception: Grounding DINO + SAM
 
-A frequent beginner mistake is skipping observability until something fails. Another is treating passing demos as proof of reliability. Reliable robotics requires stress testing, fault injection, and fallback verification. You should expect edge cases and design for them explicitly.
+Closed-set object detectors are limited to predefined classes. Robots in real environments encounter long-tail objects. Open-vocabulary methods address this.
 
-When troubleshooting, inspect boundaries first: input freshness, schema correctness, transform assumptions, and actuator limits. Most incidents are integration mistakes disguised as algorithm failures.
+### Grounding DINO
+- Takes text queries plus image.
+- Returns bounding boxes conditioned on language phrase.
+- Useful for commands like “find the green bottle” even if bottle subtype wasn’t in fixed class list.
 
-## Practical Workflow for Team Delivery
+### SAM (Segment Anything Model)
+- Produces high-quality masks from prompts (points/boxes).
+- Refines object extent beyond coarse boxes.
+- Helpful for grasp planning and clutter separation.
 
-In collaborative settings, readability and repeatability are strategic advantages. Keep launch/config explicit, code comments purposeful, and error messages actionable. Align your chapter implementations with measurable acceptance criteria so mentors and judges can verify progress quickly.
+Combined flow:
+1. Grounding DINO proposes phrase-conditioned box.
+2. SAM refines object mask.
+3. Depth projection computes 3D target point.
 
-Your target is not just to make things work once; it is to make behavior explainable every time. That is the hallmark of premium engineering output.
+This combo is powerful because it links language flexibility with geometry-aware manipulation setup.
 
-:::tip Beginner Tip
-Start with one subsystem and validate it deeply before integrating the next.
-:::
+## 3D grounding: from 2D detection to robot coordinates
 
-:::info Pro Insight
-Most integration failures are contract failures; define timing and schema expectations explicitly.
-:::
+A box in image space is not enough for a robot arm. The arm needs target pose in a robot frame.
 
-:::warning Common Mistake
-Do not optimize performance before proving safety and observability baselines.
-:::
+Standard 3D grounding pipeline:
+1. Use detection/mask to select object pixels.
+2. Read depth values from aligned depth frame.
+3. Back-project pixels to camera-frame 3D points via intrinsics.
+4. Transform camera-frame point to robot/world frame using TF.
+5. Estimate grasp candidate pose and confidence.
 
-| Option | Strength | Limitation | Best use case |
-|---|---|---|---|
-| Conservative | Strong safety margin | Lower peak throughput | First deployment passes |
-| Balanced | Reliable tradeoff | Requires tuning | General project work |
-| Aggressive | High performance potential | Higher instability risk | Controlled experiments |
-| Tool/Command | What it does | Why it matters |
-|---|---|---|
-| `ros2 node list` | Lists active compute nodes | Confirms graph health |
-| `ros2 topic hz` | Measures stream frequency | Detects timing drift |
-| `ros2 topic echo` | Shows live payloads | Catches schema/value issues |
-| Safety constraint | Meaning | Real robot example |
-|---|---|---|
-| Speed cap | Limits motion velocity | Slow approach near humans |
-| Force cap | Limits contact force | Prevents over-gripping fragile cup |
-| Timeout fallback | Safe behavior on stale data | Stop motion when sensor feed freezes |
+Core math (simplified):
+- Given pixel `(u, v)` with depth `z`
+- `x = (u - cx) * z / fx`
+- `y = (v - cy) * z / fy`
+- `z = z`
 
-```python
-# This utility validates command safety before execution in a robotics loop.
-from dataclasses import dataclass
+Then apply extrinsic transform `T_base_camera` to obtain base-frame coordinates.
 
-@dataclass
-class SafetyRule:
-    max_speed: float
-    max_force: float
+Common failure points:
+- RGB-depth misalignment.
+- Wrong camera intrinsics.
+- Stale TF transform timestamps.
+- Specular/transparent objects causing invalid depth.
 
+Grounding quality should include uncertainty estimates, not just point predictions.
 
-def validate(speed: float, force: float, rule: SafetyRule) -> tuple[bool, str]:
-    # Reject speed that exceeds configured safety envelope.
-    if speed > rule.max_speed:
-        return False, "speed limit exceeded"
-    # Reject force that could damage hardware or environment.
-    if force > rule.max_force:
-        return False, "force limit exceeded"
-    return True, "ok"
-```
+## Cognitive planning architecture: Task → Subtasks → Actions → ROS 2
 
-```python
-# This skeleton demonstrates chapter-level quality gating for robotics experiments.
-from dataclasses import dataclass
+Grounding provides “what/where.” Planning decides “how.”
 
-@dataclass
-class GateInput:
-    success_rate: float
-    safety_events: int
-    latency_ms: float
+A robust cognitive planning stack for language-conditioned robotics often follows hierarchical decomposition:
 
+- **Task**: High-level instruction (e.g., “clean the whiteboard”).
+- **Subtasks**: Semantic phases (find marker, approach board, erase region).
+- **Actions**: Atomic executable intents (navigate pose, reach, grasp, wipe trajectory).
+- **ROS 2 calls**: Concrete action/service/topic calls.
 
-def passed(g: GateInput) -> bool:
-    # Require robust success across representative scenarios.
-    if g.success_rate < 0.9:
-        return False
-    # Any safety event blocks promotion.
-    if g.safety_events > 0:
-        return False
-    # Keep control-path latency within practical budget.
-    return g.latency_ms < 120.0
-```
+This decomposition makes the system debuggable and enables partial recovery when one subtask fails.
 
 ```mermaid
-flowchart TD
-  A[Input Context] --> B[Perception / Parsing]
-  B --> C[Planning Layer]
-  C --> D[Safety Validator]
-  D --> E[Execution]
-  E --> F[Metrics + Logs]
-  F --> C
+flowchart LR
+  A[Voice Command] --> B[Whisper ASR]
+  B --> C[LLM Task Interpreter]
+  C --> D[Perception Grounding
+CLIP + Grounding DINO + SAM]
+  D --> E[3D Pose Resolver
+RGB-D + TF]
+  E --> F[Planner
+Task -> Subtasks -> Actions]
+  F --> G[Tool Calling Layer
+Function Schemas]
+  G --> H[ROS 2 Executor
+Actions/Services]
+  H --> I[Runtime Feedback
+Success/Failure + Sensor Updates]
+  I --> J[ReAct Loop
+Reason -> Act -> Observe]
+  J --> F
 ```
 
----
+This architecture supports iterative correction instead of one-shot brittle execution.
+
+## LLM tool calling for robotics control
+
+LLM tool (function) calling turns free-form language into structured capability invocations.
+
+Example robot capabilities:
+- `detect_object(label: str)`
+- `navigate_to(x, y, yaw)`
+- `pick_object(object_id)`
+- `place_object(target_zone)`
+- `speak(message)`
+
+Why tool calling matters:
+- It constrains model outputs to known safe interfaces.
+- It improves parse reliability.
+- It makes auditing and policy enforcement easier.
+
+Design rules for robot tool schemas:
+1. Use explicit units (`meters`, `radians`, `m/s`).
+2. Include bounds in schema descriptions.
+3. Require frame references (`map`, `base_link`, `camera_link`).
+4. Add nullable confidence fields for uncertain decisions.
+
+This is where prompt engineering meets systems safety.
+
+## ReAct pattern for multi-step robotic tasks
+
+ReAct = **Reasoning + Acting** in iterative cycles.
+
+Instead of generating one final plan and executing blindly, the model alternates:
+1. Reason about current state.
+2. Choose action/tool call.
+3. Observe result.
+4. Revise reasoning.
+
+For robots, this is critical because environment state changes after each action. A grasp may fail, an object may move, a human may intervene.
+
+ReAct benefits:
+- Better recovery from execution errors.
+- Reduced hallucinated plan continuation.
+- Improved transparency in decision traces.
+
+ReAct risks:
+- Longer latency if loops are unbounded.
+- Potential oscillation without stop criteria.
+
+Mitigations:
+- Max iteration count.
+- Timeout budgets.
+- Explicit failure escalation path to human operator.
+
+## Prompt engineering for grounded robotics
+
+Prompting for robotics differs from chatbot prompting. You need deterministic structure, constraints, and executable outputs.
+
+### 1) Few-shot examples
+Provide examples of instruction → grounded action schema mapping.
+
+### 2) Constraint injection
+Embed hard rules:
+- max speed
+- no-go zones
+- required confirmation for risky actions
+
+### 3) Output formatting
+Force JSON/tool-call responses. No prose during action phase.
+
+### 4) State injection
+Provide current robot state summary (battery, localization confidence, gripper occupancy, detected objects).
+
+### 5) Failure instruction
+Tell model what to do when uncertain: ask clarification or call `safe_stop`.
+
+Prompt quality directly affects safety, not just convenience.
+
+## 💻 Code Example 1: Complete voice → Whisper → GPT-4 → ROS 2 pipeline
+
+```python
+#!/usr/bin/env python3
+# file: pipelines/voice_to_ros2_pipeline.py
+
+import json
+import queue
+import sounddevice as sd
+import numpy as np
+import whisper
+from openai import OpenAI
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+
+class VoiceToROS2Pipeline(Node):
+    def __init__(self):
+        super().__init__('voice_to_ros2_pipeline')
+        self.pub = self.create_publisher(String, '/robot1/llm_action_json', 10)
+        self.client = OpenAI()
+        self.whisper_model = whisper.load_model('base')
+
+    def record_audio(self, seconds=4, sr=16000):
+        audio = sd.rec(int(seconds * sr), samplerate=sr, channels=1, dtype='float32')
+        sd.wait()
+        return audio.flatten(), sr
+
+    def transcribe(self, audio_np, sr):
+        result = self.whisper_model.transcribe(audio_np, fp16=False, language='en')
+        return result['text'].strip()
+
+    def llm_plan(self, text_cmd):
+        prompt = (
+            "You are a robot task planner. "
+            "Return strict JSON with fields: skill,target_frame,x,y,z,yaw,speed,gripper. "
+            "Speed must be <= 0.2 and skill must be one of MOVE_BASE,REACH,GRASP,PLACE,STOP. "
+            f"Instruction: {text_cmd}"
+        )
+
+        response = self.client.responses.create(
+            model='gpt-4.1',
+            input=prompt,
+            text={"format": {"type": "json_object"}},
+        )
+        return response.output_text
+
+    def run_once(self):
+        audio_np, sr = self.record_audio()
+        text_cmd = self.transcribe(audio_np, sr)
+        self.get_logger().info(f"Whisper: {text_cmd}")
+
+        action_json = self.llm_plan(text_cmd)
+        self.get_logger().info(f"LLM action: {action_json}")
+
+        # publish to ROS2 bridge/executor
+        msg = String()
+        msg.data = action_json
+        self.pub.publish(msg)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = VoiceToROS2Pipeline()
+    node.run_once()
+    rclpy.spin_once(node, timeout_sec=0.5)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+This pipeline demonstrates the full command path from voice to structured ROS-action-ready output.
+
+## 💻 Code Example 2: Robot actions as OpenAI function schemas
+
+```python
+# file: planning/robot_function_schemas.py
+
+ROBOT_FUNCTIONS = [
+    {
+        "type": "function",
+        "name": "detect_object",
+        "description": "Detect object in current scene by natural-language label.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "label": {"type": "string"},
+                "min_confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+            },
+            "required": ["label"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "navigate_to",
+        "description": "Navigate robot base to target pose in map frame.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "x_m": {"type": "number"},
+                "y_m": {"type": "number"},
+                "yaw_rad": {"type": "number"},
+                "max_speed_mps": {"type": "number", "minimum": 0.0, "maximum": 0.3}
+            },
+            "required": ["x_m", "y_m", "yaw_rad"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "pick_object",
+        "description": "Pick object using 3D grasp pose in base_link frame.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "object_id": {"type": "string"},
+                "x_m": {"type": "number"},
+                "y_m": {"type": "number"},
+                "z_m": {"type": "number"},
+                "grasp_width_m": {"type": "number", "minimum": 0.0, "maximum": 0.12}
+            },
+            "required": ["object_id", "x_m", "y_m", "z_m"]
+        }
+    },
+]
+```
+
+These schemas constrain planning outputs to executable, unit-safe interfaces.
+
+## 💻 Code Example 3: Grounding DINO integration with ROS 2
+
+```python
+#!/usr/bin/env python3
+# file: perception/grounding_dino_ros2_node.py
+
+import cv2
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image, CameraInfo
+from geometry_msgs.msg import PointStamped
+from cv_bridge import CvBridge
+
+# Placeholder import path; adapt to your install
+# from groundingdino.util.inference import load_model, predict
+
+
+class GroundingDINONode(Node):
+    def __init__(self):
+        super().__init__('grounding_dino_node')
+        self.bridge = CvBridge()
+
+        self.latest_depth = None
+        self.camera_info = None
+
+        self.create_subscription(Image, '/robot1/camera/rgb/image_raw', self.on_rgb, 10)
+        self.create_subscription(Image, '/robot1/camera/depth/image_raw', self.on_depth, 10)
+        self.create_subscription(CameraInfo, '/robot1/camera/depth/camera_info', self.on_info, 10)
+
+        self.point_pub = self.create_publisher(PointStamped, '/robot1/grounded_target_point', 10)
+
+        # self.model = load_model("weights/groundingdino_swint_ogc.pth", "config/GroundingDINO_SwinT_OGC.py")
+        self.query_text = "red cup"
+
+    def on_info(self, msg: CameraInfo):
+        self.camera_info = msg
+
+    def on_depth(self, msg: Image):
+        self.latest_depth = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+
+    def on_rgb(self, msg: Image):
+        if self.latest_depth is None or self.camera_info is None:
+            return
+
+        rgb = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+
+        # Placeholder detector output (replace with Grounding DINO inference)
+        # boxes, scores, labels = predict(self.model, rgb, self.query_text, box_threshold=0.35, text_threshold=0.25)
+        h, w, _ = rgb.shape
+        box = np.array([0.4*w, 0.4*h, 0.6*w, 0.7*h], dtype=np.int32)  # xmin,ymin,xmax,ymax
+
+        u = int((box[0] + box[2]) / 2)
+        v = int((box[1] + box[3]) / 2)
+
+        z = float(self.latest_depth[v, u])
+        if z <= 0.0 or np.isnan(z):
+            return
+
+        fx = self.camera_info.k[0]
+        fy = self.camera_info.k[4]
+        cx = self.camera_info.k[2]
+        cy = self.camera_info.k[5]
+
+        x = (u - cx) * z / fx
+        y = (v - cy) * z / fy
+
+        p = PointStamped()
+        p.header = msg.header
+        p.header.frame_id = 'camera_link'
+        p.point.x = float(x)
+        p.point.y = float(y)
+        p.point.z = float(z)
+        self.point_pub.publish(p)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = GroundingDINONode()
+    try:
+        rclpy.spin(node)
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+This demonstrates phrase-conditioned detection mapped into actionable 3D geometry.
+
+## Practical deployment guardrails for grounding + planning
+
+1. **Confidence thresholds per stage**
+   If perception confidence is low, ask clarification instead of executing.
+
+2. **Spatial sanity checks**
+   Reject grounded points outside reachable workspace.
+
+3. **Tool-call policy layer**
+   Validate all function arguments before ROS calls.
+
+4. **Stateful task memory**
+   Track completed subtasks to prevent loops/repeated actions.
+
+5. **Human-in-the-loop escalation**
+   For ambiguous grounding, request disambiguation (“Do you mean the red cup near sink or near laptop?”).
+
+Grounding systems fail gracefully only if uncertainty handling is explicit.
 
 ## 💡 Key Concepts Summary
 
-| Concept | What it means | Real robot example |
-|---|---|---|
-| Contract clarity | Explicit inputs/outputs and assumptions | Controller rejects stale state updates |
-| Runtime evidence | Metrics/logs prove behavior | Gate blocks unsafe release candidate |
-| Fallback behavior | Safe response during uncertainty | Robot pauses when confidence is low |
-| Iterative validation | Improve through repeatable tests | Simulation regression catches drift early |
-
----
+- Grounding is the core bridge from language symbols to physical world coordinates.
+- CLIP provides semantic alignment; Grounding DINO + SAM improve open-vocabulary localization quality.
+- 3D grounding requires depth projection + frame transforms; 2D boxes alone are insufficient.
+- Cognitive planning should decompose tasks hierarchically before ROS execution.
+- LLM tool calling turns language plans into structured, auditable robot capability invocations.
+- ReAct loops improve robustness for multi-step tasks in dynamic environments.
+- Prompt design is a safety and reliability lever, not just a UX detail.
 
 ## 🧪 Practice Exercises
 
 ### Exercise 1 (Beginner)
-Translate one chapter concept into your own analogy and map it to a measurable signal.
+Implement a single-object grounding test: command “pick red cup,” detect with open-vocabulary perception, and publish 3D target point. Measure positional repeatability over 20 runs.
 
 ```python
-# TODO: Replace placeholders with your own mapping.
-concept = ""
-analogy = ""
-metric = ""
-print(concept, analogy, metric)
+# Track mean and std of grounded (x,y,z) for the same static scene.
 ```
 
 ### Exercise 2 (Intermediate)
-Build a mini validator for one runtime assumption from this chapter.
+Build a ReAct loop with three tools (`detect_object`, `navigate_to`, `pick_object`) and test on a two-step command: “go to desk and pick the marker.” Add timeout and max-iteration guards.
 
 ```python
-# TODO: Implement a chapter-specific validation function.
-def validate_assumption(value: float, threshold: float) -> bool:
-    return value <= threshold
-
-print(validate_assumption(1.0, 1.5))
+# Ensure tool outputs are validated before execution.
 ```
 
 ### Exercise 3 (Advanced)
-Create a release gate using success, safety, and latency metrics.
+Add ambiguity resolution prompts to your planner. If two candidate objects match label, ask user follow-up question and continue plan only after confirmation.
 
-```python
-# TODO: Tune thresholds and compare baseline vs candidate.
-baseline = {"success": 0.91, "safety": 0, "latency": 95}
-candidate = {"success": 0.93, "safety": 0, "latency": 104}
-print("baseline", baseline)
-print("candidate", candidate)
+```bash
+# Goal: reduce wrong-object picks without manual teleoperation.
 ```
-
----
 
 ## Key Takeaways
 
-- Start with why: operational constraints should drive architecture decisions.
-- Use beginner analogies, then convert them into technical contracts and metrics.
-- Keep code robotics-specific, commented, and validation-oriented.
-- Pair every performance change with safety and observability checks.
-- Build chapter knowledge toward capstone-level integration confidence.
-
----
+- Language grounding is the hardest and most critical bridge in VLA robotics.
+- Robust grounding requires semantics + geometry + uncertainty-aware planning.
+- Function-calling and ReAct patterns make LLM-driven robots more reliable and controllable.
+- The best robot planners are not just smart—they are structured, constrained, and observable.
 
 ## 🔗 Next Up
 
-Next up: this knowledge feeds directly into the next integration layer so your system remains explainable and safe as complexity grows.
-
----
-
-## 📚 Resources
-
-- [Function Calling Guide](https://platform.openai.com/docs/guides/function-calling)
-- [ROS 2 Tutorials](https://docs.ros.org/en/humble/Tutorials.html)
-- [Open Robotics](https://www.openrobotics.org/)
+Next chapter: Safety-aligned autonomous execution—how to combine grounded language planning with runtime policy checks, recovery logic, and operator trust mechanisms.

@@ -19,37 +19,89 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Module 1 - ROS 2 Foundations',
       items: [
-        'module-1-ros2/overview',
-        'module-1-ros2/nodes-topics-qos',
-        'module-1-ros2/launch-params-debugging',
+        {
+          type: 'doc',
+          id: 'module-1-ros2/overview',
+          label: 'Overview',
+        },
+        {
+          type: 'doc',
+          id: 'module-1-ros2/nodes-topics-qos',
+          label: 'Nodes, Topics, and QoS',
+        },
+        {
+          type: 'doc',
+          id: 'module-1-ros2/launch-params-debugging',
+          label: 'Launch, Parameters, and Debugging',
+        },
       ],
     },
     {
       type: 'category',
       label: 'Module 2 - Simulation',
       items: [
-        'module-2-simulation/overview',
-        'module-2-simulation/deterministic-scenarios',
-        'module-2-simulation/metrics-regression-gates',
+        {
+          type: 'doc',
+          id: 'module-2-simulation/overview',
+          label: 'Overview',
+        },
+        {
+          type: 'doc',
+          id: 'module-2-simulation/deterministic-scenarios',
+          label: 'Deterministic Scenarios',
+        },
+        {
+          type: 'doc',
+          id: 'module-2-simulation/metrics-regression-gates',
+          label: 'Metrics and Regression Gates',
+        },
       ],
     },
     {
       type: 'category',
       label: 'Module 3 - Isaac Workflows',
       items: [
-        'module-3-isaac/overview',
-        'module-3-isaac/isaac-observation-action-interfaces',
-        'module-3-isaac/policy-runtime-diagnostics',
+        {
+          type: 'doc',
+          id: 'module-3-isaac/overview',
+          label: 'Overview',
+        },
+        {
+          type: 'doc',
+          id: 'module-3-isaac/isaac-observation-action-interfaces',
+          label: 'Observation and Action Interfaces',
+        },
+        {
+          type: 'doc',
+          id: 'module-3-isaac/policy-runtime-diagnostics',
+          label: 'Policy Runtime Diagnostics',
+        },
       ],
     },
     {
       type: 'category',
       label: 'Module 4 - VLA Systems',
       items: [
-        'module-4-vla/overview',
-        'module-4-vla/grounding-and-planning',
-        'module-4-vla/action-safety-runtime-verification',
-        'module-4-vla/capstone-autonomous-humanoid',
+        {
+          type: 'doc',
+          id: 'module-4-vla/overview',
+          label: 'Overview',
+        },
+        {
+          type: 'doc',
+          id: 'module-4-vla/grounding-and-planning',
+          label: 'Grounding and Planning',
+        },
+        {
+          type: 'doc',
+          id: 'module-4-vla/action-safety-runtime-verification',
+          label: 'Action Safety and Runtime Verification',
+        },
+        {
+          type: 'doc',
+          id: 'module-4-vla/capstone-autonomous-humanoid',
+          label: 'Capstone: Autonomous Humanoid',
+        },
       ],
     }
   ],

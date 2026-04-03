@@ -1,205 +1,327 @@
 ---
-title: ROS 2 Nodes, Topics, and QoS
+title: Nodes, Topics & QoS
 sidebar_position: 2
 ---
 
-# Nodes, Topics, QoS, Services, Actions, and URDF
+# Nodes, Topics, and QoS in ROS 2
 
 ## 🌍 Real World Scenario
 
-A ROS 2 robot is like a city: nodes are buildings, topics are roads, and QoS is traffic law. Good traffic law keeps emergency lanes clear and data flowing under pressure.
+Your humanoid robot is navigating a warehouse. Its camera node publishes 30 frames/second. Suddenly, the network gets congested. Does your navigation system crash, freeze, or gracefully drop old frames and continue? That decision is QoS.
 
----
+That one sentence is the difference between a robot demo and a production robot. In a toy setup, developers often run everything on one laptop with almost perfect loopback networking. Messages look instant. No packet loss, no jitter spikes, no overloaded switches, no competing radios. In a real warehouse, your robot shares network space with scanners, forklifts, tablets, industrial gateways, metal racks that reflect RF signals, and occasional dead zones. Under these conditions, data delivery behavior is no longer “nice to have.” It becomes a safety and uptime requirement.
+
+If your camera topic is configured poorly, the robot may process old frames after congestion clears and drive using stale perception. If command topics are configured poorly, a critical stop command can be delayed or dropped. If map or static transform topics are configured poorly, late-joining nodes can fail silently and you waste hours debugging what looks like a logic bug but is actually transport policy mismatch.
+
+QoS is the contract that tells ROS 2 middleware what to do when reality gets messy. This chapter makes QoS the star because production robotics is mostly about handling messy reality safely.
 
 ## What You Will Learn
 
-- Explain why node lifecycle matters before implementation choices.
-- Apply beginner analogies to understand nodes, topics, qos, services, actions, and urdf.
-- Use robotics-specific code patterns with clear comments and safe defaults.
-- Read comparison tables to choose architecture and tool tradeoffs correctly.
-- Practice with graded exercises from beginner to advanced.
-- Prepare chapter knowledge for capstone integration decisions.
+- How ROS 2 managed nodes move through lifecycle states: unconfigured → inactive → active → finalized.
+- Why topic namespacing (`/robot1/camera/image` vs `/robot2/camera/image`) prevents multi-robot collisions.
+- How `RELIABLE` and `BEST_EFFORT` differ, and when each is correct.
+- How `VOLATILE` and `TRANSIENT_LOCAL` map to live stream vs message history behavior.
+- The six QoS policies you must understand: history, depth, reliability, durability, deadline, liveliness.
+- Why QoS mismatch causes silent communication failures and how to diagnose it.
+- How to build matching publisher/subscriber QoS profiles in Python.
+- How to verify compatibility with `ros2 topic info -v`.
 
----
+## Node Lifecycle: from boot chaos to deterministic startup
 
-## Why This Topic Exists
+ROS 2 supports managed lifecycles so nodes can be orchestrated like industrial systems instead of launched as uncontrolled scripts. This matters because robot software rarely starts in a perfect order. Cameras need warm-up, calibration may load late, navigation requires TF availability, and motion control should never activate before safety monitors.
 
-Node lifecycle, naming conventions, qos tuning by sensor class, service/action patterns, and urdf modeling is a response to real deployment pain, not academic theory. Teams that ignore this layer usually pay later with unstable integration, confusing failures, and costly rework. This chapter opens with why so your implementation decisions stay grounded under pressure.
+Lifecycle states let you encode those constraints:
 
-When you understand why a component exists, you can make better tradeoffs. You will know which defaults are safe, which shortcuts are risky, and which metrics reveal hidden instability. This perspective is especially important for hackathon delivery where speed matters but safety and clarity still decide quality.
+- **unconfigured**: node exists but resources are not fully initialized.
+- **inactive**: node has initialized resources but is not processing live work.
+- **active**: node is running its primary callbacks and participating in the graph.
+- **finalized**: node has completed shutdown and released critical resources.
 
-## Deep Explanation with Analogies
-
-Complex robotics concepts become easier when anchored in analogy. Nodes are smartphone apps with focused jobs. Topics are TV channels where many listeners can tune in. Services are phone calls that wait for a response. Actions are food-delivery tracking with progress updates. QoS is choosing between guaranteed delivery and low-latency streaming.
-
-These analogies are not substitutes for technical rigor; they are entry ramps. After intuition, we translate directly into contracts, command flows, and error-handling behavior. You should always ask: where can this fail, and how will I know quickly?
-
-## Engineering Patterns and Tradeoffs
-
-For nodes, topics, qos, services, actions, and urdf, tradeoffs are inevitable. Conservative settings improve safety but may reduce throughput. Aggressive settings increase performance but can amplify instability. Balanced design means selecting policies by subsystem risk profile, then validating with objective evidence rather than preference.
-
-Professional teams document these tradeoffs in tables, diagrams, and runtime metrics so decisions are reviewable. This chapter follows the same discipline to help you build communication habits valued in production environments.
-
-## Common Mistakes and Exact Corrections
-
-A frequent beginner mistake is skipping observability until something fails. Another is treating passing demos as proof of reliability. Reliable robotics requires stress testing, fault injection, and fallback verification. You should expect edge cases and design for them explicitly.
-
-When troubleshooting, inspect boundaries first: input freshness, schema correctness, transform assumptions, and actuator limits. Most incidents are integration mistakes disguised as algorithm failures.
-
-## Practical Workflow for Team Delivery
-
-In collaborative settings, readability and repeatability are strategic advantages. Keep launch/config explicit, code comments purposeful, and error messages actionable. Align your chapter implementations with measurable acceptance criteria so mentors and judges can verify progress quickly.
-
-Your target is not just to make things work once; it is to make behavior explainable every time. That is the hallmark of premium engineering output.
-
-:::tip Beginner Tip
-Start with one subsystem and validate it deeply before integrating the next.
-:::
-
-:::info Pro Insight
-Most integration failures are contract failures; define timing and schema expectations explicitly.
-:::
-
-:::warning Common Mistake
-Do not optimize performance before proving safety and observability baselines.
-:::
-
-| Option | Strength | Limitation | Best use case |
-|---|---|---|---|
-| Conservative | Strong safety margin | Lower peak throughput | First deployment passes |
-| Balanced | Reliable tradeoff | Requires tuning | General project work |
-| Aggressive | High performance potential | Higher instability risk | Controlled experiments |
-| Tool/Command | What it does | Why it matters |
-|---|---|---|
-| `ros2 node list` | Lists active compute nodes | Confirms graph health |
-| `ros2 topic hz` | Measures stream frequency | Detects timing drift |
-| `ros2 topic echo` | Shows live payloads | Catches schema/value issues |
-| Safety constraint | Meaning | Real robot example |
-|---|---|---|
-| Speed cap | Limits motion velocity | Slow approach near humans |
-| Force cap | Limits contact force | Prevents over-gripping fragile cup |
-| Timeout fallback | Safe behavior on stale data | Stop motion when sensor feed freezes |
-
-```python
-# This utility validates command safety before execution in a robotics loop.
-from dataclasses import dataclass
-
-@dataclass
-class SafetyRule:
-    max_speed: float
-    max_force: float
-
-
-def validate(speed: float, force: float, rule: SafetyRule) -> tuple[bool, str]:
-    # Reject speed that exceeds configured safety envelope.
-    if speed > rule.max_speed:
-        return False, "speed limit exceeded"
-    # Reject force that could damage hardware or environment.
-    if force > rule.max_force:
-        return False, "force limit exceeded"
-    return True, "ok"
-```
-
-```python
-# This skeleton demonstrates chapter-level quality gating for robotics experiments.
-from dataclasses import dataclass
-
-@dataclass
-class GateInput:
-    success_rate: float
-    safety_events: int
-    latency_ms: float
-
-
-def passed(g: GateInput) -> bool:
-    # Require robust success across representative scenarios.
-    if g.success_rate < 0.9:
-        return False
-    # Any safety event blocks promotion.
-    if g.safety_events > 0:
-        return False
-    # Keep control-path latency within practical budget.
-    return g.latency_ms < 120.0
-```
+When teams skip lifecycle discipline, they get race conditions: planners starting before maps, control loops running before odometry, watchdogs not armed during bring-up. Lifecycle management reduces those failure modes by making transitions explicit and testable.
 
 ```mermaid
-flowchart TD
-  A[Input Context] --> B[Perception / Parsing]
-  B --> C[Planning Layer]
-  C --> D[Safety Validator]
-  D --> E[Execution]
-  E --> F[Metrics + Logs]
-  F --> C
+stateDiagram-v2
+    [*] --> Unconfigured
+    Unconfigured --> Inactive: on_configure()
+    Inactive --> Active: on_activate()
+    Active --> Inactive: on_deactivate()
+    Inactive --> Finalized: on_shutdown()
+    Active --> Finalized: on_shutdown()
+    Unconfigured --> Finalized: on_shutdown()
+    Finalized --> [*]
 ```
 
----
+In production systems, an orchestrator or launch supervisor checks preconditions before transitions. Example: only transition motion control to `active` after safety lidar and emergency stop nodes confirm healthy liveliness.
+
+## Topic Namespacing: why multi-robot systems need strict separation
+
+In a single-robot tutorial, topic names are often short (`/camera/image`, `/cmd_vel`, `/scan`). That works until you deploy robot 2. Then both robots publish `/camera/image`, both subscribe `/cmd_vel`, and your observability tools become unreadable. Worse, cross-talk can occur if remapping is sloppy.
+
+Namespacing fixes this by scoping topics per robot or per subsystem:
+
+- `/robot1/camera/image`
+- `/robot1/cmd_vel`
+- `/robot2/camera/image`
+- `/robot2/cmd_vel`
+
+With namespaces, each robot keeps a clean communication boundary while still sharing one ROS domain. This is essential in fleets, warehouse pilots, and lab environments where multiple robots are tested together.
+
+Practical rules:
+
+1. Make base topic names relative in node code (`camera/image`, `cmd_vel`) and apply namespace at launch.
+2. Reserve global topics only for truly shared infrastructure (e.g., fleet supervisor heartbeats).
+3. Keep naming conventions consistent across teams to avoid hidden remap bugs.
+
+Namespacing is not just style. It is a safety and operability control for scaling.
+
+## QoS fundamentals: WhatsApp vs live stream analogy
+
+QoS in ROS 2 defines transport expectations between publishers and subscribers. A useful intuition:
+
+- **WhatsApp-like behavior**: you expect reliable delivery and possibly retained context for late readers.
+- **Live stream behavior**: you prioritize being current; dropped moments are acceptable.
+
+Map that to ROS 2:
+
+- `RELIABLE` + often retained data patterns for control/state channels.
+- `BEST_EFFORT` + fresh-only behavior for high-frequency sensor streams.
+
+### RELIABLE vs BEST_EFFORT
+
+- **RELIABLE**: middleware retries until delivery succeeds (within limits). Better for commands, state transitions, and anything safety-critical where missing a message is unacceptable.
+- **BEST_EFFORT**: middleware does not retry; it sends what it can, and late/lost packets are dropped. Better for high-bandwidth sensors where stale data is worse than dropped data.
+
+### VOLATILE vs TRANSIENT_LOCAL
+
+- **VOLATILE**: only currently connected subscribers receive data. New subscribers do not get old messages.
+- **TRANSIENT_LOCAL**: publisher retains recent samples so late subscribers can receive last known values.
+
+Analogy:
+
+- **VOLATILE** is like joining a live stream late: you only see what is happening now.
+- **TRANSIENT_LOCAL** is like opening a chat and immediately seeing recent pinned context.
+
+For example, static map metadata or robot configuration is often suited for retained behavior. High-rate camera frames are generally volatile.
+
+## The 6 QoS policies you must tune intentionally
+
+### 1) History
+Controls whether middleware keeps only a bounded recent window (`KEEP_LAST`) or attempts to keep everything (`KEEP_ALL`).
+
+### 2) Depth
+Queue size used with `KEEP_LAST`. Depth too small can drop useful bursts; depth too large can increase latency and memory pressure.
+
+### 3) Reliability
+`RELIABLE` or `BEST_EFFORT`. Choose based on whether message loss or delay is more dangerous for that stream.
+
+### 4) Durability
+`VOLATILE` or `TRANSIENT_LOCAL`. Decide whether late-joining subscribers must receive prior samples.
+
+### 5) Deadline
+Maximum expected time between messages. Missing deadline can trigger callbacks and alerts for timing regressions.
+
+### 6) Liveliness
+How publishers assert they are still alive. Useful for watchdogs and failover behavior when nodes freeze without clean shutdown.
+
+Production tip: treat QoS tuning as part of interface contract design, not as last-minute debugging.
+
+## RELIABLE vs BEST_EFFORT comparison table
+
+| Dimension | RELIABLE | BEST_EFFORT |
+|---|---|---|
+| Delivery guarantee | Retries to deliver | No retries; may drop |
+| Typical latency profile | Can increase under congestion due to retransmissions | Lower and more stable under load |
+| Bandwidth overhead | Higher | Lower |
+| Backpressure behavior | More likely to build queues | More likely to shed load |
+| Best robot use cases | `/cmd_vel`, mode changes, mission events, safety state | camera frames, lidar scans, high-rate IMU |
+| Failure tradeoff | Risk: delay when link is poor | Risk: data loss when link is poor |
+| Production philosophy | “Must arrive” | “Must stay current” |
+
+## QoS mismatch: the silent failure every beginner hits
+
+In ROS 2, publisher/subscriber endpoints must be compatible. If they are not, endpoints may discover each other but not exchange messages. This often appears as:
+
+- `ros2 topic list` shows topic exists.
+- Node logs show no callback errors.
+- Subscriber callback never fires.
+
+Classic mismatch example:
+
+- Publisher uses `BEST_EFFORT` for sensor stream.
+- Subscriber requests `RELIABLE`.
+
+Depending on middleware and exact compatibility rules, communication may fail silently. Engineers then debug business logic while the real issue is QoS contract mismatch.
+
+Always verify with verbose introspection before rewriting code.
+
+```bash
+ros2 topic info /scan -v
+```
+
+This prints endpoint QoS details (reliability, durability, history/depth, liveliness, deadlines) so you can compare profiles directly.
+
+## 💻 Code Example 1: velocity command publisher with RELIABLE QoS
+
+```python
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
+
+class CmdVelPublisher(Node):
+    def __init__(self):
+        super().__init__('cmd_vel_publisher')
+
+        qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=10,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE,
+        )
+
+        self.pub = self.create_publisher(Twist, '/robot1/cmd_vel', qos)
+        self.timer = self.create_timer(0.1, self.publish_cmd)  # 10 Hz
+
+    def publish_cmd(self):
+        msg = Twist()
+        msg.linear.x = 0.4
+        msg.angular.z = 0.0
+        self.pub.publish(msg)
+
+
+def main():
+    rclpy.init()
+    node = CmdVelPublisher()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+Why RELIABLE here: command channels should not casually drop critical velocity updates, especially stop or deceleration commands.
+
+## 💻 Code Example 2: sensor subscriber with BEST_EFFORT QoS
+
+```python
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
+
+class ScanSubscriber(Node):
+    def __init__(self):
+        super().__init__('scan_subscriber')
+
+        qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=5,
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            durability=DurabilityPolicy.VOLATILE,
+        )
+
+        self.sub = self.create_subscription(
+            LaserScan,
+            '/robot1/scan',
+            self.on_scan,
+            qos
+        )
+
+    def on_scan(self, msg: LaserScan):
+        if msg.ranges:
+            front_index = len(msg.ranges) // 2
+            front_distance = msg.ranges[front_index]
+            self.get_logger().info(f'Front distance: {front_distance:.2f} m')
+
+
+def main():
+    rclpy.init()
+    node = ScanSubscriber()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+Why BEST_EFFORT here: losing a few scans is acceptable if the robot always reacts to freshest data instead of stale backlog.
+
+## 💻 Code Example 3: check QoS compatibility with ros2 CLI
+
+Use this during debugging and bring-up:
+
+```bash
+# Show publisher/subscriber endpoints and their QoS policies
+ros2 topic info /robot1/scan -v
+
+# Optional: inspect command channel too
+ros2 topic info /robot1/cmd_vel -v
+```
+
+What to check:
+
+1. Reliability alignment (`RELIABLE` vs `BEST_EFFORT`).
+2. Durability expectations (`VOLATILE` vs `TRANSIENT_LOCAL`).
+3. Depth/history mismatches that may create performance surprises.
+4. Deadline/liveliness settings for watchdog-sensitive streams.
+
+## Operational guidance: picking QoS by stream type
+
+A simple production matrix:
+
+- **Motion commands**: usually `RELIABLE`, modest depth, volatile durability.
+- **Perception high-rate streams**: usually `BEST_EFFORT`, low depth, volatile durability.
+- **State/config snapshots for late joiners**: often `TRANSIENT_LOCAL`.
+- **Safety monitoring**: explicit deadline/liveliness so failure is detectable quickly.
+
+Never copy one QoS profile everywhere. Different streams have different risk models.
 
 ## 💡 Key Concepts Summary
 
-| Concept | What it means | Real robot example |
-|---|---|---|
-| Contract clarity | Explicit inputs/outputs and assumptions | Controller rejects stale state updates |
-| Runtime evidence | Metrics/logs prove behavior | Gate blocks unsafe release candidate |
-| Fallback behavior | Safe response during uncertainty | Robot pauses when confidence is low |
-| Iterative validation | Improve through repeatable tests | Simulation regression catches drift early |
-
----
+- QoS is the transport contract that determines behavior under packet loss, jitter, and congestion.
+- Node lifecycle makes startup and shutdown deterministic, reducing race conditions.
+- Namespacing prevents topic collisions in multi-robot deployments.
+- `RELIABLE` is for must-arrive data; `BEST_EFFORT` is for stay-current data.
+- `VOLATILE` serves only live subscribers; `TRANSIENT_LOCAL` helps late joiners.
+- Deadline and liveliness transform hidden failures into observable events.
+- Most “mystery subscriber bugs” are QoS mismatches diagnosed via `ros2 topic info -v`.
 
 ## 🧪 Practice Exercises
 
 ### Exercise 1 (Beginner)
-Translate one chapter concept into your own analogy and map it to a measurable signal.
+Create two namespaces (`/robot1`, `/robot2`) for the same camera node and verify both publish independently without topic collision.
 
 ```python
-# TODO: Replace placeholders with your own mapping.
-concept = ""
-analogy = ""
-metric = ""
-print(concept, analogy, metric)
+# Hint: keep topic relative in code (camera/image)
+# then apply namespace in launch parameters.
 ```
 
 ### Exercise 2 (Intermediate)
-Build a mini validator for one runtime assumption from this chapter.
+Set up a publisher with `BEST_EFFORT` and a subscriber with `RELIABLE` on the same sensor topic. Observe no callbacks, then fix subscriber reliability and verify recovery.
 
-```python
-# TODO: Implement a chapter-specific validation function.
-def validate_assumption(value: float, threshold: float) -> bool:
-    return value <= threshold
-
-print(validate_assumption(1.0, 1.5))
+```bash
+ros2 topic info /robot1/scan -v
 ```
 
 ### Exercise 3 (Advanced)
-Create a release gate using success, safety, and latency metrics.
+Add deadline and liveliness policies to a safety topic. Intentionally pause the publisher and log the deadline/liveliness event to trigger a controlled stop behavior.
 
 ```python
-# TODO: Tune thresholds and compare baseline vs candidate.
-baseline = {"success": 0.91, "safety": 0, "latency": 95}
-candidate = {"success": 0.93, "safety": 0, "latency": 104}
-print("baseline", baseline)
-print("candidate", candidate)
+# Goal: convert hidden silence into explicit safety events.
 ```
 
----
+## ✅ Key Takeaways
 
-## Key Takeaways
-
-- Start with why: operational constraints should drive architecture decisions.
-- Use beginner analogies, then convert them into technical contracts and metrics.
-- Keep code robotics-specific, commented, and validation-oriented.
-- Pair every performance change with safety and observability checks.
-- Build chapter knowledge toward capstone-level integration confidence.
-
----
+- QoS is what separates tutorial robots from production robots.
+- Lifecycle and namespacing are foundational controls, not optional extras.
+- Pick QoS per stream based on risk: “must arrive” vs “must stay current.”
+- Mismatch can fail silently; always verify endpoint contracts with `ros2 topic info -v`.
+- Production readiness comes from explicit communication contracts, not default settings.
 
 ## 🔗 Next Up
 
-Next up: this knowledge feeds directly into the next integration layer so your system remains explainable and safe as complexity grows.
-
----
-
-## 📚 Resources
-
-- [QoS Settings](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html)
-- [ROS 2 Tutorials](https://docs.ros.org/en/humble/Tutorials.html)
-- [Open Robotics](https://www.openrobotics.org/)
+Next chapter: Services and Actions in ROS 2—how robots handle request/response operations and long-running goals with feedback and cancellation.

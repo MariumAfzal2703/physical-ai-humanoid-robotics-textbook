@@ -23,7 +23,7 @@ def validate_file(path: Path) -> list[str]:
         issues.append("missing code block")
     if "```mermaid" not in text:
         issues.append("missing mermaid diagram")
-    if "## Key Takeaways" not in text:
+    if not re.search(r"^##\s*(?:✅\s*)?Key Takeaways\b", text, flags=re.MULTILINE):
         issues.append("missing '## Key Takeaways' section")
 
     return issues

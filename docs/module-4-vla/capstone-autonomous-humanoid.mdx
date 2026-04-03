@@ -3,203 +3,595 @@ title: Capstone Autonomous Humanoid
 sidebar_position: 4
 ---
 
-# Capstone Autonomous Humanoid Blueprint
+# Capstone Project — The Autonomous Humanoid
 
 ## 🌍 Real World Scenario
 
-Week 1: first node. Week 13: robot hears “bring water,” navigates, grasps, and returns with logged reasoning. Integration discipline turns pieces into a system.
+Week 1, you wrote your first ROS 2 node and it printed `Hello Robot.` Week 14, your humanoid hears, “bring me water from the kitchen,” navigates around chairs, detects a bottle, picks it safely, and returns to the user. 
 
----
+That is not luck. That is systems engineering. This chapter is your finish line—and your launch point.
 
 ## What You Will Learn
 
-- Explain why 4-phase implementation matters before implementation choices.
-- Apply beginner analogies to understand capstone autonomous humanoid blueprint.
-- Use robotics-specific code patterns with clear comments and safe defaults.
-- Read comparison tables to choose architecture and tool tradeoffs correctly.
-- Practice with graded exercises from beginner to advanced.
-- Prepare chapter knowledge for capstone integration decisions.
+- How the full capstone pipeline works from voice command to physical action.
+- How to integrate ROS 2, Gazebo, Isaac workflows, and VLA planning into one architecture.
+- How to execute the capstone in four implementation phases with clear milestones.
+- How to launch the full stack from a single integration launch file.
+- How to run a high-impact 90-second demo judges understand immediately.
+- How to self-evaluate project readiness before submission.
+- How to debug top integration failures quickly under deadline pressure.
+- How this capstone maps directly to career paths in Physical AI.
 
----
+## Why this capstone matters
 
-## Why This Topic Exists
+Most students finish robotics courses with fragments: a navigation demo, a perception demo, maybe a chatbot demo. Industry does not hire for fragments. Industry hires for integration.
 
-4-phase implementation, full architecture integration, demo strategy, submission checklist, and careers in physical ai is a response to real deployment pain, not academic theory. Teams that ignore this layer usually pay later with unstable integration, confusing failures, and costly rework. This chapter opens with why so your implementation decisions stay grounded under pressure.
+Your capstone proves you can build an end-to-end autonomous system where each subsystem does one job well and hands off correctly to the next:
 
-When you understand why a component exists, you can make better tradeoffs. You will know which defaults are safe, which shortcuts are risky, and which metrics reveal hidden instability. This perspective is especially important for hackathon delivery where speed matters but safety and clarity still decide quality.
+1. **Speech understanding** turns human intention into machine-readable task text.
+2. **Task reasoning and grounding** maps language to objects, goals, and constraints.
+3. **Navigation and manipulation planning** converts intent into safe, executable motion.
+4. **Runtime verification and safety gates** ensure the robot can fail safely.
+5. **Execution feedback loop** updates decisions from real sensor data.
 
-## Deep Explanation with Analogies
+In short: this capstone is your professional portfolio artifact for embodied AI.
 
-Complex robotics concepts become easier when anchored in analogy. Nodes are smartphone apps with focused jobs. Topics are TV channels where many listeners can tune in. Services are phone calls that wait for a response. Actions are food-delivery tracking with progress updates. QoS is choosing between guaranteed delivery and low-latency streaming.
+## Complete system overview: voice input to robot action
 
-These analogies are not substitutes for technical rigor; they are entry ramps. After intuition, we translate directly into contracts, command flows, and error-handling behavior. You should always ask: where can this fail, and how will I know quickly?
+At runtime, your system should behave like this:
 
-## Engineering Patterns and Tradeoffs
+- Human says: “Bring me water from the kitchen.”
+- Whisper transcribes speech.
+- Planner parses intent: `task=fetch_water`, `source=kitchen`, `target=human`.
+- Perception subsystem identifies bottle candidates.
+- Nav2 computes path to kitchen waypoint.
+- Robot navigates, aligns, runs grasp behavior.
+- Runtime validator checks motion and safety constraints.
+- Robot returns to user waypoint.
+- Robot confirms delivery with speech output.
 
-For capstone autonomous humanoid blueprint, tradeoffs are inevitable. Conservative settings improve safety but may reduce throughput. Aggressive settings increase performance but can amplify instability. Balanced design means selecting policies by subsystem risk profile, then validating with objective evidence rather than preference.
+The magic is not in one model. The magic is in the interfaces between modules.
 
-Professional teams document these tradeoffs in tables, diagrams, and runtime metrics so decisions are reviewable. This chapter follows the same discipline to help you build communication habits valued in production environments.
-
-## Common Mistakes and Exact Corrections
-
-A frequent beginner mistake is skipping observability until something fails. Another is treating passing demos as proof of reliability. Reliable robotics requires stress testing, fault injection, and fallback verification. You should expect edge cases and design for them explicitly.
-
-When troubleshooting, inspect boundaries first: input freshness, schema correctness, transform assumptions, and actuator limits. Most incidents are integration mistakes disguised as algorithm failures.
-
-## Practical Workflow for Team Delivery
-
-In collaborative settings, readability and repeatability are strategic advantages. Keep launch/config explicit, code comments purposeful, and error messages actionable. Align your chapter implementations with measurable acceptance criteria so mentors and judges can verify progress quickly.
-
-Your target is not just to make things work once; it is to make behavior explainable every time. That is the hallmark of premium engineering output.
-
-:::tip Beginner Tip
-Start with one subsystem and validate it deeply before integrating the next.
-:::
-
-:::info Pro Insight
-Most integration failures are contract failures; define timing and schema expectations explicitly.
-:::
-
-:::warning Common Mistake
-Do not optimize performance before proving safety and observability baselines.
-:::
-
-| Option | Strength | Limitation | Best use case |
-|---|---|---|---|
-| Conservative | Strong safety margin | Lower peak throughput | First deployment passes |
-| Balanced | Reliable tradeoff | Requires tuning | General project work |
-| Aggressive | High performance potential | Higher instability risk | Controlled experiments |
-| Tool/Command | What it does | Why it matters |
-|---|---|---|
-| `ros2 node list` | Lists active compute nodes | Confirms graph health |
-| `ros2 topic hz` | Measures stream frequency | Detects timing drift |
-| `ros2 topic echo` | Shows live payloads | Catches schema/value issues |
-| Safety constraint | Meaning | Real robot example |
-|---|---|---|
-| Speed cap | Limits motion velocity | Slow approach near humans |
-| Force cap | Limits contact force | Prevents over-gripping fragile cup |
-| Timeout fallback | Safe behavior on stale data | Stop motion when sensor feed freezes |
-
-```python
-# This utility validates command safety before execution in a robotics loop.
-from dataclasses import dataclass
-
-@dataclass
-class SafetyRule:
-    max_speed: float
-    max_force: float
-
-
-def validate(speed: float, force: float, rule: SafetyRule) -> tuple[bool, str]:
-    # Reject speed that exceeds configured safety envelope.
-    if speed > rule.max_speed:
-        return False, "speed limit exceeded"
-    # Reject force that could damage hardware or environment.
-    if force > rule.max_force:
-        return False, "force limit exceeded"
-    return True, "ok"
-```
-
-```python
-# This skeleton demonstrates chapter-level quality gating for robotics experiments.
-from dataclasses import dataclass
-
-@dataclass
-class GateInput:
-    success_rate: float
-    safety_events: int
-    latency_ms: float
-
-
-def passed(g: GateInput) -> bool:
-    # Require robust success across representative scenarios.
-    if g.success_rate < 0.9:
-        return False
-    # Any safety event blocks promotion.
-    if g.safety_events > 0:
-        return False
-    # Keep control-path latency within practical budget.
-    return g.latency_ms < 120.0
-```
+### Full architecture across all 4 modules
 
 ```mermaid
-flowchart TD
-  A[Input Context] --> B[Perception / Parsing]
-  B --> C[Planning Layer]
-  C --> D[Safety Validator]
-  D --> E[Execution]
-  E --> F[Metrics + Logs]
-  F --> C
+flowchart LR
+  subgraph M1[Module 1 - ROS 2 Foundation]
+    A1[Nodes + Topics + QoS]
+    A2[Launch + Params + Debugging]
+  end
+
+  subgraph M2[Module 2 - Simulation and Testing]
+    B1[Gazebo Kitchen World]
+    B2[Deterministic Scenarios]
+    B3[Metrics + Regression Gates]
+  end
+
+  subgraph M3[Module 3 - Isaac AI Stack]
+    C1[Isaac Sim / Synthetic Data]
+    C2[Observation + Action Interfaces]
+    C3[Policy Runtime Diagnostics]
+  end
+
+  subgraph M4[Module 4 - VLA Intelligence]
+    D1[Whisper Voice Input]
+    D2[LLM Planner + Tool Calling]
+    D3[Grounding + Safety Verification]
+  end
+
+  U[User Voice Command] --> D1
+  D1 --> D2
+  D2 --> A1
+  A1 --> B1
+  B1 --> C2
+  C2 --> D3
+  D3 --> A2
+  A2 --> E[Nav2 + Manipulation Execution]
+  E --> F[Runtime Feedback]
+  F --> D2
+  B2 --> B3
+  B3 --> G[Release Gate Decision]
+  G --> E
 ```
 
----
+This is your core story to judges: **you did not build random parts—you engineered a layered, testable autonomy stack.**
+
+## Phase-by-phase implementation guide
+
+Treat implementation as staged integration, not one giant merge. Each phase has a definition of done.
+
+## PHASE 1: ROS 2 workspace with all nodes running and communicating
+
+### Goal
+Stand up a clean ROS 2 workspace where all core nodes start correctly, discover each other, and exchange messages with expected QoS.
+
+### Required nodes (minimum)
+- `voice_input_node`
+- `task_planner_node`
+- `perception_bridge_node`
+- `nav_goal_router_node`
+- `manipulation_executor_node`
+- `safety_watchdog_node`
+- `state_reporter_node`
+
+### Verification checklist
+- `ros2 node list` shows all expected nodes.
+- `ros2 topic list` includes command, state, and heartbeat channels.
+- `ros2 topic hz /robot/heartbeat` is stable.
+- `ros2 topic echo /planner/action_json` outputs valid payloads.
+
+:::tip Beginner Tip
+If discovery is flaky, first check DDS domain ID and QoS compatibility before touching code.
+:::
+
+### Common contract for action message
+
+Use one strict schema so every node agrees on meaning.
+
+```python
+# file: interfaces/action_contract.py
+# Defines a strict action contract exchanged between planner and executors.
+from pydantic import BaseModel, Field
+
+
+class RobotAction(BaseModel):
+    skill: str = Field(description="MOVE_BASE, REACH, GRASP, PLACE, STOP")
+    frame: str = Field(description="map or base_link")
+    x_m: float
+    y_m: float
+    z_m: float
+    yaw_rad: float
+    speed_mps: float = Field(ge=0.0, le=0.2)
+    reason: str
+```
+
+## PHASE 2: Gazebo simulation with kitchen environment and sensors streaming
+
+### Goal
+Run the robot in a kitchen-like world with RGB-D camera, LiDAR, and odometry streams that mirror expected real deployment signals.
+
+### Environment requirements
+- Distinct kitchen waypoint and delivery waypoint.
+- At least two obstacle classes (static chairs + dynamic human proxy).
+- Water bottle object with detectable visual features.
+
+### Sensor checks
+- RGB stream stable (`/camera/color/image_raw`).
+- Depth aligned (`/camera/depth/image_raw`).
+- LiDAR publishing (`/scan`).
+- TF tree complete for `map -> odom -> base_link -> camera_link`.
+
+:::warning Common Mistake
+Teams often tune planner logic before validating TF and timestamp alignment. Misaligned transforms make good plans look broken.
+:::
+
+### Scenario table for simulation validation
+
+| Scenario | What to test | Pass criteria |
+|---|---|---|
+| Empty kitchen path | Basic nav to bottle zone | Goal reached without oscillation |
+| Chair obstacle | Local planner avoidance | No collision, acceptable detour |
+| Dynamic blocker | Replan behavior | Robot pauses/replans safely |
+| False bottle candidate | Perception robustness | Correct object selected or clarification asked |
+
+## PHASE 3: SLAM + Nav2 autonomous waypoint navigation
+
+### Goal
+Enable reliable autonomous movement between user location and kitchen location.
+
+### Core Nav2 behaviors to demonstrate
+- Global path generation.
+- Local obstacle avoidance.
+- Recovery behaviors (spin, clear costmap, replan).
+- Goal tolerance handling.
+
+### Why this phase is critical
+If navigation is weak, the entire capstone appears unreliable even if your VLA planner is excellent. Movement quality is what judges see first.
+
+### Practical milestone tests
+1. Start at user point, navigate to kitchen waypoint 10 times.
+2. Introduce obstacle variance and repeat.
+3. Confirm return path reliability.
+4. Log success rate and p95 completion time.
+
+:::info Pro Insight
+Judges reward consistency more than one flashy perfect run. Show repeated success under controlled variation.
+:::
+
+## PHASE 4: Whisper + GPT-4 + ROS 2 pipeline for voice-commanded tasks
+
+### Goal
+Close the loop from human speech to robot execution using structured planning outputs.
+
+### Pipeline requirements
+- Speech transcription with Whisper.
+- Task planning with constrained LLM output.
+- Tool/function call mapping to robot skills.
+- Runtime safety checks before execution.
+- Spoken confirmation on task completion/failure.
+
+### Minimum supported intents
+- “Bring me water from the kitchen.”
+- “Go to kitchen and wait.”
+- “Stop now.”
+
+### Safety requirement
+Never forward raw LLM text directly to controllers. Always parse and validate against a schema.
+
+## Complete integration launch file
+
+This launch file starts the end-to-end capstone stack in one command.
+
+```python
+#!/usr/bin/env python3
+# file: launch/capstone_autonomous_humanoid.launch.py
+# Launches full capstone stack: simulation, navigation, perception, planner, safety.
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+import os
+
+
+def generate_launch_description():
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    world = LaunchConfiguration('world')
+
+    gazebo_pkg = get_package_share_directory('gazebo_ros')
+    nav2_pkg = get_package_share_directory('nav2_bringup')
+    capstone_pkg = get_package_share_directory('humanoid_capstone')
+
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(gazebo_pkg, 'launch', 'gazebo.launch.py')
+        ),
+        launch_arguments={
+            'world': world,
+            'verbose': 'false'
+        }.items()
+    )
+
+    nav2_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(nav2_pkg, 'launch', 'navigation_launch.py')
+        ),
+        launch_arguments={
+            'use_sim_time': use_sim_time,
+            'params_file': os.path.join(capstone_pkg, 'config', 'nav2_params.yaml')
+        }.items()
+    )
+
+    state_reporter = Node(
+        package='humanoid_capstone',
+        executable='state_reporter_node',
+        name='state_reporter_node',
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
+    )
+
+    voice_input = Node(
+        package='humanoid_capstone',
+        executable='voice_input_node',
+        name='voice_input_node',
+        parameters=[
+            {'use_sim_time': use_sim_time},
+            {'whisper_model': 'base'}
+        ],
+        output='screen'
+    )
+
+    planner = Node(
+        package='humanoid_capstone',
+        executable='task_planner_node',
+        name='task_planner_node',
+        parameters=[
+            {'use_sim_time': use_sim_time},
+            {'llm_model': 'gpt-4.1'},
+            {'max_speed_mps': 0.20}
+        ],
+        output='screen'
+    )
+
+    perception = Node(
+        package='humanoid_capstone',
+        executable='perception_bridge_node',
+        name='perception_bridge_node',
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
+    )
+
+    nav_router = Node(
+        package='humanoid_capstone',
+        executable='nav_goal_router_node',
+        name='nav_goal_router_node',
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
+    )
+
+    manipulation = Node(
+        package='humanoid_capstone',
+        executable='manipulation_executor_node',
+        name='manipulation_executor_node',
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
+    )
+
+    safety_watchdog = Node(
+        package='humanoid_capstone',
+        executable='safety_watchdog_node',
+        name='safety_watchdog_node',
+        parameters=[
+            {'use_sim_time': use_sim_time},
+            {'heartbeat_timeout_sec': 0.5}
+        ],
+        output='screen'
+    )
+
+    return LaunchDescription([
+        DeclareLaunchArgument('use_sim_time', default_value='true'),
+        DeclareLaunchArgument(
+            'world',
+            default_value=os.path.join(capstone_pkg, 'worlds', 'kitchen.world')
+        ),
+        gazebo_launch,
+        nav2_launch,
+        state_reporter,
+        voice_input,
+        planner,
+        perception,
+        nav_router,
+        manipulation,
+        safety_watchdog,
+    ])
+```
+
+## Working demo script (for operators and judges)
+
+Use this script to drive a controlled, repeatable run during evaluation.
+
+```python
+#!/usr/bin/env python3
+# file: scripts/demo_run.py
+# Runs a scripted capstone demo sequence and prints checkpoint status.
+
+import time
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+
+class DemoRunner(Node):
+    def __init__(self):
+        super().__init__('demo_runner')
+        self.voice_cmd_pub = self.create_publisher(String, '/voice/command_text', 10)
+        self.status_sub = self.create_subscription(String, '/capstone/status', self.on_status, 10)
+        self.last_status = ''
+
+    def on_status(self, msg: String):
+        self.last_status = msg.data
+        self.get_logger().info(f"STATUS: {self.last_status}")
+
+    def send_voice_command(self, text: str):
+        msg = String()
+        msg.data = text
+        self.voice_cmd_pub.publish(msg)
+        self.get_logger().info(f"VOICE_COMMAND_SENT: {text}")
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = DemoRunner()
+
+    # Warm-up spins to ensure pub/sub graph is ready.
+    for _ in range(20):
+        rclpy.spin_once(node, timeout_sec=0.1)
+
+    # Demo command expected by judges.
+    node.send_voice_command('bring me water from the kitchen')
+
+    start = time.time()
+    timeout = 90.0
+
+    # Monitor for completion state under 90 seconds.
+    while time.time() - start < timeout:
+        rclpy.spin_once(node, timeout_sec=0.1)
+        if 'TASK_COMPLETED' in node.last_status:
+            node.get_logger().info('DEMO_RESULT: SUCCESS')
+            break
+        if 'SAFE_STOP' in node.last_status:
+            node.get_logger().warn('DEMO_RESULT: STOPPED_BY_SAFETY')
+            break
+    else:
+        node.get_logger().error('DEMO_RESULT: TIMEOUT')
+
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+## 90-second demo guide: what judges want to see
+
+You are not only showing functionality. You are showing engineering maturity.
+
+### 0–15s: System context
+- One sentence: “This is an end-to-end autonomous humanoid pipeline from voice to safe execution.”
+- Show architecture slide/diagram.
+
+### 15–30s: Bring-up
+- Run one command to launch full stack.
+- Show node graph health (`ros2 node list` quick snapshot).
+
+### 30–60s: Voice command execution
+- Speak command: “Bring me water from the kitchen.”
+- Show live planner status updates.
+- Robot navigates to kitchen waypoint and performs pick behavior.
+
+### 60–80s: Return and delivery
+- Robot returns to user zone.
+- Delivery confirmation event shown in logs/UI.
+
+### 80–90s: Safety proof
+- Trigger a controlled safety condition (heartbeat timeout simulation).
+- Show safe-stop behavior activates correctly.
+
+If time is limited, never skip safety evidence. It separates serious teams from toy demos.
+
+## Submission checklist: is your project ready?
+
+Use this before final submission.
+
+| Category | Requirement | Pass/Fail |
+|---|---|---|
+| Architecture | Full pipeline diagram included and explained | ☐ |
+| Integration | One-command launch for full system | ☐ |
+| Functionality | Voice-to-task-to-action flow works end-to-end | ☐ |
+| Navigation | Reliable waypoint travel with obstacle handling | ☐ |
+| Manipulation | Bottle pickup behavior demonstrated | ☐ |
+| Safety | Watchdog + safe-stop demonstrated live | ☐ |
+| Validation | Logs/metrics collected for run evidence | ☐ |
+| Presentation | 90-second demo scripted and rehearsed | ☐ |
+
+A capstone is “ready” only when all critical boxes are checked.
+
+## Troubleshooting: top 10 problems and exact fixes
+
+| Problem | Symptom | Likely cause | Fix |
+|---|---|---|---|
+| 1. Nodes not discovering each other | Empty topic graph | Wrong ROS domain/QoS mismatch | Align `ROS_DOMAIN_ID`, verify QoS profiles |
+| 2. Planner outputs invalid actions | Executor rejects JSON | Missing schema constraints | Enforce strict schema + field bounds |
+| 3. Robot drives wrong direction | Inverted nav behavior | Frame mismatch (`map`/`base_link`) | Validate frame names and TF transforms |
+| 4. Perception sees bottle but grasp fails | Repeated miss | Poor camera-depth calibration | Recalibrate RGB-D alignment and grasp offset |
+| 5. Nav2 oscillates near goal | Goal never completes | Costmap inflation/tolerance issues | Tune goal tolerances + local planner params |
+| 6. Demo times out at 90s | Slow task completion | Over-conservative speed / excessive replans | Profile phase durations; tune safe speed envelope |
+| 7. Voice command misunderstood | Wrong task intent | ASR noise, bad mic placement | Improve mic gain, denoise input, add command confirmations |
+| 8. Safety watchdog triggers unexpectedly | Random safe-stop | Heartbeat jitter | Increase heartbeat publish rate; tune timeout cautiously |
+| 9. Gazebo behaves unrealistically | Great sim, poor transfer | Weak domain randomization | Add variation in lighting, friction, mass, clutter |
+| 10. System works once, fails later | Non-deterministic behavior | Hidden race/timing assumptions | Add deterministic scenario tests + startup sequencing |
+
+## Safe-by-design vs safe-by-testing
+
+You must understand this distinction deeply.
+
+### Safe-by-testing
+You run many tests and hope dangerous behavior is unlikely.
+- Strength: easy to start.
+- Weakness: cannot cover all real-world edge cases.
+
+### Safe-by-design
+You architect hard constraints so unsafe behavior is structurally blocked.
+- Strength: higher baseline trust and predictability.
+- Weakness: requires discipline and up-front design effort.
+
+Professional robotics teams combine both. They build safety constraints into architecture first, then validate aggressively through testing.
+
+## Career paths after this capstone
+
+This project directly maps to multiple high-growth roles.
+
+### 1) Robotics Engineer
+You build integrated robot systems using ROS 2, navigation, manipulation, and runtime safety.
+
+### 2) Embodied AI / VLA Research Engineer
+You design planning, grounding, and policy-learning systems that connect language to action.
+
+### 3) Simulation Engineer
+You build high-fidelity digital twins, scenario pipelines, and regression gates for sim-to-real reliability.
+
+### 4) AI Safety Engineer (Robotics)
+You specialize in runtime verification, guardrails, and compliance-aligned deployment.
+
+### 5) Startup Founder (Physical AI)
+You turn one narrow but painful real-world workflow into a reliable autonomous product.
+
+Your capstone is not just coursework. It is evidence that you can ship complex autonomy under constraints.
 
 ## 💡 Key Concepts Summary
 
 | Concept | What it means | Real robot example |
 |---|---|---|
-| Contract clarity | Explicit inputs/outputs and assumptions | Controller rejects stale state updates |
-| Runtime evidence | Metrics/logs prove behavior | Gate blocks unsafe release candidate |
-| Fallback behavior | Safe response during uncertainty | Robot pauses when confidence is low |
-| Iterative validation | Improve through repeatable tests | Simulation regression catches drift early |
-
----
+| End-to-end integration | All subsystems connected with stable contracts | Voice instruction becomes safe executed fetch task |
+| Layered architecture | Modules separated by responsibility | Planner cannot bypass safety watchdog |
+| Deterministic validation | Repeatable tests before demos | Same kitchen scenario passes 10/10 runs |
+| Runtime safety | Continuous verification before actuation | Unsafe speed command rejected pre-execution |
+| Demo discipline | Scripted, measured presentation | 90-second run shows capability + safety proof |
 
 ## 🧪 Practice Exercises
 
 ### Exercise 1 (Beginner)
-Translate one chapter concept into your own analogy and map it to a measurable signal.
+Create a minimal integration smoke test: launch your stack and verify heartbeat + planner output within 10 seconds.
 
 ```python
-# TODO: Replace placeholders with your own mapping.
-concept = ""
-analogy = ""
-metric = ""
-print(concept, analogy, metric)
+# Goal: confirm baseline system liveness after launch.
+import time
+
+start = time.time()
+heartbeat_seen = False
+planner_seen = False
+
+while time.time() - start < 10:
+    # TODO: Replace with ROS topic checks in your environment
+    if not heartbeat_seen:
+        heartbeat_seen = True
+    if not planner_seen:
+        planner_seen = True
+
+print("PASS" if heartbeat_seen and planner_seen else "FAIL")
 ```
 
 ### Exercise 2 (Intermediate)
-Build a mini validator for one runtime assumption from this chapter.
+Implement a deterministic scenario test for “kitchen fetch” with fixed seed and obstacle layout. Report success rate over 20 runs.
 
 ```python
-# TODO: Implement a chapter-specific validation function.
-def validate_assumption(value: float, threshold: float) -> bool:
-    return value <= threshold
+# Goal: measure consistency, not just one successful run.
+runs = 20
+successes = 0
+for i in range(runs):
+    # TODO: trigger scenario and collect result
+    simulated_result = True
+    successes += 1 if simulated_result else 0
 
-print(validate_assumption(1.0, 1.5))
+print({"runs": runs, "successes": successes, "success_rate": successes / runs})
 ```
 
 ### Exercise 3 (Advanced)
-Create a release gate using success, safety, and latency metrics.
+Build a demo readiness gate that requires functional success, safety success, and runtime budget compliance.
 
 ```python
-# TODO: Tune thresholds and compare baseline vs candidate.
-baseline = {"success": 0.91, "safety": 0, "latency": 95}
-candidate = {"success": 0.93, "safety": 0, "latency": 104}
-print("baseline", baseline)
-print("candidate", candidate)
+# Goal: block submissions that are flashy but unreliable.
+def demo_ready(success_rate: float, safety_events: int, p95_duration_sec: float) -> bool:
+    if success_rate < 0.90:
+        return False
+    if safety_events > 0:
+        return False
+    if p95_duration_sec > 90.0:
+        return False
+    return True
+
+print(demo_ready(0.93, 0, 82.5))
 ```
 
----
+## ✅ Key Takeaways
 
-## Key Takeaways
-
-- Start with why: operational constraints should drive architecture decisions.
-- Use beginner analogies, then convert them into technical contracts and metrics.
-- Keep code robotics-specific, commented, and validation-oriented.
-- Pair every performance change with safety and observability checks.
-- Build chapter knowledge toward capstone-level integration confidence.
-
----
+- You have moved from isolated robot scripts to full-stack embodied autonomy.
+- Integration quality is defined by interfaces, observability, and safety—not model hype.
+- A one-command launch and deterministic validation are professional-grade signals.
+- Judges trust teams that demonstrate both capability and controlled failure behavior.
+- This capstone is portfolio proof that you can design, build, test, and present real Physical AI systems.
 
 ## 🔗 Next Up
 
-Next up: this knowledge feeds directly into the next integration layer so your system remains explainable and safe as complexity grows.
-
----
+Next, you package this capstone into a deployment narrative—technical demo, engineering evidence, and product vision—so your work can move from classroom achievement to real-world impact.
 
 ## 📚 Resources
 
-- [ROS Community](https://discourse.ros.org/)
-- [ROS 2 Tutorials](https://docs.ros.org/en/humble/Tutorials.html)
+- [ROS 2 Documentation (Humble)](https://docs.ros.org/en/humble/index.html)
+- [Navigation2 Documentation](https://navigation.ros.org/)
 - [Open Robotics](https://www.openrobotics.org/)
+
+You started with a single node and a single print statement. You are finishing with a complete autonomous behavior stack that can sense, reason, act, recover, and stay safe. That is serious engineering. Protect that standard, keep building, and take this momentum into whatever you build next.

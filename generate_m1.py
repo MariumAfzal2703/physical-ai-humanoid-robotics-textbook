@@ -1,4 +1,6 @@
----
+import sys
+
+content = """---
 title: Module 1 Overview
 sidebar_position: 1
 ---
@@ -266,3 +268,10 @@ Now that you understand the architectural theory, it is time to build it. In the
 - [ROS 2 Humble Documentation](https://docs.ros.org/en/humble/)
 - [Understanding DDS in ROS 2](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Internal-Interfaces.html)
 - [Sensor Messages / JointState Specification](https://docs.ros2.org/latest/api/sensor_msgs/msg/JointState.html)
+"""
+
+with open('docs/module-1-ros2/overview.mdx', 'w') as f:
+    f.write(content)
+
+words = len([w for w in content.split() if w.strip()])
+print(f"Successfully wrote docs/module-1-ros2/overview.mdx with {words} words.")
