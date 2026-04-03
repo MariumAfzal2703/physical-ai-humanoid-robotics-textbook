@@ -51,7 +51,7 @@ def chat(payload: ChatRequest) -> ChatResponse:
     return ChatResponse(answer=answer, sources=sources, session_id=session.session_id)
 
 
-@api_router.post("/chapters/{chapter_id}/translate-urdu", response_model=ChapterTransformResponse)
+@api_router.post("/chapters/{chapter_id:path}/translate-urdu", response_model=ChapterTransformResponse)
 def translate_chapter(chapter_id: str) -> ChapterTransformResponse:
     try:
         content = rag.translate_chapter_urdu(chapter_id)
@@ -92,7 +92,7 @@ def oauth_signin(provider: str) -> AuthResponse:
     return AuthResponse(user_id=user_id, token=token)
 
 
-@api_router.post("/chapters/{chapter_id}/personalize", response_model=ChapterTransformResponse)
+@api_router.post("/chapters/{chapter_id:path}/personalize", response_model=ChapterTransformResponse)
 def personalize_chapter(
     chapter_id: str,
     payload: ChapterActionRequest,

@@ -79,10 +79,11 @@ def _search_top_chunks(question: str, top_k: int = 3) -> list[dict]:
     return chunks
 
 
-def _chat_completion(system_prompt: str, user_prompt: str) -> str:
+def _chat_completion(system_prompt: str, user_prompt: str, max_tokens: int | None = None) -> str:
     response = _groq_client().chat.completions.create(
         model=GROQ_MODEL,
         temperature=0.2,
+        max_tokens=max_tokens,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -120,16 +121,17 @@ def generate_answer(question: str, context_text: str | None = None) -> tuple[str
 
 
 def translate_chapter_urdu(chapter_id: str) -> str:
-    chapter = _load_chapter_content(chapter_id)
+    chapter_excerpt = _load_chapter_content(chapter_id)[:3000]
 
     system_prompt = (
-        "Translate the provided chapter content into Urdu. "
-        "Keep technical terms and acronyms in English (e.g., ROS2, SLAM, LiDAR, Nav2, Qdrant). "
-        "Preserve headings, bullets, and code fences as-is."
+        "Translate the following robotics textbook excerpt to Urdu. "
+        "Keep technical terms like ROS2, SLAM, LiDAR, Node, Topic, QoS in English. "
+        "Translate only explanatory text. Do not repeat any phrase. "
+        "Stop after translation is complete."
     )
-    user_prompt = f"Translate this chapter to Urdu:\n\n{chapter}"
+    user_prompt = f"Robotics textbook excerpt:\n\n{chapter_excerpt}"
 
-    return _chat_completion(system_prompt, user_prompt)
+    return _chat_completion(system_prompt, user_prompt, max_tokens=2000)
 
 
 def personalize_chapter(
