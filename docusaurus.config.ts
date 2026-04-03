@@ -20,7 +20,7 @@ const config: Config = {
 
   themes: ['@docusaurus/theme-mermaid'],
 
-  url: process.env.DOCS_SITE_URL || 'http://localhost:3000',
+  url: 'https://physical-ai-humanoid-robotics-textb-sable.vercel.app',
   baseUrl: '/',
 
   organizationName: 'mariumafzal2703',
