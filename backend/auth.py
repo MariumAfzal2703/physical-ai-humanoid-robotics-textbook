@@ -1,73 +1,156 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from uuid import uuid4
+
+import bcrypt
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+from .settings import get_settings
 
 
 @dataclass
 class UserRecord:
     user_id: str
     email: str
-    password: str
     software_background: str
     hardware_background: str
 
 
-_users_by_email: dict[str, UserRecord] = {}
-_oauth_users_by_provider: dict[str, UserRecord] = {}
+_SQL_BOOTSTRAP = Path(__file__).resolve().parent / "sql" / "users.sql"
+
+
+def _connect():
+    settings = get_settings()
+    if not settings.neon_database_url:
+        raise RuntimeError("NEON_DATABASE_URL is not configured")
+    return psycopg2.connect(settings.neon_database_url)
+
+
+def _ensure_users_table() -> None:
+    ddl = _SQL_BOOTSTRAP.read_text(encoding="utf-8")
+    with _connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(ddl)
+        conn.commit()
+
+
+def _row_to_user(row: dict | None) -> UserRecord | None:
+    if not row:
+        return None
+    return UserRecord(
+        user_id=str(row["id"]),
+        email=row["email"],
+        software_background=row["software_background"],
+        hardware_background=row["hardware_background"],
+    )
 
 
 def signup(email: str, password: str, software_background: str, hardware_background: str) -> tuple[str, str]:
-    key = email.strip().lower()
-    if key in _users_by_email:
-        raise ValueError("email already registered")
+    _ensure_users_table()
 
-    user = UserRecord(
-        user_id=str(uuid4()),
-        email=key,
-        password=password,
-        software_background=software_background,
-        hardware_background=hardware_background,
-    )
-    _users_by_email[key] = user
-    return user.user_id, f"token-{user.user_id}"
+    normalized_email = email.strip().lower()
+    password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    user_id = str(uuid4())
+
+    with _connect() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT id FROM users WHERE email = %s", (normalized_email,))
+            if cur.fetchone() is not None:
+                raise ValueError("email already registered")
+
+            cur.execute(
+                """
+                INSERT INTO users (id, email, password_hash, software_background, hardware_background)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (user_id, normalized_email, password_hash, software_background, hardware_background),
+            )
+        conn.commit()
+
+    return user_id, f"token-{user_id}"
 
 
 def signin(email: str, password: str) -> tuple[str, str]:
-    key = email.strip().lower()
-    user = _users_by_email.get(key)
-    if not user or user.password != password:
+    _ensure_users_table()
+
+    normalized_email = email.strip().lower()
+
+    with _connect() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, password_hash FROM users WHERE email = %s",
+                (normalized_email,),
+            )
+            row = cur.fetchone()
+
+    if row is None:
         raise ValueError("invalid credentials")
-    return user.user_id, f"token-{user.user_id}"
+
+    password_hash = row["password_hash"].encode("utf-8")
+    if not bcrypt.checkpw(password.encode("utf-8"), password_hash):
+        raise ValueError("invalid credentials")
+
+    user_id = str(row["id"])
+    return user_id, f"token-{user_id}"
 
 
 def oauth_signin(provider: str) -> tuple[str, str]:
+    _ensure_users_table()
+
     if provider not in {"google", "github"}:
         raise ValueError("unsupported oauth provider")
 
-    existing = _oauth_users_by_provider.get(provider)
-    if existing:
-        return existing.user_id, f"token-{existing.user_id}"
+    email = f"{provider}-oauth@local.dev"
 
-    user = UserRecord(
-        user_id=str(uuid4()),
-        email=f"{provider}-oauth@local.dev",
-        password="oauth",
-        software_background=f"{provider} oauth learner",
-        hardware_background="robotics hardware enthusiast",
-    )
-    _oauth_users_by_provider[provider] = user
-    return user.user_id, f"token-{user.user_id}"
+    with _connect() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id FROM users WHERE email = %s",
+                (email,),
+            )
+            existing = cur.fetchone()
+
+            if existing is not None:
+                user_id = str(existing["id"])
+                return user_id, f"token-{user_id}"
+
+            user_id = str(uuid4())
+            placeholder_hash = bcrypt.hashpw(b"oauth", bcrypt.gensalt()).decode("utf-8")
+            cur.execute(
+                """
+                INSERT INTO users (id, email, password_hash, software_background, hardware_background)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    email,
+                    placeholder_hash,
+                    f"{provider} oauth learner",
+                    "robotics hardware enthusiast",
+                ),
+            )
+        conn.commit()
+
+    return user_id, f"token-{user_id}"
 
 
 def get_user_by_token(token: str) -> UserRecord | None:
+    _ensure_users_table()
+
     if not token.startswith("token-"):
         return None
+
     user_id = token.replace("token-", "", 1)
-    for user in _users_by_email.values():
-        if user.user_id == user_id:
-            return user
-    for user in _oauth_users_by_provider.values():
-        if user.user_id == user_id:
-            return user
-    return None
+
+    with _connect() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, email, software_background, hardware_background FROM users WHERE id = %s",
+                (user_id,),
+            )
+            row = cur.fetchone()
+
+    return _row_to_user(row)

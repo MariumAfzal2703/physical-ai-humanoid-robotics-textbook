@@ -11,6 +11,8 @@ class Settings:
     qdrant_api_key: str | None
     google_api_key: str | None
     groq_api_key: str | None
+    github_client_id: str | None
+    github_client_secret: str | None
 
 
 _cached_settings: Settings | None = None
@@ -28,6 +30,8 @@ def get_settings() -> Settings:
             qdrant_api_key=os.getenv("QDRANT_API_KEY"),
             google_api_key=os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY"),
             groq_api_key=os.getenv("GROQ_API_KEY"),
+            github_client_id=os.getenv("GITHUB_CLIENT_ID"),
+            github_client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
         )
 
     return _cached_settings
