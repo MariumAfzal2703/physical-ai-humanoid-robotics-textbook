@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
+from dotenv import load_dotenv
 from openai import OpenAI
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
@@ -13,6 +14,8 @@ DOCS_ROOT = Path("docs")
 COLLECTION_NAME = "textbook"
 EMBED_MODEL = "all-MiniLM-L6-v2"
 GROQ_MODEL = "llama-3.1-8b-instant"
+
+load_dotenv()
 
 
 @lru_cache(maxsize=1)
@@ -57,15 +60,15 @@ def _load_chapter_content(chapter_id: str) -> str:
 def _search_top_chunks(question: str, top_k: int = 3) -> list[dict]:
     embedding = _embedding_model().encode(question, normalize_embeddings=True).tolist()
 
-    hits = _qdrant_client().search(
+    response = _qdrant_client().query_points(
         collection_name=COLLECTION_NAME,
-        query_vector=embedding,
+        query=embedding,
         limit=top_k,
         with_payload=True,
     )
 
     chunks: list[dict] = []
-    for hit in hits:
+    for hit in response.points:
         payload = hit.payload or {}
         chunks.append(
             {

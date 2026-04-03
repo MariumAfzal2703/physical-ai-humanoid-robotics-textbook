@@ -5,10 +5,13 @@ from pathlib import Path
 from uuid import uuid4
 
 import bcrypt
+from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
 from .settings import get_settings
+
+load_dotenv()
 
 
 @dataclass
