@@ -79,10 +79,10 @@ def _search_top_chunks(question: str, top_k: int = 3) -> list[dict]:
     return chunks
 
 
-def _chat_completion(system_prompt: str, user_prompt: str, max_tokens: int | None = None) -> str:
+def _chat_completion(system_prompt: str, user_prompt: str, max_tokens: int | None = None, temperature: float = 0.2) -> str:
     response = _groq_client().chat.completions.create(
         model=GROQ_MODEL,
-        temperature=0.2,
+        temperature=temperature,
         max_tokens=max_tokens,
         messages=[
             {"role": "system", "content": system_prompt},
@@ -121,17 +121,27 @@ def generate_answer(question: str, context_text: str | None = None) -> tuple[str
 
 
 def translate_chapter_urdu(chapter_id: str) -> str:
-    chapter_excerpt = _load_chapter_content(chapter_id)[:3000]
+    chapter = _load_chapter_content(chapter_id)
+
+    # Split into small paragraphs
+    paragraphs = [p.strip() for p in chapter.split('\n') if p.strip()]
+    paragraphs = paragraphs[:15]  # Only first 15 paragraphs
 
     system_prompt = (
-        "Translate the following robotics textbook excerpt to Urdu. "
-        "Keep technical terms like ROS2, SLAM, LiDAR, Node, Topic, QoS in English. "
-        "Translate only explanatory text. Do not repeat any phrase. "
-        "Stop after translation is complete."
+        "You are an Urdu translator. Translate ONLY the given sentence to Urdu. "
+        "Keep these words in English: ROS2, SLAM, LiDAR, Node, Topic, QoS, Gazebo, Isaac, VLA. "
+        "Output ONLY the Urdu translation. Nothing else."
     )
-    user_prompt = f"Robotics textbook excerpt:\n\n{chapter_excerpt}"
 
-    return _chat_completion(system_prompt, user_prompt, max_tokens=2000)
+    translated = []
+    for para in paragraphs:
+        if len(para) < 10:  # skip very short lines
+            translated.append(para)
+            continue
+        result = _chat_completion(system_prompt, para, max_tokens=200, temperature=0.1)
+        translated.append(result)
+
+    return '\n\n'.join(translated)
 
 
 def personalize_chapter(
@@ -140,14 +150,15 @@ def personalize_chapter(
     hardware_background: str,
     focus: str | None = None,
 ) -> str:
-    chapter = _load_chapter_content(chapter_id)
+    chapter = _load_chapter_content(chapter_id)[:1500]
 
     focus_line = f"Preferred Focus: {focus}\n" if focus else ""
 
     system_prompt = (
         "You are a robotics curriculum personalization assistant. "
         "Rewrite the chapter for the learner profile while preserving technical correctness. "
-        "Keep structure and code blocks, but tune explanation depth, analogies, and emphasis."
+        "Keep structure and code blocks, but tune explanation depth, analogies, and emphasis. "
+        "Never repeat any phrase. Stop after rewriting once. Maximum 800 words."
     )
     user_prompt = (
         "Learner Profile:\n"
@@ -158,4 +169,4 @@ def personalize_chapter(
         f"{chapter}"
     )
 
-    return _chat_completion(system_prompt, user_prompt)
+    return _chat_completion(system_prompt, user_prompt, max_tokens=800, temperature=0.1)
