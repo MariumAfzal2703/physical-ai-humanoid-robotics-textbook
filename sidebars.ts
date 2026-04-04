@@ -23,6 +23,7 @@ const sidebars: SidebarsConfig = {
           type: 'doc',
           id: 'module-1-ros2/overview',
           label: 'Overview',
+          key: 'module-1-overview',
         },
         {
           type: 'doc',
@@ -44,6 +45,7 @@ const sidebars: SidebarsConfig = {
           type: 'doc',
           id: 'module-2-simulation/overview',
           label: 'Overview',
+          key: 'module-2-overview',
         },
         {
           type: 'doc',
@@ -65,6 +67,7 @@ const sidebars: SidebarsConfig = {
           type: 'doc',
           id: 'module-3-isaac/overview',
           label: 'Overview',
+          key: 'module-3-overview',
         },
         {
           type: 'doc',
@@ -86,6 +89,7 @@ const sidebars: SidebarsConfig = {
           type: 'doc',
           id: 'module-4-vla/overview',
           label: 'Overview',
+          key: 'module-4-overview',
         },
         {
           type: 'doc',
