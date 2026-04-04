@@ -16,8 +16,8 @@ class ChatResponse(BaseModel):
 class SignupRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8)
-    software_background: str
-    hardware_background: str
+    software_background: str = Field(min_length=1)
+    hardware_background: str = Field(min_length=1)
 
 
 class SigninRequest(BaseModel):
