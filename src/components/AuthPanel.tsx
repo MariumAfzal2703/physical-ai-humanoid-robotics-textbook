@@ -73,8 +73,8 @@ export default function AuthPanel({isOpen, onClose, onAuthenticated}: AuthPanelP
         const result = await postSignup({
           email,
           password,
-          software_background: softwareBackground,
-          hardware_background: hardwareBackground,
+          software_background: softwareBackground || "Not specified",
+          hardware_background: hardwareBackground || "Not specified",
         });
         onAuthenticated(result.token);
         setMessage('Signup successful. Personalization is now enabled.');
@@ -153,8 +153,8 @@ export default function AuthPanel({isOpen, onClose, onAuthenticated}: AuthPanelP
 
         {mode === 'signup' ? (
           <>
-            <textarea value={softwareBackground} onChange={(event) => setSoftwareBackground(event.target.value)} placeholder="Software background" rows={3} style={{...inputStyle, resize: 'vertical'}} />
-            <textarea value={hardwareBackground} onChange={(event) => setHardwareBackground(event.target.value)} placeholder="Hardware background" rows={3} style={{...inputStyle, resize: 'vertical'}} />
+            <textarea value={softwareBackground} onChange={(event) => setSoftwareBackground(event.target.value)} placeholder="Describe your software background (programming languages, frameworks, etc.)" rows={3} style={{...inputStyle, resize: 'vertical'}} />
+            <textarea value={hardwareBackground} onChange={(event) => setHardwareBackground(event.target.value)} placeholder="Describe your hardware background (electronics, robotics, etc.)" rows={3} style={{...inputStyle, resize: 'vertical'}} />
           </>
         ) : null}
 
