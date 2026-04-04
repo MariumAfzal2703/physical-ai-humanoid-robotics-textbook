@@ -101,7 +101,7 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
   }
 
   return (
-    <div style={{position: 'fixed', top: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 1200, width: 'min(94vw, 900px)'}}>
+    <div style={{marginTop: 16, marginBottom: 16}}>
       <div
         style={{
           background: 'var(--ifm-background-color)',
@@ -144,7 +144,7 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
         {translatedContent ? (
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
-              <strong>Urdu Chapter View</strong>
+              <strong>Roman Urdu Translation</strong>
               <button
                 onClick={() => setTranslatedContent('')}
                 style={{
