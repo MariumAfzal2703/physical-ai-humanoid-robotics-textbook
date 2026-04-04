@@ -30,6 +30,11 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+async def startup():
+    auth.create_tables()
+
+
 @api_router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
