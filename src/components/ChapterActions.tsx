@@ -49,6 +49,8 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
   async function handleUrduTranslate() {
     setLoadingUrdu(true);
     try {
+      // For pre-translated content, we'll just show the pre-translated version directly
+      // This assumes the backend will serve pre-translated content from docs-urdu/
       const result = await postChapterTranslation(chapterId);
       setTranslatedContent(result.content);
     } catch {

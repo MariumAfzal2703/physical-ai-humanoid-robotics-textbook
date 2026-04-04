@@ -121,6 +121,16 @@ def generate_answer(question: str, context_text: str | None = None) -> tuple[str
 
 
 def translate_chapter_urdu(chapter_id: str) -> str:
+    # First, try to read from pre-translated Roman Urdu file
+    urdu_docs_root = Path("docs-urdu")
+    try:
+        urdu_path = urdu_docs_root / f"{chapter_id}.mdx"
+        if urdu_path.exists():
+            return urdu_path.read_text(encoding="utf-8")
+    except:
+        pass  # Fall back to Groq translation if file read fails
+
+    # Fallback to Groq translation if pre-translated file doesn't exist
     chapter = _load_chapter_content(chapter_id)
 
     # Split into small paragraphs
