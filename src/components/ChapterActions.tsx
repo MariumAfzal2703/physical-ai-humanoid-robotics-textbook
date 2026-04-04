@@ -101,7 +101,7 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
   }
 
   return (
-    <div style={{position: 'fixed', top: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 1200, width: 'min(94vw, 900px)'}}>
+    <div style={{marginTop: 16, marginBottom: 16}}>
       <div
         style={{
           background: 'var(--ifm-background-color)',
@@ -109,10 +109,10 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
           border: '1px solid var(--ifm-color-emphasis-300)',
           borderRadius: 12,
           padding: 12,
-          boxShadow: '0 10px 22px rgba(0, 0, 0, 0.18)',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <div style={{display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap'}}>
+        <div style={{display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8}}>
           <button style={actionButtonStyle} onClick={handleUrduTranslate} disabled={loadingUrdu}>
             {loadingUrdu ? 'Translating...' : 'Read this chapter in Urdu'}
           </button>
@@ -131,7 +131,7 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
             placeholder="Optional focus (e.g., control systems, beginner path)"
             style={{
               width: '100%',
-              marginTop: 8,
+              marginBottom: 8,
               padding: '10px 12px',
               borderRadius: 10,
               border: '1px solid var(--ifm-color-emphasis-300)',
@@ -144,7 +144,7 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
         {translatedContent ? (
           <div style={cardStyle}>
             <div style={cardHeaderStyle}>
-              <strong>Urdu Chapter View</strong>
+              <strong>Roman Urdu Translation</strong>
               <button
                 onClick={() => setTranslatedContent('')}
                 style={{
@@ -152,7 +152,8 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
                   border: 'none',
                   fontSize: '18px',
                   cursor: 'pointer',
-                  color: 'var(--ifm-font-color-base)'
+                  color: 'var(--ifm-font-color-base)',
+                  lineHeight: '1'
                 }}
               >
                 ×
