@@ -7,15 +7,15 @@ sidebar_position: 3
 
 ## 🌍 Real World Scenario
 
-Your humanoid robot system has 12 nodes: camera, LiDAR, joint controller, navigation, speech recognition, arm planner, leg planner, safety monitor... Starting each one manually in 12 terminal windows is not a robotics workflow. It's chaos. Launch files are how real robots start.
+آپ کے ہیومینوائڈ ربوٹ سسٹم میں 12 نودز ہیں: کیمرا، LiDAR، جوائن کنٹرولر، ناوگیشن، اسپیکر شناخت، ہاتھ پلانر، پائے پلانر، سافٹی مونٹر... ایک ہی وقت میں 12 ٹیرمینل وینڈوز میں ہر ایک کو دستی طور پر شروع کرنا ربوٹکس ورک فلو نہیں ہے۔ یہ ہیومینوائڈ ربوٹ کا Chaos ہے۔ لانچ فائلز یہی ہیں جو حقیقی ربوٹس کو
 
-And here is what usually happens to every serious robotics student: one day, everything worked in simulation, then suddenly it stops. RViz shows nothing moving. Navigation says “waiting for transform.” One sensor node is alive but silent. Another node crashes with “no route to host.” You stare at logs for two hours and feel like maybe you are bad at robotics.
+اور یہ ہے جو ہر سنجیدہ ربوٹکس طالب علم کے ساتھ ہوتا ہے: ایک دن، سیمیولیشن میں ہر چیز کام کر رہی تھی، پھر اچانک یہ روک دی گئی۔ RViz میں کچھ بھی حرکت نہیں ہو رہی تھی۔ نेवیگیشن کہتا ہے "ٹرانسفارم کے لئے انتظار کر رہا ہے"۔ ایک سنسور نود زندہ تھا لیکن خاموش تھا۔ دوسرا نود "ہوسٹ تک راسٹ کے
 
-You are not bad at robotics.
+Aap robotics mein acha hain.
 
-You are at the exact point where robotics becomes real engineering.
+آپ robotics کی exact point پر پہنچ گئے ہیں جہاں یہ real engineering بنتا ہے۔
 
-This chapter is built for that moment. Launch files give structure to startup. Parameters let you configure behavior without rewriting code. Debugging tools turn panic into a repeatable diagnosis process. The emotional core of production robotics is not avoiding bugs. It is learning to stay calm, inspect the system, and narrow uncertainty one step at a time.
+یہ باب اس وقت کے لیے بنایا گیا ہے۔ لانچ فائلز شروع کے لیے ساختہ ہوتے ہیں۔ پیمائشیں آپ کو بے نیاز کوڈ کو دوبارہ لکھنے کے بغیر رویے کو کنٹرول کرنے کی اجازت دیتی ہیں۔ ڈیبگنگ ٹولز پینک میں ایک دہرائے جانے والا تشخیصی عمل میں تبدیل ہوتے ہیں۔ پیداواری رباتکس کا جذباتی مرکز بیکار Bugs سے بچنا نہیں ہے۔ ی
 
 ## What You Will Learn
 
@@ -30,28 +30,28 @@ This chapter is built for that moment. Launch files give structure to startup. P
 
 ## Why Launch Files Are the Startup Contract
 
-A launch file is not just convenience. It is the startup contract of your robot system.
+ایک لانچ فائل صرف ایک سہولت نہیں ہے۔ یہ آپ کے ربات کے نظام کا آغاز کا معاہدہ ہے۔
 
-When teams run nodes manually, startup order becomes tribal knowledge:
+جب ٹیمز نودز منیالری کے ذریعے چلتی ہیں، شروع کا آرڈر قبائلی علم بن جاتا ہے:
 - “Run this first, wait 3 seconds, then run that.”
 - “If TF fails, restart navigation twice.”
 - “Sometimes LiDAR doesn’t connect, just try again.”
 
-That is operational debt.
+وہ آپریشنل قرض ہے۔
 
-A robust launch file defines:
+ایک مضبوط لانچ فائل میں یہ تعینات ہوتا ہے:
 1. Which nodes start.
-2. With which parameters.
-3. Under which namespace.
-4. With which remappings.
-5. In which process model (separate vs composable).
-6. With which environment assumptions.
+Dusro ke parameters ke saath.
+تھوڑے ہی Namespace میں ہے
+چار۔ کس ریمپنگز کے ساتھ۔
+5. جس عمل ماڈل میں ( الگ کرنا vs قابل ترکیب).
+6. جس ماحول کی بنیادوں پر.
 
-In production, this means reproducibility. If an on-call engineer starts the robot at 3 AM, it should behave exactly like it did in daytime lab tests.
+پیداواری صورتحال میں یہ مطلب ہے دوبارہ تخلیق ہونا۔ اگر ایک کال کیا انجینئر 3 بجے میں ربات کو شروع کرتا ہے، تو یہ دن کے لیب ٹیسٹوں میں براہ راست ہونا چاہیے۔
 
 ## Python Launch Files vs XML Launch Files
 
-ROS 2 supports multiple launch frontends. The most common are Python (`.launch.py`) and XML (`.launch.xml`). Both can launch the same runtime graph, but they differ in flexibility.
+ROS 2 میں متعدد لانچ فرنٹ اینڈز کی حمایت کی جاتی ہے۔ سب سے عام Python (.launch.py) اور XML (.launch.xml) ہیں۔ دونوں ایک ہی رن ٹائم گراف کو لانچ کر سکتے ہیں، لیکن ان میں مختلف ہیں ان کی فلیکسبلٹی۔
 
 | Aspect | Python Launch Files | XML Launch Files |
 |---|---|---|
@@ -62,13 +62,13 @@ ROS 2 supports multiple launch frontends. The most common are Python (`.launch.p
 | Tooling ecosystem | Most modern ROS 2 examples use Python launch | Still supported, useful in simpler stacks |
 | Best use case | Real robot systems with variants and runtime decisions | Small demos or highly static launch trees |
 
-Practical guidance: for a humanoid robot with simulation/real modes, optional subsystems, and configurable namespaces, Python launch is usually the right choice.
+Practical guidance: ek humanoid robot ke liye jo simulation/real modes, optional subsystems, aur configurable namespaces ke saath kaam karta hai, Python launch aam taur par sahi chunauti hota hai.
 
 ## ComposableNodes: Why same-process execution matters
 
-In classic deployment, each node runs in a separate OS process. This gives isolation, but cross-process communication requires serialization/deserialization and context switches. For high-bandwidth topics (camera frames, point clouds), that overhead is expensive.
+کلاسیکی ڈپلومنٹ میں ہر نود ایک الگ آپریٹنگ سسٹم پروسیس میں چلتا ہے۔ یہ ایزولیشن دیتا ہے، لیکن کراس پروسیس کمیونیکیشن کے لئے سیریلائزیشن/ڈی سیریلائزیشن اور کنٹیکسٹ سوییچز کی ضرورت ہوتی ہے۔ ہائی بینڈ وڈ ٹاپکس (کیمرا فریم، پوائنٹ کلاؤڈز) کے لئے یہ اوور ہیڈ مہنگا ہے۔
 
-`ComposableNode` allows multiple components to run in a single process container. Benefits:
+کام کرنے والا Node متعدد اجزاء کو ایک ہی پروسیس کنٹینر میں چلانے کی اجازت دیتا ہے۔ فوائد:
 
 - Lower latency for data paths.
 - Reduced CPU overhead from fewer copies.
@@ -78,27 +78,27 @@ Tradeoff:
 
 - Process crash blast radius can be larger if multiple components share one container.
 
-Think in terms of subsystem boundaries:
+Aik Subsystem ke boundaries mein sochna hai.
 - Put tightly coupled high-rate perception components together.
 - Keep safety-critical controllers isolated if fault containment is more important than microseconds of latency.
 
 ## Parameter Server and YAML Config Profiles
 
-Hardcoding constants inside node code is one of the fastest ways to create brittle systems. Parameters solve this.
+ہارڈ کوڈنگ کنسٹنٹس کو نود کوڈ کے اندر اندر رکھنا ایک سست ترین طریقہ ہے جس سے برٹل سسٹم بنایا جا سکتا ہے۔ پیمائشیں اس کا حل ہیں۔
 
-Typical examples:
+آم نمونے
 - Simulation LiDAR range: 20.0 m
 - Real sensor range: 32.0 m
 - Navigation max speed in sim: 0.8 m/s
 - Navigation max speed in crowded warehouse: 0.5 m/s
 
-Instead of editing code, you load a YAML profile. This gives traceability and allows controlled configuration changes.
+ہم کوڈ کو ایڈٹ کرنے کے بجائے یہاں ایک YAML پروفائل لوڈ کرتے ہیں۔ یہ ٹریس ability اور کنٹرولڈ کنفیگریشن چیئنجز کو ممکن بناتا ہے۔
 
-A mature team usually keeps separate parameter sets:
+ایک تجربہ کار ٹیم عام طور پر الگ الگ پیمانوں کے مجموعے رکھتی ہے:
 - `humanoid_sim.yaml`
 - `humanoid_real.yaml`
 
-Then launch chooses one based on an argument (`use_sim:=true/false`). This is safer, faster, and reviewable in code review.
+فیر لانچ چنے کے لیے ایک آرگومنٹ (`use_sim:=true/false`) کے مطابق ایک چنے گا۔ یہ محفوظ، تیز، اور کوڈ ریویو میں جائزہ لینے میں آسان ہے۔
 
 ## 💻 Code Example 1: Complete Python launch file (humanoid simulation)
 
@@ -224,7 +224,7 @@ def generate_launch_description():
     ])
 ```
 
-What this demonstrates:
+یہ کیا دکھاتا ہے:
 - Launch arguments for runtime configuration.
 - Namespace isolation (`robot1`).
 - URDF loading through `xacro` into `robot_description`.
@@ -275,7 +275,7 @@ lidar_component:
     qos_reliability: best_effort
 ```
 
-For a real robot file (`humanoid_real.yaml`), common differences include:
+کے لیے ایک حقیقی ربات فائل (`humanoid_real.yaml`) کے لیے، عام فرق میں شامل ہیں:
 - `use_sim_time: false`
 - reduced max speed for safety validation runs
 - real sensor IP/port values
@@ -283,9 +283,9 @@ For a real robot file (`humanoid_real.yaml`), common differences include:
 
 ## Live tuning with ros2 param (without restart)
 
-When debugging behavior, restarting all nodes for every tiny adjustment is slow and destabilizing. ROS 2 parameter tools let you inspect and tune live systems.
+جب بہاؤر کی جانچ کرنے کے لیے، ہر چھوٹے سے ترمیم کے لیے تمام نودز کو دوبارہ شروع کرنا تیز اور غیر مستحکم ہے۔ ROS 2 پیمائش کے ٹولز آپ کو جاندار نظاموں کو دیکھنے اور زندہ رکھنے کی اجازت دیتے ہیں۔
 
-Useful commands:
+آسانی کے لیے کام کرنے والے کمانڈز:
 
 ```bash
 # read one parameter
@@ -298,24 +298,24 @@ ros2 param set /robot1/navigation max_linear_speed 0.55
 ros2 param dump /robot1/navigation
 ```
 
-This supports fast iteration:
+یہ تیز رفتار تجربہ کرنے کی حمایت کرتا ہے:
 1. Observe oscillation in navigation.
-2. Lower speed or adjust inflation radius.
-3. Re-test instantly.
-4. Persist validated values back into YAML.
+دوئےں رفتار کو کم کرنا یا دباؤ کے شعاع کو ایڈجسٹ کرنا۔
+3. فوری طور پر دوبارہ جانچ لیں۔
+چار. وैलڈیٹڈ ویلیوز کو وے ایل ایم میں واپس لے جانا.
 
 ## Debugging toolkit: mentor mode for silent bugs
 
-This section is the “I am sitting next to you” part.
+Main aapke saamne baitha hoon.
 
-When a robot goes silent, your brain jumps to worst-case stories (“everything is broken”). Don’t debug with panic. Debug with a fixed loop.
+جب ایک ربات خاموش ہو جاتا ہے، تو آپ کا دماغ بدترین حالات کی کہانیاں ("ہر چیز ٹوٹی ہوئی ہے") میں چلا جاتا ہے۔  دھماکے سے نہیں، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح، ہمیشہ کی طرح،
 
 ### Step 1: Is the graph alive?
 
 - `ros2 node list`
 - `ros2 node info /robot1/navigation`
 
-If the node is missing, this is launch/startup failure, not algorithm failure.
+agar node ghayab hai, yeh launch/shuruat ka failure hai, na ki algorithm ka failure.
 
 ### Step 2: Is data actually flowing?
 
@@ -323,35 +323,35 @@ If the node is missing, this is launch/startup failure, not algorithm failure.
 - `ros2 topic echo /robot1/scan`
 - `ros2 topic hz /robot1/scan`
 
-If topic exists but echo is empty, investigate publisher state, QoS compatibility, or namespace mismatch.
+agar topic mawjud hai lekin echo khali hai, publisher ke halat, QoS compatibility, ya namespace mismatch ko investigate karein.
 
 ### Step 3: Is topology correct?
 
 - `rqt_graph`
 
-Look for disconnected edges. If navigation subscribes to `/scan` but LiDAR publishes `/robot1/scan`, remapping/namespacing is wrong.
+ڈیٹا کی جانب سے منسلک نہ ہونے والے ایججز کی تلاش کریں۔ اگر ناوبری `/scan` کو سبسکرائب کرتی ہے لیکن LiDAR `/robot1/scan` کو پبلش کرتی ہے تو ریمپنگ/نام سپیسنگ غلط ہے۔
 
 ### Step 4: What are logs saying at runtime?
 
 - `rqt_console`
 
-Sort by warnings/errors. Look for repeating messages and timestamp patterns.
+آپ کے کمنڈز کو سارٹ کرنے کے لئے خطرات/خطاؤں کے مطابق دیکھیں۔ دہرائے گئے پیغامات اور ٹائم اسٹیمپ کے پتروں کو تلاش کریں۔
 
 ### Step 5: Identify known failure signatures
 
 #### Error: "waiting for transform"
-Meaning: TF chain is incomplete (`map -> odom -> base_link` often broken).
+Chain TF incomplete (`map -> odom -> base_link` aam taur par tod jata hai).
 
-Checklist:
+فہرست:
 - Is `robot_state_publisher` running?
 - Is URDF loaded into `robot_description`?
 - Are frame names consistent (`base_link` vs `base_footprint` mismatches)?
 - Is a localization node publishing `map -> odom`?
 
 #### Error: "no route to host"
-Meaning: network-level connectivity failure to sensor/service endpoint.
+نٹورک سطح پر कनेकٹیویٹی کی ناکامی سنسور/سروس اینڈ پوائنٹ تک۔
 
-Checklist:
+فہرست:
 - Verify IP and port parameters.
 - Check same subnet/VLAN.
 - Ping host from robot compute unit.
@@ -359,26 +359,26 @@ Checklist:
 - Confirm hardware power and cable link.
 
 #### Silent callbacks due to QoS mismatch
-Meaning: nodes discovered but no data exchanged.
+نوڈز دریافت ہوئے لیکن ڈیٹا تبادلہ نہیں ہوا۔
 
-Checklist:
+فہرست:
 - Run `ros2 topic info /robot1/scan -v`.
 - Compare reliability (`reliable` vs `best_effort`).
 - Compare durability (`volatile` vs `transient_local`).
 - Align profiles intentionally, then retest.
 
-The emotional truth: these bugs are normal. Senior roboticists hit them too. Skill is not “never getting stuck.” Skill is shortening time-to-root-cause.
+یہ احساسات کی حقیقت ہے: یہ بگز عام ہیں۔ سینئر ربوٹکسٹس بھی ان سے متاثر ہوتے ہیں۔ ہنر "کبھی بھی پھنسنے سے بچنا" نہیں ہے۔ ہنر وقت تک رooth-cause تک پہنچنا ہے۔
 
 ## URDF loading in launch files
 
-URDF defines robot kinematics, joints, links, and frames. If URDF is not loaded properly, TF collapses and many systems fail downstream.
+یورڈی ایف ڈی (URDF) ربوٹ کی کینیمیکس، جوئنٹس، لنکس، اور فریمز کو بیان کرتا ہے۔ اگر یورڈی ایف ڈی صحیح طریقے سے لوڈ نہیں ہوتا ہے تو ٹی ایف (TF) کا خاتمہ ہوتا ہے اور بہت سے سسٹم کے نیچے کے نظام ناکام ہوجاتے ہیں۔
 
-Best practice in launch:
+بہترین طریقہ کار لانچ میں
 1. Generate URDF from xacro at startup.
-2. Inject as `robot_description` parameter into `robot_state_publisher`.
-3. Ensure frame naming in planners/controllers matches URDF frames exactly.
+2. ہرbot کی ڈیسکریپشن کو `robot_state_publisher` میں `robot_description` کے طور پر ڈال دیں۔
+3. یہ یقینی بنائیں کہ پلاں/کنٹرولرز میں فریم نام ہیں جو URDF فریم کیexactی مطابق ہیں۔
 
-In the launch code above, this line is the key:
+اِس لانچ کوڈ میں یہ لائن کلیدی ہے:
 
 ```python
 robot_description = ParameterValue(
@@ -393,7 +393,7 @@ And then:
 parameters=[params_file, {'robot_description': robot_description}]
 ```
 
-That is the bridge from model description to live TF publication.
+وہ پل ہے جو ماڈل کی وضاحت سے لائیو ٹی ایف شائع کرنے کے درمیان ہے۔
 
 ## 💻 Code Example 3: debugging script to check node health
 
@@ -466,7 +466,7 @@ if __name__ == '__main__':
     sys.exit(main())
 ```
 
-This script is intentionally simple and practical for students. It gives immediate signal before deep debugging.
+یہ اسکرپٹ عمدہ اور عملی ہے اور اسے طلباء کے لیے بنایا گیا ہے۔ یہ گہرے ڈیبگنگ سے پہلے تیزی سے اشارہ دیتا ہے۔
 
 ## Architecture Diagram
 
@@ -492,7 +492,17 @@ flowchart TD
 ## 🧪 Practice Exercises
 
 ### Exercise 1 (Beginner)
-Create a launch file with namespace `robot2` and confirm all key nodes appear under `/robot2/*` with `ros2 node list`.
+ایک لانچ فائل بنائیں جس کا نام سےپیس نام `robot2` ہو اور یہ بات یقینی بنائیں کہ تمام کلیدی نودز `/robot2/*` کے نیچے نظر آ رہے ہیں `ros2 node list` کے ذریعے۔
+
+```bash
+ros2 launch my_package my_launch_file.py robot2:=robot2
+```
+
+```bash
+ros2 node list | grep robot2
+```
+
+یہ بات یقینی بنائیں کہ تمام کلیدی نودز `/robot2/*` کے نیچے نظر آ رہے ہیں۔
 
 ```bash
 ros2 launch humanoid_bringup humanoid_bringup.launch.py robot_ns:=robot2
@@ -500,7 +510,7 @@ ros2 node list
 ```
 
 ### Exercise 2 (Intermediate)
-Use `ros2 param set` to reduce navigation max speed live, run a short path, then `ros2 param dump` and persist the validated value to YAML.
+روسی 2 پریمٹر استعمال کرکے ناوِگیشن کی سب سے زیادہ رفتار کو کم کرنے کے لئے `ros2 param set` استعمال کریں، ایک مختصر راستہ چلائیں، پھر `ros2 param dump` استعمال کریں اور یہ تصدیق شدہ قدر کو YAML میں محفوظ کریں۔
 
 ```bash
 ros2 param set /robot1/navigation max_linear_speed 0.45
@@ -508,7 +518,7 @@ ros2 param dump /robot1/navigation
 ```
 
 ### Exercise 3 (Advanced)
-Intentionally break TF by changing a frame name in your config, observe `waiting for transform`, then restore correct frame mapping and verify recovery in `rqt_graph` and logs.
+Intentional tafriq TF karne ke liye ek frame naam ko apne config mein badalna, observe `waiting for transform`, phir sahi frame mapping ko wapas laana aur `rqt_graph` aur logs mein recovery ki verification karna.
 
 ```bash
 # verify transform-related topics and node logs during fault injection
@@ -525,4 +535,4 @@ ros2 topic echo /robot1/tf
 
 ## 🔗 Next Up
 
-Next chapter: Services and Actions in ROS 2—how to design request/response workflows and long-running goal-driven behaviors with feedback, cancellation, and robust failure handling.
+Aglay Chapter: Services aur Actions ROS2 mein—request/response workflows aur long-running goal-driven behaviors ke liye feedback, cancellation, aur robust failure handling ke saath design kaise karein.

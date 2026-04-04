@@ -2,6 +2,23 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {useLocation} from '@docusaurus/router';
 import {postChapterPersonalization, postChapterTranslation} from './api';
 
+function cleanContent(raw: string): string {
+  // Remove frontmatter (between --- and ---)
+  let cleaned = raw.replace(/^---[\s\S]*?---\n?/, '');
+  // Remove markdown headings symbols but keep text
+  cleaned = cleaned.replace(/^#{1,6}\s+/gm, '');
+  // Remove markdown bold/italic
+  cleaned = cleaned.replace(/\*\*([^*]+)\*\*/g, '$1');
+  cleaned = cleaned.replace(/\*([^*]+)\*/g, '$1');
+  // Remove backtick code blocks
+  cleaned = cleaned.replace(/```[\s\S]*?```/g, '[Code example]');
+  // Remove inline code
+  cleaned = cleaned.replace(/`([^`]+)`/g, '$1');
+  // Remove extra blank lines
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  return cleaned.trim();
+}
+
 type ChapterActionsProps = {
   authToken?: string | null;
 };
@@ -25,6 +42,13 @@ const cardStyle: React.CSSProperties = {
   padding: 12,
   maxHeight: 260,
   overflowY: 'auto',
+};
+
+const cardHeaderStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
 };
 
 export default function ChapterActions({authToken}: ChapterActionsProps): React.JSX.Element | null {
@@ -119,8 +143,22 @@ export default function ChapterActions({authToken}: ChapterActionsProps): React.
 
         {translatedContent ? (
           <div style={cardStyle}>
-            <strong>Urdu Chapter View</strong>
-            <div style={{marginTop: 8, whiteSpace: 'pre-wrap'}}>{translatedContent}</div>
+            <div style={cardHeaderStyle}>
+              <strong>Urdu Chapter View</strong>
+              <button
+                onClick={() => setTranslatedContent('')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  color: 'var(--ifm-font-color-base)'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{whiteSpace: 'pre-wrap'}}>{cleanContent(translatedContent)}</div>
           </div>
         ) : null}
 

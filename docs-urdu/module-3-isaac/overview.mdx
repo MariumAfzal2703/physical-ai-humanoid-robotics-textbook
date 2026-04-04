@@ -7,13 +7,13 @@ sidebar_position: 1
 
 ## 🌍 Real World Scenario
 
-NVIDIA bet $10 billion that the future of robotics is photorealistic simulation. Isaac Sim renders scenes indistinguishable from reality — so your robot's vision AI trains on synthetic data that looks real enough to transfer to the physical world.
+نویڈیا نے 10 ارب ڈالر کے خطرے کے ساتھ یقین کیا ہے کہ ربوٹکس کا مستقبل تصویروں کی حقیقت پسندیم ہے۔ آئیکس سِم تصاویر کو حقیقت سے الگ نہیں کر سکتا ہے - لہذا آپ کے ربوٹ کی نظروں کی ایل ایس کی تربیت سائنٹھیٹک ڈیٹا پر ہوتی ہے جو حقیقت کے برابر دکھائی دیتی ہے تاکہ فزیکل ورلڈ میں منتقل ہو سکے۔
 
-That bet matters because modern robotics is no longer only about control loops and kinematics. It is about perception-heavy autonomy at scale. A humanoid robot in a warehouse, hospital, or retail floor needs to detect, track, segment, localize, and decide in environments that are visually messy and constantly changing. Collecting real-world data for every corner case is slow, expensive, and dangerous. Synthetic data and simulation-first development are the only practical path for rapid iteration.
+Woh bet zaroori hai kyunki modern robotics ab sirf control loops aur kinematics ke baare mein nahin hai. Yah perception-heavy autonomy ke baare mein hai. Ek humanoid robot warehouse, hospital, ya retail floor par chalna chahta hai jahan usko visually messy aur constantly changing environment mein detect, track, segment, localize, aur decide karna hoga. Real-world data ke liye har corner case ke liye data collect karna lamba, expensive, aur dangerous hai. Synthetic data aur simulation-first development hi rapid iteration ke liye practical path hain.
 
-But many beginners split the Isaac ecosystem incorrectly: they learn Isaac Sim in isolation, then separately discover Isaac ROS packages, then much later hear about Isaac Lab. In reality, these are designed as connected layers of one workflow: simulate → generate data → train/evaluate → deploy optimized perception graphs on hardware.
+لیکن بہت سے شروعاتی افراد نے ایساک اسکیم کو غلط طریقے سے تقسیم کیا ہے: وہ ایساک سائم کو الگ الگ سیکھتے ہیں، پھر الگ الگ طور پر ایساک آر او ایس پیکیجز کو دریافت کرتے ہیں، پھر بہت بعد میں ایساک لیب کے بارے میں سنا جاتا ہے۔ حقیقت یہ ہے کہ انہیں ایک ہی ورک فلو کے متصل لےروں کے طور پر ڈیزائن کیا گیا ہے: س
 
-This chapter explains how the pieces fit together so you build systems, not disconnected demos.
+یہ باب بتاتا ہے کہ کس طرح مختلف حصے ایک دوسرے سے مل کر کام کرتے ہیں تاکہ آپ سسٹم بناسکیں، نہ کہ الگ الگ ڈیمو۔
 
 ## What You Will Learn
 
@@ -28,19 +28,19 @@ This chapter explains how the pieces fit together so you build systems, not disc
 
 ## The Isaac ecosystem as one pipeline (not three separate tools)
 
-Think of NVIDIA Isaac as a layered robotics platform:
+نویڈیا آئزیک کو Robotics پلیٹ فارم کے Layers کے طور پر سمجھیں:
 
 1. **Isaac Sim**: high-fidelity simulation and synthetic data generation.
-2. **Isaac Lab**: robot learning/research workflows built around scalable simulation experiments.
-3. **Isaac ROS**: optimized ROS 2 packages (many GPU-accelerated) for deployment and runtime perception.
+2. **Isaac Lab**: ربات سیکھنے/تحقیقاتی ورک فلو کے ارد گرد پھیلے ہوئے سکیلेबل سیمیولیشن تجربات.
+3. **Isaac ROS**: optimised ROS 2 packages (many GPU-accelerated) for deployment aur runtime perception.
 
-The beginner mistake is treating these as alternatives. They are sequential and complementary:
+شروعاتی غلطی یہ ہے کہ انہیں متبادل سمجھا جاتا ہے۔ وہ ایک دوسرے کے بعد اور ایک دوسرے کے ساتھ مکمل ہیں:
 
 - Use Isaac Sim to create digital environments and collect synthetic sensor data.
 - Use Isaac Lab to train/evaluate policies or learning-based components at scale.
 - Use Isaac ROS on target hardware to run optimized perception and localization pipelines.
 
-That is why the ecosystem works: you preserve conceptual continuity from simulation to deployment.
+یہی وجہ ہے کہ اس ایکوسسٹم کام کرتا ہے: آپ Simulation سے Deployment تک Conceptual Continuity برقرار رکھتے ہیں۔
 
 ## Isaac Sim vs Isaac ROS vs Isaac Lab
 
@@ -50,124 +50,124 @@ That is why the ecosystem works: you preserve conceptual continuity from simulat
 | **Isaac ROS** | Hardware-accelerated ROS 2 perception/localization nodes | Jetson / ROS robots | Real-time inference, SLAM, depth, detection streams | Production runtime graph on real robot |
 | **Isaac Lab** | Learning workflows (RL/imitation experiments) on top of simulation | Multi-GPU research/training setups | Trained policies, evaluation logs | Large-scale robot learning and benchmark loops |
 
-Rule of thumb:
+ایک عام اصول
 - If you are creating worlds and synthetic data: Isaac Sim.
 - If you are optimizing perception graph on robot hardware: Isaac ROS.
 - If you are training policies with many simulated rollouts: Isaac Lab.
 
 ## Omniverse and USD: why this foundation matters
 
-Isaac Sim is built on **NVIDIA Omniverse**, and Omniverse uses **USD (Universal Scene Description)** as a core scene representation.
+ایساک سِم NVIDIA اومنِوِرس پر بنایا گیا ہے، اور اومنِوِرس یو ایس ڈی (یونیورسل سِن ڈیسکریپشن) کو ایک بنیادی سِن نمائش کے طور پر استعمال کرتا ہے۔
 
-Why this matters technically:
+یہ تکنیکی طور پر کیوں اہم ہے:
 
 - USD is designed for complex scene composition.
 - Assets, materials, lighting, and transforms can be layered non-destructively.
 - Teams can collaborate on different scene layers (robot, lighting, objects, annotations) without stomping each other’s work.
 
-In robotics terms, USD becomes your simulation source of truth.
+ہم ربوٹکس کے اصطلاحات میں، یو ایس ڈی آپ کا سیمیولیشن کا حقیقت کا ذریعہ بن جاتا ہے۔
 
-Benefits for robotics pipelines:
+فائدے برائے ربوٹکس پائپ لائنز:
 1. **Reproducibility**: scene versions are explicit and shareable.
-2. **Scalability**: same base world can be extended with scenario layers.
-3. **Interoperability**: easier exchange between content and simulation tooling.
-4. **Data generation consistency**: synthetic dataset provenance is trackable to exact scene configuration.
+2. **ٹیکنالوجی کی پھیلاؤ کی صلاحیت**: ایک ہی بنیادی دنیا کو سِناریو لےئرز کے ساتھ بڑھایا جا سکتا ہے۔
+3. **Interoperability**: آسان تبادلہ بین کंटینٹ اور سیمیولیشن ٹولنگ کے درمیان ہے۔
+چار۔ **ڈیٹا نسل کا یکساں ہونا**: سائنٹھیٹک ڈیٹا سٹ ڈیٹا کی اصل قابل پیغام ہے اور اس سے صحیح سے صحیح سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن سے سائن س
 
-If you plan to run hundreds of scenario variants, USD-style compositional workflows save significant time versus ad-hoc scene editing.
+Agar aap hazaron scenario variants chalne ki yeh soch rahe hain, USD-style compositional workflows ad-hoc scene editing ke mukable se kai ghante bacha sakte hain.
 
 ## Synthetic data generation: why rendered images can train real models
 
-A frequent beginner question: “Can fake images train real robots?”
+کوئی فیکٹریال ایمیجز ریل ڈرونز کو تربیت دے سکتی ہیں؟
 
-Yes—if done correctly.
+ہاں اگر صحیح طریقے سے کیا جائے۔
 
-Synthetic data works because many perception tasks depend on visual structures (edges, depth cues, geometry, object context) that can be simulated realistically enough to learn robust feature representations. When paired with randomization and calibration, synthetic datasets can significantly reduce real-data requirements.
+Synthetic data ka kaam hota hai kyunki kayi perception tasks visual structures (edges, depth cues, geometry, object context) par depend karte hain jo realistic tarah se simulate kiya ja sakta hai taaki robust feature representations seekh saken. Jab synthetic datasets ko randomization aur calibration ke saath pair kiya jaata hai, to real-data requirements bahut kam ho jaate hain.
 
-Common synthetic data outputs from Isaac Sim:
+ایساک سِم سے عام سائنٹھیٹک ڈیٹا آؤٹ پٹس ہیں:
 - RGB images.
 - Depth maps.
 - Semantic segmentation masks.
 - 2D/3D bounding boxes.
 - Camera intrinsics/extrinsics metadata.
 
-High-value use cases:
+اہم استعمال کے معاملات:
 - Rare failure conditions that are hard to collect physically.
 - Label-heavy tasks where human annotation cost is prohibitive.
 - Controlled ablation studies (e.g., lighting-only change).
 
-Caution: synthetic data should complement, not permanently replace, real-world validation. The goal is improved transfer, not synthetic leaderboard success.
+خطرہ: مصنوعی ڈیٹا کو حقیقی دنیا کی تصدیق کے بجائے، دائمی طور پر بدلنے کے بجائے، مکمل کرنا چاہئے۔ مقصد بہتر منتقلی ہے، نہ کہ مصنوعی لیڈر بورڈ کامیابی۔
 
 ## Domain randomization: forcing generalization
 
-Domain randomization intentionally perturbs simulation properties so models cannot overfit to one clean visual domain.
+ڈومین ریڈومائزیشن کا مقصد ایک سافٹ ویئر ڈومین میں ماڈل کو اوور فٹ نہ ہونے دیا ہے۔
 
-Typical randomization dimensions:
+کام کرنے والے تصادفی پیمائشیں:
 - Texture maps and colors.
 - Light intensity, direction, and color temperature.
 - Object positions and orientations.
 - Camera noise and slight calibration offsets.
 - Surface roughness and reflectance properties.
 
-Why it works:
+کیوں یہ کام کرتا ہے:
 - It broadens training distribution support.
 - It encourages learning invariant features.
 - It reduces brittle dependence on one world style.
 
-For humanoid perception systems, randomization is especially valuable in cluttered indoor scenes where furniture, packaging, reflective surfaces, and human presence vary continuously.
+ہومنائڈ پہچان نظاموں کے لیے، ڈھکے ہوئے اندرونی منظر میں، جہاں میبل، پیکیجنگ، ریفلکٹوں کی سطحیں، اور انسانی موجودگی مسلسل طور پر بدلتی ہیں، randomness خاص طور پر قیمتی ہے۔
 
 ## Isaac ROS graph: accelerated building blocks
 
-Isaac ROS provides a catalog of ROS 2 packages optimized for NVIDIA hardware acceleration paths. For beginners, the key insight is this:
+ایساک آر او ایس میں ایک کٹالوگ ہے جو آر او ایس 2 کے پیکیجز کو آئی این وی ڈی ہارڈ ویئر کی تیز رفتار اور موثر کارکردگی کے لیے آپٹمائز کرتا ہے۔ شروع کرنے والوں کے لیے، کلیدی بصیرت یہ ہے:
 
-You do not need to hand-implement every perception block from scratch.
+Aapko har perception block ko nai se nai banaana nahi hai.
 
-Common accelerated graph components include:
+معمولی تیز رفتار گرافی اجزاء میں شامل ہیں:
 - **AprilTag detection** for fiducial localization.
 - **Visual SLAM (VSLAM)** for camera-based localization and mapping.
 - **Depth processing** for disparity/depth pipelines.
 - Image format transforms and pre/post-processing nodes.
 
-These packages are designed to plug into ROS graphs and reduce latency versus naive CPU-only pipelines.
+یہ پیکیجز ڈیزائن کیے گئے ہیں کہ وہ ROS گرافوں میں شامل ہو کر لٹنسی کے خلاف لڑنے کے لیے اور نائیو CPU-ONLY پائپلائنز کے مقابلے میں تیز ہوں۔
 
-When building humanoid perception stacks, this can be the difference between “works at 3 FPS in lab” and “works in real time on edge hardware.”
+جب ہوموائڈ پریزنسی اسٹیکس بنانے کے دوران، یہ فرق ہو سکتا ہے کہ "لاب میں 3 FPS میں کام کرتا ہے" اور "ایج ہارڈویئر پر ریل ٹائم میں کام کرتا ہے۔"
 
 ## Isaac Perceptor stack: ready-made perception pipeline
 
-Isaac Perceptor (where applicable in your stack/version) offers an opinionated perception architecture for mobile robotics use cases. Conceptually, it bundles recurring pieces teams repeatedly rebuild:
+ایساک پریسپیکٹر (جہاں ممکن ہو) اپنی اسٹیک/ ورژن میں موٹر سائیکل ربوٹکس کے استعمال کے معاملات کے لیے ایک رائے دار پریسپیکٹر آرکٹیکچر پیش کرتا ہے۔ تصوراتی طور پر، یہ ریپٹنگ پیسز کو بھی شامل کرتا ہے جو ٹیمز نے دوبارہ بنانے کی ضرورت ہوتی ہے:
 
 - Multi-sensor synchronization.
 - Visual/depth processing pathways.
 - Localization/perception integration patterns.
 - Practical defaults for deployment.
 
-Why this is useful for learners:
+یہ سیکھنے والوں کے لیے کیا مفید ہے:
 - Faster time-to-first-results.
 - Better baseline architecture than random custom node wiring.
 - Easier benchmarking before custom modifications.
 
-Professional approach:
+اپروچ پروفیشنل ہے
 1. Start from a known-good reference stack.
-2. Benchmark on your scenarios.
-3. Customize only where evidence shows bottlenecks.
+2. Bench markon apne scenarios.
+3. صرف وہ مقامات کو ہی کسٹمائز کریں جہاں ہماری تحقیقات سے پتہ چلتا ہے کہ وہاں بہت سارے مسائل ہیں۔
 
 ## Jetson integration: from dev workstation to robot edge
 
-Training and simulation often happen on desktop GPUs or servers, but real robots run at the edge. Jetson integration closes the loop.
+ٹریننگ اور سیمیولیشن اکثر ڈیسک ٹاپ جی پی یو یا سرورز پر ہوتے ہیں، لیکن حقیقی ربوٹس ایج ہی پر چلتی ہیں۔ جیتسن انٹیگریشن لूप کو بند کر دیتا ہے۔
 
-Core deployment concerns:
+Core Deployment Concerns:
 - Power/thermal constraints.
 - Latency budgets for perception-control loops.
 - Memory footprint and model size.
 - Throughput under sensor concurrency.
 
-A robust transfer workflow:
+ایک مضبوط منتقلی ورک فلو:
 1. Prototype perception graph in sim.
-2. Validate with synthetic + real replay data.
-3. Deploy optimized Isaac ROS stack on Jetson.
-4. Profile end-to-end latency and frame drops.
-5. Iterate model/graph settings with hardware in loop.
+2. سنسٹھٹک + حقیقی ریپ्लے ڈیٹا سے وैलڈ کریں۔
+Teesra, Jetson par optimized Isaac ROS stack ko deploy karein.
+چار. پرفیلاٹ انڈ ٹو اینڈ لیٹنسی اور فریم ڈراپس کو پرفیلاٹ کریں۔
+5. ماڈل/گراف سٹیٹس کو ہارڈویئر کے ساتھ ان لوب میں چلائیں۔
 
-This is where ecosystem coherence matters: Isaac Sim helps generate/test; Isaac ROS helps execute efficiently on edge.
+یہ وہ مقام ہے جہاں ایکسیوم کا یکجہتی ضروری ہے: آئزک سِم ایس ایم ہیلپز جینیٹر ٹیسٹ کرنے میں مدد کرتا ہے؛ آئزک ROS ایڈج کے ساتھ ایج کے ساتھ موثر طریقے سے ایکشن کرنے میں مدد کرتا ہے۔
 
 ## 💻 Code Example 1: Isaac Sim Python API for humanoid + synthetic RGB-D capture
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     simulation_app.close()
 ```
 
-This demonstrates core SDG flow: spawn robot, attach camera, step simulation, save RGB and depth tensors for training/evaluation.
+یہ SDG کے بنیادی Flow کو ظاہر کرتا ہے: ربات کو جنم دینا، کیمرہ لگانا، سائمنیشن کو چلانے کے لئے Step، RGB اور Depth tensors کو تربیت/مطالعہ کے لئے بچانا۔
 
 ## 💻 Code Example 2: Isaac ROS launch file for visual SLAM
 
@@ -274,7 +274,7 @@ def generate_launch_description():
     ])
 ```
 
-This gives a clean launch baseline for integrating accelerated VSLAM into your ROS 2 graph.
+Yeh ek saaf launch baseline deta hai jisse aap apne ROS 2 graph mein tez VSLAM ko integrate kar sakte hain.
 
 ## 💻 Code Example 3: Domain randomization config in Python
 
@@ -332,34 +332,34 @@ if __name__ == "__main__":
         print(f"Episode {i}:", sample_episode_params(RANDOMIZATION_CONFIG, i))
 ```
 
-This pattern enforces controlled randomness with reproducibility (`seed + episode_idx`)—essential for debugging and ablation studies.
+یہ پैटرن کنٹرولڈ randomness کے ساتھ reproducibility کو یقینی بناتا ہے (`seed + episode_idx`)—یہ debugging اور ablation studies کے لیے ضروری ہے۔
 
 ## Architecture pattern: end-to-end Isaac workflow for humanoids
 
-A practical architecture loop:
+ایک عملی آرکٹیکچر لूप:
 
 1. **Scene authoring in Isaac Sim (USD-based).**
-2. **Synthetic data generation with domain randomization.**
-3. **Model training/evaluation (Isaac Lab or adjacent training stack).**
-4. **Graph deployment with Isaac ROS on Jetson.**
-5. **Field telemetry collection and failure replay into simulation.**
-6. **Iterative retraining and graph tuning.**
+دومین ریڈیو نائزرائزیشن کے ساتھ سنسٹھٹک ڈیٹا کی تخلیق.
+3. ماڈل ٹریننگ/مطالعہ (آئیکس لاب یا متصل ٹریننگ اسٹیک)
+چار۔ **آئزیک ROS پر جیتسن پر گراف ڈپلومنٹ**
+5. فیلڈ ٹیلی میٹری کی جمع کرنے اور فیلڈ میں فALIURE کا رپورٹ کرنے کے لیے سیمیولیشن میں داخل کرنا۔
+چھ: **گراف ٹیوننگ اور دوبارہ تربیت**.
 
-This is a closed-loop improvement system, not a one-shot training pipeline.
+یہ ایک بند ڈھانچے کی بہتری کا نظام ہے، نہ ہی ایک ایک طرف کا تربیت کا پائپ لائن.
 
 ## Common beginner pitfalls (and exact corrections)
 
 1. **Pitfall:** Treating Isaac Sim visuals as “done” without transfer testing.
-   **Correction:** Always validate on real/replay data and monitor transfer gap.
+ہمیشہ حقیقی/ری پلے ڈیٹا پر وैलڈیٹ کریں اور ٹرانسفر گپ کو منٹر کریں۔
 
-2. **Pitfall:** Using fixed clean simulation environments.
-   **Correction:** Add domain randomization early and systematically.
+2. **Khatra:** Stabil Qamrī Simulashan Muhit ka Istimal Karnā.
+ایکٹھرنیزیشن کو اچھی طرح سے اور نظامیت کے ساتھ پہلے ہی شامل کریں۔
 
-3. **Pitfall:** Building custom ROS graphs before benchmarking Isaac ROS references.
-   **Correction:** Start with accelerated baseline, then optimize selectively.
+3. **خطرہ:** انسائک ROS ریفرنسز کی جانچ پڑتال سے پہلے کسٹم ROS گراف بنانا۔
+آئیڈیئے: تیز رفتار بنیادی نقطہ سے شروع کریں، پھر انتخابی طور پر آپٹمائز کریں۔
 
-4. **Pitfall:** Ignoring edge deployment constraints until late stage.
-   **Correction:** Profile on Jetson early, including thermal and latency behavior.
+چوتھی ہدایت: تاخیر سے ایج ڈیپلومنٹ کی پابندیوں کو نظر انداز کرنا۔
+پروفائل جتسن اُتے جلدی شامل کریں، جس میں تھرمل اور لٹنسی بہاوٗر شامل ہوں۔
 
 ## Architecture Diagram
 
@@ -383,21 +383,21 @@ flowchart LR
 ## 🧪 Practice Exercises
 
 ### Exercise 1 (Beginner)
-Capture 200 synthetic RGB-D frames in Isaac Sim for one indoor scene and verify metadata consistency (resolution, frame indexing, camera pose logging).
+ایک اندرونی منظر کے لیے آئزیک سِم میں 200 سائنٹھیٹک آر جی بی ڈی فریم کی کپچر کریں اور میٹا ڈیٹا کی مطابقت (ری졸وشن، فریم انڈیکسنگ، کیمرا پوز لوجنگ) کی وریفائی کریں۔
 
 ```python
 # Extend the RGB-D script to include timestamp + intrinsics per frame.
 ```
 
 ### Exercise 2 (Intermediate)
-Launch an Isaac ROS VSLAM graph on a stereo stream and measure drift over a fixed closed-loop trajectory in simulation.
+لاگ ان کرے ہیں آئیکس ایس ایس ایس آر او ایس وی ایس ایل ایم گراف Stereo سٹریم پر اور ایک Fixed Closed-Loop Trajectory میں Simulation میں Drift کی میروں۔
 
 ```bash
 # Compare estimated trajectory endpoint against known start pose.
 ```
 
 ### Exercise 3 (Advanced)
-Run a domain randomization sweep across 100 episodes and compare model robustness against a non-randomized baseline. Report success deltas and failure modes.
+چلائیں ایک ڈومین randomness sweep 100 episodes کے اندر اور مقابلہ کیا جائے model robustness ایک non-randomized baseline کے خلاف. Report success deltas اور failure modes.
 
 ```python
 # Keep policy architecture fixed; vary only randomization strategy.
@@ -413,4 +413,4 @@ Run a domain randomization sweep across 100 episodes and compare model robustnes
 
 ## 🔗 Next Up
 
-Next chapter: Building high-throughput synthetic data pipelines and model evaluation harnesses—how to move from single-scene demos to industrial-scale dataset generation and continuous model improvement.
+اگلے باب: ہائی تھروپوت سائنٹھیٹک ڈیٹا پائپ لائنز اور ماڈل ایویو ایشن ہارنیشز—ایک سینگل سائن ڈیمو سے انڈسٹریل اسکیل ڈیٹا سٹ ڈیٹا جنریشن اور کونٹیواس ماڈل امپروومنٹ تک کیسے چلے جائیں۔

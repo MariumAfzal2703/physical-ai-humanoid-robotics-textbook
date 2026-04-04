@@ -7,11 +7,11 @@ sidebar_position: 3
 
 ## 🌍 Real World Scenario
 
-Your robot trained for 10 GPU-hours. The policy looks great in simulation — 95% success rate. You deploy it to the real robot. It takes two steps and falls over. Welcome to the sim-to-real gap. This chapter teaches you how to survive it.
+آپ کے ربات نے 10 GPU گھنٹوں کے لئے تربیت دی۔ پالیسی سیمولیٹیشن میں بہت اچھی دکھائی دے رہی ہے — 95 فیصد کامیابی کی شرح ہے۔ آپ اسے حقیقی ربات پر ڈپلوئی کرتے ہیں۔ یہ دو قدمیں لیتا ہے اور گر جاتا ہے۔ یہاں آپ کو سائم-ٹو-ریئل گپ کا استقبال ہوتا ہے۔ یہ چپٹر آپ کو اسے کیسے ٹھیک کر
 
-This is where most students get stuck. Training curves looked amazing. Episode reward climbed. Videos in simulation looked smooth. Then hardware reality arrived with actuator lag, sensor jitter, calibration drift, and tiny contact dynamics mismatches. The policy did not fail because “AI is useless.” It failed because deployment is a different engineering phase than training.
+یہ وہ مقام ہے جہاں زیادہ تر طلباء پھنس جاتے ہیں۔ ٹریننگ گرافی نے بہت اچھا دکھایا۔ ایپی سوڈ ریکارڈ میں اضافہ ہوا۔ سیمیولیشن میں ویڈیوز نے سہولت سے چلنے کا مظاہرہ کیا۔ پھر ہارڈ ویئر کی حقیقت پہنچی جس میں ایکٹیوٹر کا لگ، سنسور کی جھٹک، کالیبریشن ڈریفت، اور تھوڑے سے رابط
 
-Most tutorials stop at “policy converged.” Real robotics starts at “policy deployed safely.” This chapter focuses on the runtime diagnostic process you need after training: export, inference pipeline integrity, transfer hardening, safety wrappers, and real-time monitoring.
+جے زیادہ تر ٹیوٹوریلز "سیاست متفقہ" پر رک جاتے ہیں۔ حقیقی ربوٹکس "سیاست محفوظ طور پر تعین کیا گیا" سے شروع ہوتا ہے۔ یہ باب تربیت کے بعد کی Runtime تشخیصی عمل پر مرکوز ہے: ایک्सپورٹ، انفرنسی پیپلائن کی سالمیت، ٹرانسفر ہارڈننگ، سیکیورٹی وریپرز، اورリアل ٹائم مونٹرنگ۔
 
 ## What You Will Learn
 
@@ -25,39 +25,39 @@ Most tutorials stop at “policy converged.” Real robotics starts at “policy
 
 ## Why deployment diagnostics are the real skill
 
-A trained policy is not a finished product. It is a candidate controller.
+ایک تربیت یافتہ پالیسی مکمل پیداوار نہیں ہے۔ یہ ایک امیدوار کنٹرولر ہے۔
 
-Deployment readiness requires evidence that:
+تخصیص کی تیاری کی ضرورت ہے کہ:
 1. Input tensors at runtime match training assumptions.
-2. Action outputs are bounded and physically meaningful.
-3. Latency budgets are respected.
-4. Failure handling is deterministic and safe.
+Doosri action ke outputs ki sainik hai aur vah shakhsiatik roop se maanee hai.
+3. Latency budgets hain unke liye respect kiye jaate hain.
+چار. ناکامی کی دیکھ بھال deterministic اور safe ہے۔
 
-Without this, you get classic failures:
+بے یقینی نتیجے
 - Policy outputs saturate joints at startup.
 - Sensor preprocessing mismatch causes observation drift.
 - Control loop timing jitter destabilizes gait.
 - Safety monitors trigger too late.
 
-The goal is not to eliminate all failures. The goal is to detect and contain failures before they become unsafe hardware events.
+آپ کا مقصد تمام فیلڈر نہیں ہونا ہے۔ آپ کا مقصد فیلڈر کو پہلے ہی ہٹانا ہے جب وہ ناقابل اعتماد ہارڈ ویئر واقعات بن جائیں۔
 
 ## Exporting trained policies: PyTorch → ONNX → TensorRT
 
 ### Stage 1: PyTorch checkpoint
-After training in Isaac Lab, you usually have a `.pt` checkpoint containing model weights and policy architecture assumptions.
+آپ کو عام طور پر آئزک لیب میں تربیت کے بعد ایک `.pt` چیک پوائنٹ ہوتا ہے جو ماڈل وزنٹس اور پالیسی آرکٹیکچر کے پیشگی خیالات کو شامل کرتا ہے۔
 
 ### Stage 2: ONNX export
-ONNX provides framework-agnostic representation for deployment toolchains. At this stage, you lock input/output tensor shapes and graph behavior.
+ONNX prahat kartaa hai framework-agnostic prastutikaran ke liye deployment toolchains ke liye. Is stage mein, aap input/output tensor shapes aur graph behavior ko lock karte hain.
 
 ### Stage 3: TensorRT engine build
-TensorRT compiles/optimizes model inference for NVIDIA hardware, reducing latency and improving throughput—critical for real-time control loops.
+ٹینسر آر ٹی NVIDIA ہارڈویئر پر ماڈل انفرنسی کو کم کرنے اور بہتر پرفارمنس کے لئے آپٹمائز کرتی ہے، جو حقیقی وقت کے کنٹرول لूपز کے لئے اہم ہے۔
 
-Practical checks at each stage:
+Practical checks har har stage par.
 - Verify output parity between PyTorch and ONNX on identical inputs.
 - Verify TensorRT output parity within tolerance.
 - Profile inference time under target hardware load.
 
-If parity drifts significantly, do not deploy. Fix export graph assumptions first.
+agar parity bahut badla hai, to deploy na karein. export graph ke assumptions ko pehle saaf karein.
 
 ## 💻 Code Example 1: ONNX export script for Isaac Lab policy
 
@@ -117,11 +117,11 @@ if __name__ == '__main__':
     main()
 ```
 
-After ONNX export, build TensorRT engine using your deployment pipeline (e.g., `trtexec` or integrated runtime wrappers) and validate outputs.
+ہم ONNX ایکسپورٹ کے بعد، اپنی ڈپلومنٹ پائپ لائن (مثلاً `trtexec` یا انٹیگریٹڈ رن ٹائم وریپرز) کا استعمال کرتے ہوئے ٹینسر آرٹ ایجنٹ بناتے ہیں اور نتیجے کو وैलڈیٹ کرتے ہیں۔
 
 ## Runtime inference pipeline: sensor → preprocess → policy → postprocess → actuator
 
-A policy never runs in isolation on robot hardware. It sits inside a real-time pipeline.
+ایک پالیسی ہمیشہ ہی ربوٹ ہارڈویئر پر ایک ہی وقت میں چلتی ہے۔
 
 ### 1) Sensor ingestion
 - IMU, joint states, force sensors, optional vision streams.
@@ -145,7 +145,7 @@ A policy never runs in isolation on robot hardware. It sits inside a real-time p
 - Send bounded commands to low-level controllers.
 - Enforce safety interlocks before hardware write.
 
-Most sim-to-real failures originate from mismatch in step 2 or step 4, not from “bad model intelligence.”
+جوکے زیادہ تر سائم ٹو ریئل کی ناکامیاں اسٹیپ 2 یا اسٹیپ 4 میں میچ نہ ہونے سے ہوتی ہیں، نہ ہی "بہتر ماڈل انٹیلی جنس" سے۔
 
 ## 💻 Code Example 2: ROS 2 node for policy inference and joint command publish
 
@@ -244,42 +244,42 @@ if __name__ == '__main__':
     main()
 ```
 
-This node demonstrates deployment essentials: synchronized observation construction, normalized preprocessing, bounded action output, fixed control loop rate.
+یہ نود ہے جو ہموار مشاہدہ کی تعمیر، معیار بندی کا پری پروسیسنگ، محدود ایکشن کے نتیجے، فیکس کنٹرول لूप کی شرح کو ظاہر کرتا ہے۔
 
 ## Sim-to-real transfer hardening techniques
 
 ### 1) Actuator network/model
-Real actuators have latency, friction, dead zones, and nonlinear responses. An actuator model helps bridge policy outputs to realistic joint behavior learned in simulation.
+اکریٹر کے حقیقی عمل میں تاخیر، روغن، موٹے زون، اور غیر خطی جواب ہوتے ہیں۔ ایک ایکٹیوٹر ماڈل پالیسی کے نتیجے کو حقیقی جوڑوں کی حرکات سے جوڑنے میں مدد کرتا ہے جو سیمیولیشن میں سیکھے جاتے ہیں۔
 
 ### 2) Domain randomization review
-Before deployment, audit randomization coverage used in training:
+پہلے ڈپلومنٹ سے پہلے، تربیت میں استعمال ہونے والی randomness کی coverage کو جائزہ لینا۔
 - friction ranges
 - latency jitter
 - sensor noise
 - mass/inertia perturbations
 
-If randomization did not include real-world variation you now observe, retraining is expected.
+agar randomization mein asli duniya ke bhinnataon ko shamil nahin kiya gaya tha, to ab aapko phir se training karna hoga.
 
 ### 3) System identification
-Measure real robot dynamics and update simulation parameters accordingly. This often closes major transfer gaps faster than policy architecture changes.
+مذہبی حقیقی ربوٹ ڈائنامکس کی پیمائش کریں اور اس کے مطابق سیمولیٹر پیمائش کو اپ ڈیٹ کریں۔ یہ اکثر پالیسی آرکٹیکچر کی تبدیلیوں سے تیز تر ہے۔
 
-Deployment insight: transfer quality is usually a systems issue, not a single-model issue.
+ڈپلومنٹ انسائٹ: ٹرانسفر کی گुणवत्तہ عام طور پر ایک سسٹم کا مسئلہ ہوتا ہے، نہ ہی ایک انفرادی ماڈل کا مسئلہ۔
 
 ## Runtime diagnostics: what to log and visualize
 
-Log at minimum:
+لوگ اٹھنے کی منصوبہ بندی کریں
 1. Observation vector statistics (mean/std/min/max by channel).
-2. Action statistics (clipped fraction, saturation counts).
-3. Control loop timing (dt jitter, inference latency).
-4. Safety events (joint limit near-miss, estop triggers, fall detections).
-5. Policy reward surrogates (if available online) and task events.
+2. Action ki statistics (clip kiya hua fraction, saturation ki giniyaat).
+3. کنٹرول لूप کی ٹائمنگ (dt جٹر، انفرنسی لٹنسی)
+چار۔ سلامتی واقعات (جوئنٹ لمیٹ نرمیس، استاپ ٹریگزر، گرنے کی تشخیص)۔
+5. پالیسی انعام کیوں کہیں ہیں (اگر انٹرنیٹ پر دستیاب ہیں) اور ٹاسک ایونٹس۔
 
-Visualization priorities:
+دیکھ بھال کی ترجیحات:
 - Real-time plots for key channels.
 - Rolling windows for latency and action saturation.
 - Event timelines aligned with falls/failures.
 
-If you only log “policy output,” you will miss the root cause. Correlate sensors, actions, and timing.
+agar aap sirf "policy output" ko log karte hain, to aap root cause ko miss karenge. sensors, actions, aur timing ko relate karein.
 
 ## Failure mode diagnosis table
 
@@ -291,52 +291,52 @@ If you only log “policy output,” you will miss the root cause. Correlate sen
 | Inference timing overruns | Missed control ticks, unstable gait | Tensor runtime too slow on target hardware | Measure end-to-end inference latency percentile | Lower model size, optimize TensorRT engine, reduce frequency |
 | Startup fall in first steps | Immediate collapse after enable | Observation mismatch vs training distribution | Compare sim startup observation snapshot to real | Add staged warm-up policy, zero-motion stabilization phase |
 
-Keep this table close during deployment days. It shortens panic loops.
+ٹیبل کو ڈپلومنٹ ڈیز کے دوران قریب رکھیں۔ یہ پینک لوز کو کمزور کرتی ہے۔
 
 ## Safe deployment protocol (non-negotiable)
 
-Before enabling autonomous policy control on hardware:
+پہلے ہارڈویئر پر خودکار پالیسی کنٹرول کو فعال کرنے سے قبل:
 
 1. **Velocity limits**
-   Enforce conservative max linear/angular/joint velocities.
+ہموار حد کی لائنئر/انگریول/جوئنٹ رفتار کو مجروح کریں۔
 
-2. **Torque/position bounds**
-   Hard clamps independent of policy output.
+2. **Torque/posishan ke boundaries**
+Hard clamps azadi policy output.
 
-3. **Emergency stop integration**
-   Physical and software estop must override policy immediately.
+3. ایمرجنسی سٹاپ انٹीगریشن
+Fizikal aur software estop ko zaroorat ke anusaar nishkarsh policy ko jaldbazi se override karna chahiye.
 
-4. **Human override mode**
-   Supervisor can switch from policy to safe controller instantly.
+چار۔ **انسانی اوور رائیڈ مڈ**
+Superviser aik policy se safe controller tak instant mein badal sakta hai.
 
-5. **Progressive rollout**
+5. پروگریسیو رول آؤٹ
    - Tethered or support rig test.
    - Reduced-speed open area test.
    - Structured scenario test.
    - Supervised production-like test.
 
-6. **Abort conditions**
-   Predefine exact conditions that force immediate disable (latency spikes, repeated limit violations, unstable COM behavior).
+چھ: **منسوخ حالات**
+ہمیشہ کی حالتوں کو پہلے سے طے کرکے تیزی سے غیر فعال کرنے کے لئے ایسے حالات طے کریں (تاخیر کی چوٹیاں، تکرار شدہ حد کی خلاف ورزیاں، غیر مستحکم COM کی رفتار)۔
 
-No benchmark score is worth bypassing these safeguards.
+Koi benchmark score bhi in suraksha kaatilon ko bypass karne ke liye zaroori nahin hai.
 
 ## Monitoring with ROS 2 diagnostics and rqt
 
-ROS 2 provides practical runtime introspection tools:
+ROS 2 ہمیشہ کے لیے عملی رن ٹائم انٹروسیکشن ٹولز فراہم کرتا ہے:
 
 - `/diagnostics` style health reporting via diagnostic messages.
 - `rqt_plot` for live channel trends.
 - `rqt_console` for warning/error timeline.
 - `rqt_graph` for graph integrity and topic connectivity.
 
-Recommended deployment dashboard:
+ڈیپلوئیمنٹ ڈیش بورڈ کی تجویز کردہ ڈپلومنٹ:
 - Inference latency (ms).
 - Control loop frequency (Hz).
 - Action saturation ratio.
 - Joint limit proximity metric.
 - Estop state + safety flags.
 
-These should be visible to the operator in real time during initial deployment.
+یہ آپریٹر کے لیے ابتدائی ڈپلومنٹ کے دوران حقیقی وقت میں دیکھے جانے چاہئیں۔
 
 ## 💻 Code Example 3: Runtime diagnostic monitor with threshold alerts
 
@@ -433,11 +433,11 @@ if __name__ == '__main__':
     main()
 ```
 
-This monitor provides immediate threshold-based warnings and integrates with standard ROS diagnostics workflows.
+یہ منیٹر تیزی سے تھرشول پر مبنی تذکرے فراہم کرتا ہے اور معیاری ROS ڈائیاگنوسٹک ورک فلو کے ساتھ انٹیگرٹ ہوتا ہے۔
 
 ## Deployment checklist (operator-ready)
 
-Before enabling policy control each session:
+پہلے پالیسی کنٹرول کو چالو کرنے سے پہلے ہر سیشن:
 - Validate sensor calibration status.
 - Run dry inference with actuators disabled.
 - Verify observation normalization ranges in live feed.
@@ -446,12 +446,12 @@ Before enabling policy control each session:
 - Start with conservative velocity profile.
 - Record diagnostics and video from first run.
 
-After each run:
+ہر ایک چلا جانے کے بعد:
 - Tag failures by mode from table.
 - Save logs with model hash + config version.
 - Decide: tune runtime wrapper, retrain policy, or update sim parameters.
 
-This disciplined loop is how teams survive sim-to-real iteration without damaging hardware.
+یہ منظم حلہ وہ طریقہ ہے جس سے ٹیمز سیمیٹک سے ریالٹی میں تبدیلی کے بغیر ہارڈویئر کو نقصان پہنچانے سے بچتے ہیں۔
 
 ## Architecture Diagram
 
@@ -475,21 +475,21 @@ flowchart TD
 ## 🧪 Practice Exercises
 
 ### Exercise 1 (Beginner)
-Run policy inference node with actuators disconnected and log observation/action distributions for 5 minutes. Verify no channel exceeds expected normalization bounds.
+چلائیں پالیسی انفرنسی نود کو ایکٹیوٹرز سے منسلک نہیں کیا ہوا ہے اور 5 منٹ کے لئے مشاہدہ/عمل کی تقسیمات کو ریکارڈ کریں۔ یقینی بنائیں کہ کوئی چین ایکٹیوٹرز سے منسلک نہیں ہونے کے باوجود بھی معیار کے معیار سے تجاوز کرنے والا نہیں ہے۔
 
 ```bash
 # Plot per-channel min/max and identify outliers before hardware motion tests.
 ```
 
 ### Exercise 2 (Intermediate)
-Inject artificial 10 ms inference delay and observe stability degradation. Tune control frequency or model runtime optimization until thresholds pass.
+ایک 10 میلی سیکنڈ کی انفراںس ڈیلے کو مصنوعی طور پر شامل کریں اور ثبات کے زوال کی مشاہدہ کریں۔ کنٹرول فرائض یا ماڈل رن ٹائم آپٹیمائزیشن کو ایڈجسٹ کریں جب تک کہ پریشانی کی حدوں سے گزر نہ جائیں۔
 
 ```python
 # Compare p95 latency and fall events before/after optimization.
 ```
 
 ### Exercise 3 (Advanced)
-Build an automated deployment gate that blocks policy activation unless diagnostic monitor reports all metrics healthy for 30 continuous seconds.
+بنا Automated Deployment Gate بنائیں جو پالیسی کی Activation کو Block کرے گا جب تک Diagnostic Monitor 30 Continuous Seconds تک تمام Metrics Healthy نہیں رپورٹ کرتا۔
 
 ```python
 # Include estop check and operator acknowledgment in activation flow.
@@ -504,4 +504,4 @@ Build an automated deployment gate that blocks policy activation unless diagnost
 
 ## 🔗 Next Up
 
-Next chapter: End-to-end humanoid deployment runbook—integrating policy packaging, diagnostics, safety review, and staged rollout into a repeatable release process.
+Aagay ka Kapur: End-to-end humanoid deployment runbook—integrating policy packaging, diagnostics, safety review, aur staged rollout ko ek repeatable release process mein shamil karne ka tarika.

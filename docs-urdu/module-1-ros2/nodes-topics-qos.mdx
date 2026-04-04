@@ -7,13 +7,13 @@ sidebar_position: 2
 
 ## 🌍 Real World Scenario
 
-Your humanoid robot is navigating a warehouse. Its camera node publishes 30 frames/second. Suddenly, the network gets congested. Does your navigation system crash, freeze, or gracefully drop old frames and continue? That decision is QoS.
+Aapka humanoid robot ek warehouse mein navigating kar raha hai. Uska camera node 30 frames/second publish karta hai. Jb network congest ho jata hai, to aapka navigation system crash karta hai, freeze karta hai, ya gracefully old frames drop karta hai aur continue karta hai? Yeh decision QoS hai.
 
-That one sentence is the difference between a robot demo and a production robot. In a toy setup, developers often run everything on one laptop with almost perfect loopback networking. Messages look instant. No packet loss, no jitter spikes, no overloaded switches, no competing radios. In a real warehouse, your robot shares network space with scanners, forklifts, tablets, industrial gateways, metal racks that reflect RF signals, and occasional dead zones. Under these conditions, data delivery behavior is no longer “nice to have.” It becomes a safety and uptime requirement.
+وہ ایک ربوٹ ڈیمو اور ایک پیداواری ربوٹ کے درمیان فرق ہے۔ ایک کھیل کے سٹیٹ اپ میں، ڈویلپرز اکثر ایک لپ ٹاپ پر تمام چیزوں کو چلانا پسند کرتے ہیں جس میں تقریباً پرفیکٹ لاپٹاپ نیٹ ورکنگ ہوتی ہے۔ پیغامات بے مثال نظر آتے ہیں۔ کوئی پیکیٹ لوس، کوئی جٹر سپائکس، کوئی اوور لوڈڈ سوییچز، کوئی مقابلہ کرنے والے ریڈیو
 
-If your camera topic is configured poorly, the robot may process old frames after congestion clears and drive using stale perception. If command topics are configured poorly, a critical stop command can be delayed or dropped. If map or static transform topics are configured poorly, late-joining nodes can fail silently and you waste hours debugging what looks like a logic bug but is actually transport policy mismatch.
+agar aapka camera topic theek se na configure kiya hai, toh robot congestion clear hone ke baad purane frames process kar sakta hai aur stale perception ke saath drive kar sakta hai. agar command topics theek se na configure kiye gaye hain, toh ek critical stop command delay ho sakta hai ya drop ho sakta hai. agar map ya static transform topics theek se na configure kiye gaye hain, toh late-joining nodes silently fail ho sakte hain aur aap ghantein guzarne ke baad debugging karte rahe hain jo ki logic bug lagta hai lekin asli mein transport policy mismatch hai.
 
-QoS is the contract that tells ROS 2 middleware what to do when reality gets messy. This chapter makes QoS the star because production robotics is mostly about handling messy reality safely.
+کیوس (QoS) وہ معاہدہ ہے جو ROS 2 میڈیئٹ ویئر کو بتاتا ہے کہ جب حقیقت گھبراہٹ کا شکار ہو جاتی ہے تو اس کے ساتھ کیا کرنا ہے۔ یہ باب کیوس کو ستارہ بناتا ہے کیونکہ پروڈکشن رباتکس کا زیادہ تر حصہ گھبراہٹ سے نمٹنے کے بارے میں ہے۔
 
 ## What You Will Learn
 
@@ -28,16 +28,16 @@ QoS is the contract that tells ROS 2 middleware what to do when reality gets mes
 
 ## Node Lifecycle: from boot chaos to deterministic startup
 
-ROS 2 supports managed lifecycles so nodes can be orchestrated like industrial systems instead of launched as uncontrolled scripts. This matters because robot software rarely starts in a perfect order. Cameras need warm-up, calibration may load late, navigation requires TF availability, and motion control should never activate before safety monitors.
+ROS 2 کا مدیرت شدہ زندگی کا سپورٹ ہوتا ہے اس لیے نودز کو انڈسٹریل سسٹم کی طرح منظم کیا جا سکتا ہے جبکہ انہیں غیر کنٹرول شدہ اسکرپٹ کے طور پر لانچ نہیں کیا جا سکتا ہے۔ یہ معاملہ اہم ہے کیونکہ ربات کی سافٹ ویئر نادراں ہی پرفیکٹ آرڈر میں شروع ہوتی ہے۔ کیمرے کو گرم کرنے کی ضرورت ہوتی ہے، کالیبر
 
-Lifecycle states let you encode those constraints:
+زندگی کے حالات کی حالت آپ کو ان پابندیوں کو ایکڑ کرنے کی اجازت دیتی ہیں:
 
 - **unconfigured**: node exists but resources are not fully initialized.
 - **inactive**: node has initialized resources but is not processing live work.
 - **active**: node is running its primary callbacks and participating in the graph.
 - **finalized**: node has completed shutdown and released critical resources.
 
-When teams skip lifecycle discipline, they get race conditions: planners starting before maps, control loops running before odometry, watchdogs not armed during bring-up. Lifecycle management reduces those failure modes by making transitions explicit and testable.
+جب ٹیمز لائف سائیکل ڈسپلین سے گریز کرتے ہیں تو انہیں ریس کنڈیشنز مل جاتے ہیں: پلانرز کا آغاز قبل از وقت ہوتا ہے، کنٹرول لوز چلنے سے پہلے اودومیٹری، واٹچ ڈوگس نہیں ہوتے جب برونگ اپ ہوتا ہے۔ لائف سائیکل مینجمنٹ ان فیلچر مڈز کو کم کرنے میں مدد کرتا ہے جبکہ ٹرانزیشنز کو ظاہ
 
 ```mermaid
 stateDiagram-v2
@@ -51,37 +51,37 @@ stateDiagram-v2
     Finalized --> [*]
 ```
 
-In production systems, an orchestrator or launch supervisor checks preconditions before transitions. Example: only transition motion control to `active` after safety lidar and emergency stop nodes confirm healthy liveliness.
+پیداواری نظاموں میں، ایک منظم یا لانچ سپروائزر ٹرانزیشنز سے پہلے شرائط کی جانچ کرتا ہے۔ مثال کے طور پر، صرف موشن کنٹرول کو `active` میں منتقل کریں جب سافٹی لیڈار اور ایمرجنسی اسٹاپ نودز صحت مند لائفلینس کی تصدیق کرتے ہیں۔
 
 ## Topic Namespacing: why multi-robot systems need strict separation
 
-In a single-robot tutorial, topic names are often short (`/camera/image`, `/cmd_vel`, `/scan`). That works until you deploy robot 2. Then both robots publish `/camera/image`, both subscribe `/cmd_vel`, and your observability tools become unreadable. Worse, cross-talk can occur if remapping is sloppy.
+ایک ایک ہی ربوٹ کے ٹیوٹوریل میں، ٹاپک نام اکثر مختصر ہوتے ہیں (`/camera/image`, `/cmd_vel`, `/scan`). یہ کام کرے گا جب تک کہ آپ ربوٹ 2 کو نہیں لگاتے۔ پھر دونوں ربوٹ `/camera/image` شائع کرتے ہیں، دونوں `/cmd_vel` سبسکرائب کرتے ہیں، اور آپ کے مشاہدہ کے ٹول غیر پڑھے جاتے ہیں۔ Worse, Cross-talk ہو سکتا ہے اگر Remapping
 
-Namespacing fixes this by scoping topics per robot or per subsystem:
+نیم اسپیسنگ کی اصلاح اسے موضوعات کو ربوٹ یا سسٹم کے ذریعے سے محدود کرتی ہے:
 
 - `/robot1/camera/image`
 - `/robot1/cmd_vel`
 - `/robot2/camera/image`
 - `/robot2/cmd_vel`
 
-With namespaces, each robot keeps a clean communication boundary while still sharing one ROS domain. This is essential in fleets, warehouse pilots, and lab environments where multiple robots are tested together.
+ہر ربوٹ کے لیے نامسپیس کے ذریعے، ایک صاف رابطہ عامہ ہوتا ہے جبکہ ایک ہی ROS ڈومین میں کام کرتے ہیں۔ یہ فلیٹس، وارہاؤس پائلٹس اور لیب ماحول میں بہت اہم ہے جہاں متعدد ربوٹس ایک ساتھ ٹیسٹ کیے جاتے ہیں۔
 
-Practical rules:
+نظامی قواعد:
 
 1. Make base topic names relative in node code (`camera/image`, `cmd_vel`) and apply namespace at launch.
-2. Reserve global topics only for truly shared infrastructure (e.g., fleet supervisor heartbeats).
-3. Keep naming conventions consistent across teams to avoid hidden remap bugs.
+دوسرا: دنیا بھر میں صرف حقیقی طور پر شیئرڈ انفراسٹرکچر کے لئے گھریلو موضوعات کو محفوظ رکھیں (جیسے فلیٹ سپروائز ہارٹ بیٹس)۔
+3. ٹیموں کے درمیان نام بندی کے اصولوں کو یکساں رکھیں تاکہ چھپے ہوئے ریمپ بھیوں سے بچا جا سکے۔
 
-Namespacing is not just style. It is a safety and operability control for scaling.
+نیم اسپیسنگ صرف اسٹائل نہیں ہے بلکہ اسے سکیلینگ کے لیے سافٹیویر اور آپریٹبلٹی کا کنٹرول بھی کہا جاتا ہے۔
 
 ## QoS fundamentals: WhatsApp vs live stream analogy
 
-QoS in ROS 2 defines transport expectations between publishers and subscribers. A useful intuition:
+کیو ایس (QoS) ROS 2 میں پبلشرز اور سبسکرائبرز کے درمیان ٹرانسپورٹ کی امیدوں کو ظاہر کرتا ہے۔ ایک مفید عقلانہ خیال:
 
 - **WhatsApp-like behavior**: you expect reliable delivery and possibly retained context for late readers.
 - **Live stream behavior**: you prioritize being current; dropped moments are acceptable.
 
-Map that to ROS 2:
+مپ کے لیے ROS 2 کو استعمال کریں
 
 - `RELIABLE` + often retained data patterns for control/state channels.
 - `BEST_EFFORT` + fresh-only behavior for high-frequency sensor streams.
@@ -101,29 +101,29 @@ Analogy:
 - **VOLATILE** is like joining a live stream late: you only see what is happening now.
 - **TRANSIENT_LOCAL** is like opening a chat and immediately seeing recent pinned context.
 
-For example, static map metadata or robot configuration is often suited for retained behavior. High-rate camera frames are generally volatile.
+کام کرنے والی نقشہ کی معلومات یا ربات کی ترتیب عام طور پر برقرار رہنے والی خصوصیات کے لیے موزوں ہوتی ہے۔  اعلی درجہ کی کیمرے کی فریم عام طور پر بدستور تبدیلیوں کے لیے موزوں ہوتی ہے۔
 
 ## The 6 QoS policies you must tune intentionally
 
 ### 1) History
-Controls whether middleware keeps only a bounded recent window (`KEEP_LAST`) or attempts to keep everything (`KEEP_ALL`).
+مڈل وئیر کیوں کہتے ہیں کہ وہ صرف ایک محدود حالیہ ونڈو (KEEP_LAST) کو برقرار رکھتا ہے یا ہر چیز کی کوشش کرتا ہے (KEEP_ALL)۔
 
 ### 2) Depth
-Queue size used with `KEEP_LAST`. Depth too small can drop useful bursts; depth too large can increase latency and memory pressure.
+Queue size ka istemal `KEEP_LAST` ke saath kiya jata hai. Gahraai kam ho to kuchh faydemand aawazon ko girta hai; gahraai zyada ho to vakt aur yaadgaar ki dabaav badh jati hai.
 
 ### 3) Reliability
-`RELIABLE` or `BEST_EFFORT`. Choose based on whether message loss or delay is more dangerous for that stream.
+مسلح ہونا یا تاخیر کے درمیان سے کون سا زیادہ خطرناک ہے وہ پہلو پر مبنی طور پر چنیں۔
 
 ### 4) Durability
-`VOLATILE` or `TRANSIENT_LOCAL`. Decide whether late-joining subscribers must receive prior samples.
+ہمیشہ کیوں نہیں، لیکن ہمیشہ کیوں ہاں؟
 
 ### 5) Deadline
-Maximum expected time between messages. Missing deadline can trigger callbacks and alerts for timing regressions.
+ٹائم آؤٹ کا زیادہ سے زیادہ انتظامی وقت ہے۔  موصول ہونے والے پیغامات کے درمیان وقت کا فاصلہ ہے۔ موصول ہونے والے پیغام کی موعدہ مقررہ تاریخ سے باہر ہونے پر کال بیک کے ساتھ ساتھ ٹائمنگ کی کمیوں کے لئے ایلارٹس کا باعث بن سکتا ہے۔
 
 ### 6) Liveliness
-How publishers assert they are still alive. Useful for watchdogs and failover behavior when nodes freeze without clean shutdown.
+آپریڈیٹرز کہتے ہیں کہ وہ اب بھی زندہ ہیں۔ واٹچ ڈاگز اور فیل اوور بہاؤر کے لیے نودز کی ٹھیک shutdown کے بغیر جم جاتے ہیں۔
 
-Production tip: treat QoS tuning as part of interface contract design, not as last-minute debugging.
+پیداواری ٹپس: QoS کی ترمیم کو انٹرفیس معاہدے کی ڈیزائن کے طور پر دیکھیں، نہ کہ آخری منٹ کی ڈیبگنگ کے طور پر۔
 
 ## RELIABLE vs BEST_EFFORT comparison table
 
@@ -139,26 +139,26 @@ Production tip: treat QoS tuning as part of interface contract design, not as la
 
 ## QoS mismatch: the silent failure every beginner hits
 
-In ROS 2, publisher/subscriber endpoints must be compatible. If they are not, endpoints may discover each other but not exchange messages. This often appears as:
+ROS 2 میں، پبلش/سبسکرائب اینڈ پوائنٹس کو متوازی ہونا چاہیے۔ اگر وہ متوازی نہیں ہیں، تو اینڈ پوائنٹس ایک دوسرے کو دریافت کر سکتے ہیں لیکن پیغامات تبادلہ نہیں کر سکتے ہیں۔ یہ اکثر اس طرح دکھائی دیتا ہے:
 
 - `ros2 topic list` shows topic exists.
 - Node logs show no callback errors.
 - Subscriber callback never fires.
 
-Classic mismatch example:
+Mishmatch ka kala namuna:
 
 - Publisher uses `BEST_EFFORT` for sensor stream.
 - Subscriber requests `RELIABLE`.
 
-Depending on middleware and exact compatibility rules, communication may fail silently. Engineers then debug business logic while the real issue is QoS contract mismatch.
+مڈیئر وائر اور اہم مطابقت کے قوانین کے مطابق، مواصلات کی ناکامی ساکت ہو سکتی ہے۔ انجینئرز پھر کاروباری منطق کو ڈیبگ کرتے ہیں جبکہ حقیقی مسئلہ QoS معاہدہ میچ میچ نہیں ہوتا ہے۔
 
-Always verify with verbose introspection before rewriting code.
+Hamesha code ko phir se likhne se pehle verbose introspection ke saath verify karein.
 
 ```bash
 ros2 topic info /scan -v
 ```
 
-This prints endpoint QoS details (reliability, durability, history/depth, liveliness, deadlines) so you can compare profiles directly.
+Yeh endpoint QoS details (reliability, durability, history/depth, liveliness, deadlines) ko print karta hai taaki aap profiles ko direkt compare kar sakte hain.
 
 ## 💻 Code Example 1: velocity command publisher with RELIABLE QoS
 
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     main()
 ```
 
-Why RELIABLE here: command channels should not casually drop critical velocity updates, especially stop or deceleration commands.
+Reliable یہاں RELIABLE کے لیے: کمانڈ چینلز کو کچھ بھی نہیں کرنا چاہیے کہ وہ اہم رفتار کی اپ ڈیٹس کو بے قاعدگی سے ڈراپ کریں، خاص طور پر رکاوٹ یا تیزاب کمانڈز۔
 
 ## 💻 Code Example 2: sensor subscriber with BEST_EFFORT QoS
 
@@ -248,11 +248,11 @@ if __name__ == '__main__':
     main()
 ```
 
-Why BEST_EFFORT here: losing a few scans is acceptable if the robot always reacts to freshest data instead of stale backlog.
+کیوں BEST_EFFORT یہاں: کچھ سکنز کھونے کے لیے قابل قبول ہے اگر ہمیشہ ربات نئے ڈیٹا پر ردعمل دیتا ہے جبکہ اس کے پاس پرانی کھڑی لائن ہوتی ہے۔
 
 ## 💻 Code Example 3: check QoS compatibility with ros2 CLI
 
-Use this during debugging and bring-up:
+استعمال کرنے کے لیے یہ دوران ڈیبگنگ اور براہ راست شروع میں
 
 ```bash
 # Show publisher/subscriber endpoints and their QoS policies
@@ -262,23 +262,23 @@ ros2 topic info /robot1/scan -v
 ros2 topic info /robot1/cmd_vel -v
 ```
 
-What to check:
+کی چیک کرنا ہے
 
 1. Reliability alignment (`RELIABLE` vs `BEST_EFFORT`).
-2. Durability expectations (`VOLATILE` vs `TRANSIENT_LOCAL`).
-3. Depth/history mismatches that may create performance surprises.
-4. Deadline/liveliness settings for watchdog-sensitive streams.
+2. Durability ki Umeedain (VOLATILE vs TRANSIENT_LOCAL)
+3. گہرائی/تاریخ کے مطابقت کے مسائل جو پرفارمنس کی Surprise پیدا کر سکتے ہیں۔
+4. Deadlin/liveliness settings ke liye watchdog-sensitive streams ke liye.
 
 ## Operational guidance: picking QoS by stream type
 
-A simple production matrix:
+ایک سادہ پیداواری منٹیکس
 
 - **Motion commands**: usually `RELIABLE`, modest depth, volatile durability.
 - **Perception high-rate streams**: usually `BEST_EFFORT`, low depth, volatile durability.
 - **State/config snapshots for late joiners**: often `TRANSIENT_LOCAL`.
 - **Safety monitoring**: explicit deadline/liveliness so failure is detectable quickly.
 
-Never copy one QoS profile everywhere. Different streams have different risk models.
+کبھی بھی ایک QoS پروفائل کو ہر جگہ کاپی نہ کریں۔ مختلف سٹریمز مختلف خطرہ کے ماڈلز ہوتے ہیں۔
 
 ## 💡 Key Concepts Summary
 
@@ -293,7 +293,7 @@ Never copy one QoS profile everywhere. Different streams have different risk mod
 ## 🧪 Practice Exercises
 
 ### Exercise 1 (Beginner)
-Create two namespaces (`/robot1`, `/robot2`) for the same camera node and verify both publish independently without topic collision.
+ایک ہی کیمرہ نود کے لیے دو نامسپیس (`/robot1`, `/robot2`) بنائیں اور دونوں کو الگ الگ طور پر ٹاپک کولیشن کے بغیر پبلش کریں۔
 
 ```python
 # Hint: keep topic relative in code (camera/image)
@@ -301,14 +301,14 @@ Create two namespaces (`/robot1`, `/robot2`) for the same camera node and verify
 ```
 
 ### Exercise 2 (Intermediate)
-Set up a publisher with `BEST_EFFORT` and a subscriber with `RELIABLE` on the same sensor topic. Observe no callbacks, then fix subscriber reliability and verify recovery.
+ایک پبلشَر کو BEST_EFFORT اور ایک سبسکرایبر کو RELIABLE پر ایک ہی سنسر ٹاپک پر سٹ اپ کریں۔ کوئی کال بیک کی طرف سے مشاہدہ کریں، پھر سبسکرایبر کی قابل اعتمادیت کو درست کریں اور Recovery کو وریفائی کریں۔
 
 ```bash
 ros2 topic info /robot1/scan -v
 ```
 
 ### Exercise 3 (Advanced)
-Add deadline and liveliness policies to a safety topic. Intentionally pause the publisher and log the deadline/liveliness event to trigger a controlled stop behavior.
+اِک سافٹی ٹاپک میں ڈیڈ لائن اور لائیولنس پالیسیاں شامل کریں۔ منصوبہ بند کرنے کے لئے پبلش کرنے والے کو رکاوٹ دیں اور ڈیڈ لائن/لائیولنس ایونٹ کو لوگ کریں تاکہ کنٹرولڈ اسٹاپ بہاو کو ٹرگ کیا جا سکے۔
 
 ```python
 # Goal: convert hidden silence into explicit safety events.
@@ -324,4 +324,4 @@ Add deadline and liveliness policies to a safety topic. Intentionally pause the 
 
 ## 🔗 Next Up
 
-Next chapter: Services and Actions in ROS 2—how robots handle request/response operations and long-running goals with feedback and cancellation.
+Aglay Chapter: Services aur Actions ROS2 mein—robot kaise request/response kaam aur long-running goals ke saath feedback aur cancellation karte hain.
