@@ -33,11 +33,59 @@ def _connect():
 
 
 def create_tables() -> None:
-    """Create all required tables on startup"""
-    ddl = _SQL_BOOTSTRAP.read_text(encoding="utf-8")
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute(ddl)
+            # Create the table with the new schema (this won't fail if table already exists with same structure)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    software_background TEXT DEFAULT '',
+                    hardware_background TEXT DEFAULT '',
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+
+            # Check if the old 'id' column exists
+            cur.execute("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name='users' AND column_name='id'
+            """)
+            old_column_exists = cur.fetchone() is not None
+
+            # Check if the new 'user_id' column exists
+            cur.execute("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name='users' AND column_name='user_id'
+            """)
+            new_column_exists = cur.fetchone() is not None
+
+            # If both columns exist, we might have run into a partial migration
+            # If only 'id' exists, rename it
+            if old_column_exists and not new_column_exists:
+                cur.execute("ALTER TABLE users RENAME COLUMN id TO user_id")
+            elif old_column_exists and new_column_exists:
+                # If both exist, drop the old one (data should be in new one)
+                try:
+                    cur.execute("ALTER TABLE users DROP COLUMN id")
+                except:
+                    # If dropping fails, ignore (might be a constraint issue)
+                    pass
+            elif not old_column_exists and not new_column_exists:
+                # Neither exists - shouldn't happen if CREATE TABLE worked, but just in case
+                cur.execute("""
+                    CREATE TABLE users (
+                        user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        email VARCHAR(255) UNIQUE NOT NULL,
+                        password_hash VARCHAR(255) NOT NULL,
+                        software_background TEXT DEFAULT '',
+                        hardware_background TEXT DEFAULT '',
+                        created_at TIMESTAMP DEFAULT NOW()
+                    )
+                """)
         conn.commit()
 
 
