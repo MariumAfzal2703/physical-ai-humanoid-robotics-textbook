@@ -4,6 +4,8 @@ import {postChapterPersonalization} from './api';
 
 type ChapterActionsProps = {
   authToken?: string | null;
+  userEmail?: string | null;
+  onLogout?: () => void;
 };
 
 const actionButtonStyle: React.CSSProperties = {
@@ -27,7 +29,7 @@ const cardStyle: React.CSSProperties = {
   overflowY: 'auto',
 };
 
-export default function ChapterActions({authToken}: ChapterActionsProps): React.JSX.Element | null {
+export default function ChapterActions({authToken, userEmail, onLogout}: ChapterActionsProps): React.JSX.Element | null {
   const [personalizedContent, setPersonalizedContent] = useState<string>('');
   const [focus, setFocus] = useState('');
   const [loadingPersonalized, setLoadingPersonalized] = useState(false);

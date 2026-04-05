@@ -135,6 +135,22 @@ export async function postChapterPersonalization(
   return (await response.json()) as ChapterTransformResult;
 }
 
+export async function postForgotPassword(payload: {email: string}): Promise<{message: string}> {
+  const response = await fetch(`${BACKEND_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Forgot password request failed (${response.status})`);
+  }
+
+  return (await response.json()) as {message: string};
+}
+
 export async function getHealth(): Promise<{status: string}> {
   const response = await fetch(`${BACKEND_URL}/health`);
   if (!response.ok) {

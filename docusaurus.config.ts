@@ -84,6 +84,18 @@ const config: Config = {
           to: '/docs/intro?auth=1',
           className: 'navbar-login-trigger',
         },
+        {
+          label: 'Personalize',
+          position: 'right',
+          to: '#',
+          className: 'navbar-personalize-trigger hidden',
+        },
+        {
+          label: 'Account',
+          position: 'right',
+          to: '#',
+          className: 'navbar-account-trigger hidden',
+        },
       ],
     },
     footer: {

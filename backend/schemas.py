@@ -37,3 +37,11 @@ class ChapterActionRequest(BaseModel):
 class ChapterTransformResponse(BaseModel):
     chapter_id: str
     content: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str

@@ -28,3 +28,33 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Styles for navbar items visibility */
+.navbar__items .hidden {
+  display: none !important;
+}
+
+/* Ensure proper spacing when items are hidden */
+.navbar__items {
+  align-items: center;
+}
+
+/* Style for the account dropdown */
+.navbar__item .navbar-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: var(--ifm-navbar-background-color);
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.navbar-dropdown:hover .navbar-dropdown-content {
+  display: block;
+}

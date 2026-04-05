@@ -1,0 +1,11 @@
+.hidden {
+  display: none !important;
+}
+
+.navbar-item-logged-in {
+  display: block !important;
+}
+
+.navbar-item-logged-out {
+  display: block !important;
+}

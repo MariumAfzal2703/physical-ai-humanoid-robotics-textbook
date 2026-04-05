@@ -8,6 +8,8 @@ from .schemas import (
     ChapterTransformResponse,
     ChatRequest,
     ChatResponse,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
     SigninRequest,
     SignupRequest,
 )
@@ -95,6 +97,14 @@ def oauth_signin(provider: str) -> AuthResponse:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return AuthResponse(user_id=user_id, token=token)
+
+
+@api_router.post("/auth/forgot-password", response_model=ForgotPasswordResponse)
+def forgot_password(payload: ForgotPasswordRequest) -> ForgotPasswordResponse:
+    # In a real implementation, this would send an email with a reset link
+    # For now, we just return a generic success message to avoid leaking information
+    # about whether the email exists in the system
+    return ForgotPasswordResponse(message="If this email exists, a reset link has been sent")
 
 
 @api_router.post("/chapters/{chapter_id:path}/personalize", response_model=ChapterTransformResponse)
