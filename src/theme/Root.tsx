@@ -5,6 +5,7 @@ import ChapterActions from '../components/ChapterActions';
 import ChatWidget from '../components/ChatWidget';
 import SelectionPopup from '../components/SelectionPopup';
 import NavbarUpdater from '../components/NavbarUpdater';
+import UserAvatar from '../components/UserAvatar';
 
 export default function Root({children}: Props): React.JSX.Element {
   const [chatOpen, setChatOpen] = useState(false);
