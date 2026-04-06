@@ -1,20 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  "buildCommand": "NODE_OPTIONS=--max-old-space-size=1024 npm run build",
+  "outputDirectory": "build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": null
 }

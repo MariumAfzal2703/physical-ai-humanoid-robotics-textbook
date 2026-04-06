@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Physical AI Textbook',
-  tagline: 'Humanoid Robotics curriculum with grounded assistant support',
+  title: 'Physical AI & Humanoid Robotics Textbook | Marium Afzal',
+  tagline: 'From Code to Motion — Intelligence Meets Reality',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -28,18 +28,25 @@ const config: Config = {
 
   onBrokenLinks: 'throw',
 
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
+      }
+    },
+  ],
+
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
-    locales: ['en', 'ur'],
-    localeConfigs: {
-      en: { label: 'English' },
-      ur: { label: 'اردو' },
-    },
+    locales: ['en'],
   },
 
+  // SEO metadata
   presets: [
     [
       'classic',
@@ -58,8 +65,16 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
+    metadata: [
+      { name: 'description', content: 'Learn Physical AI and Humanoid Robotics with ROS 2, Gazebo, NVIDIA Isaac, and VLA Systems. AI-native textbook with Urdu translation, RAG chatbot, and personalized learning. By Marium Afzal, AI Engineer at PIAIC.' },
+      { name: 'keywords', content: 'Physical AI, Humanoid Robotics, ROS 2, Gazebo, NVIDIA Isaac, VLA, Pakistan, PIAIC, Urdu, AI textbook, Marium Afzal' },
+      { property: 'og:title', content: 'Physical AI & Humanoid Robotics Textbook | Marium Afzal' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+    ],
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: 'dark',
+      disableSwitch: false,
+      respectPrefersColorScheme: false,
     },
     navbar: {
       title: 'Physical AI Textbook',
@@ -73,10 +88,6 @@ const config: Config = {
           sidebarId: 'tutorialSidebar',
           position: 'left',
           label: 'Curriculum',
-        },
-        {
-          type: 'localeDropdown',
-          position: 'right',
         },
         {
           label: 'Login',

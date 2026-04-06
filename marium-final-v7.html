@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physical AI & Humanoid Robotics Textbook | Marium Afzal</title>
+<meta name="description" content="Learn Physical AI and Humanoid Robotics with ROS 2, Gazebo, NVIDIA Isaac, and VLA Systems. AI-native textbook with Urdu translation, RAG chatbot, and personalized learning. By Marium Afzal, AI Engineer at PIAIC.">
+<meta name="keywords" content="Physical AI, Humanoid Robotics, ROS 2, Gazebo, NVIDIA Isaac, VLA, Pakistan, PIAIC, Urdu, AI textbook, Marium Afzal">
+<meta name="author" content="Marium Afzal">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Physical AI & Humanoid Robotics Textbook | Marium Afzal">
+<meta property="og:description" content="AI-native textbook with Urdu translation, RAG chatbot, and personalized learning. By Marium Afzal.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+[data-theme="dark"]{
+  --pink:#f72585;--pink-soft:#ec4899;
+  --purple:#7b2d8b;--purple-light:#a855f7;
+  --bg:#04000a;--text:#f0e6ff;--muted:#9d7fb8;
+  --border:rgba(247,37,133,0.15);--card:rgba(123,45,139,0.08);
+  --nav-bg:rgba(4,0,10,0.88);--chat-bg:rgba(6,0,12,0.97);
+  --input-bg:rgba(247,37,133,0.06);--review-bg:rgba(123,45,139,0.08);
+}
+[data-theme="light"]{
+  --pink:#e91e8c;--pink-soft:#db2777;
+  --purple:#6d28d9;--purple-light:#7c3aed;
+  --bg:#fdf4ff;--text:#1a0030;--muted:#6b21a8;
+  --border:rgba(219,39,119,0.2);--card:rgba(219,39,119,0.05);
+  --nav-bg:rgba(253,244,255,0.94);--chat-bg:rgba(255,255,255,0.98);
+  --input-bg:rgba(219,39,119,0.06);--review-bg:rgba(219,39,119,0.05);
+}
+[data-theme="light"] canvas{opacity:.07}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;cursor:none;transition:background .3s,color .3s}
+
+#progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--pink),var(--purple-light),var(--pink));z-index:9999;box-shadow:0 0 10px rgba(247,37,133,.8);transition:width .08s linear}
+
+@media(min-width:769px){
+  .cursor{width:10px;height:10px;background:var(--pink);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;mix-blend-mode:screen}
+  .cursor-ring{width:32px;height:32px;border:1px solid rgba(247,37,133,.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9997;transition:all .25s ease}
+}
+
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+
+/* ===== NAVBAR ===== */
+nav{
+  position:fixed;top:0;width:100%;z-index:500;
+  padding:0 24px;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--nav-bg);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);transition:background .3s;
+}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.logo-svg{width:34px;height:34px;flex-shrink:0}
+.logo-wordmark{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;background:linear-gradient(90deg,var(--pink),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+
+/* NAV RIGHT — all items */
+.nav-right{display:flex;align-items:center;gap:8px}
+
+/* Individual nav items */
+.nav-icon-btn{
+  display:flex;align-items:center;gap:5px;
+  background:var(--card);border:1px solid var(--border);
+  padding:6px 12px;border-radius:8px;
+  color:var(--muted);font-family:'Space Grotesk',sans-serif;
+  font-size:.8rem;font-weight:500;cursor:none;transition:all .25s;
+  white-space:nowrap;
+}
+.nav-icon-btn:hover{border-color:var(--pink);color:var(--pink)}
+.nav-icon-btn.special{color:var(--purple-light);border-color:rgba(168,85,247,.2)}
+.nav-icon-btn.special:hover{border-color:var(--purple-light);color:var(--purple-light)}
+
+.theme-btn{background:var(--card);border:1px solid var(--border);width:34px;height:34px;border-radius:8px;color:var(--muted);font-size:.9rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0}
+.theme-btn:hover{border-color:var(--pink);color:var(--pink)}
+
+.signin-btn{background:transparent;border:1px solid var(--border);padding:7px 14px;border-radius:6px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:500;cursor:none;transition:all .2s;white-space:nowrap}
+.signin-btn:hover{border-color:var(--pink);color:var(--pink)}
+
+.signup-btn{background:linear-gradient(135deg,var(--pink),var(--purple));border:none;padding:7px 16px;border-radius:6px;color:white;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;cursor:none;box-shadow:0 0 16px rgba(247,37,133,.3);transition:all .2s;white-space:nowrap}
+.signup-btn:hover{transform:translateY(-1px);box-shadow:0 0 26px rgba(247,37,133,.5)}
+
+/* HIDE some items on mobile */
+.nav-icon-btn.hide-mobile{display:flex}
+@media(max-width:640px){
+  .nav-icon-btn.hide-mobile{display:none}
+  .signin-btn,.signup-btn{display:none}
+  .hamburger{display:flex!important}
+}
+
+/* HAMBURGER */
+.hamburger{display:none;background:var(--card);border:1px solid var(--border);width:34px;height:34px;border-radius:8px;color:var(--muted);font-size:1rem;cursor:none;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0}
+.hamburger:hover{border-color:var(--pink);color:var(--pink)}
+
+/* MOBILE DROPDOWN */
+.mobile-menu{display:none;position:fixed;top:62px;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 20px;flex-direction:column;gap:4px;z-index:499}
+.mobile-menu.open{display:flex;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.mob-link{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;padding:11px 0;border-bottom:1px solid var(--border);transition:color .2s;display:flex;align-items:center;gap:8px}
+.mob-link:hover{color:var(--pink)}
+.mob-link.special{color:var(--purple-light)}
+.mob-auth{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.mob-signin{flex:1;background:transparent;border:1px solid var(--border);padding:10px;border-radius:6px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:500;cursor:none;transition:all .2s}
+.mob-signin:hover{border-color:var(--pink);color:var(--pink)}
+.mob-signup{flex:1;background:linear-gradient(135deg,var(--pink),var(--purple));border:none;padding:10px;border-radius:6px;color:white;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;cursor:none}
+
+/* ===== HERO ===== */
+.hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 20px 40px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(247,37,133,.08);border:1px solid rgba(247,37,133,.25);color:var(--pink-soft);padding:5px 14px;border-radius:100px;font-size:.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px;opacity:0;animation:fadeUp .6s ease .2s forwards}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--pink);border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+h1{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,6vw,4.8rem);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:8px;opacity:0;animation:fadeUp .7s ease .4s forwards}
+h1 .grad{background:linear-gradient(135deg,var(--pink) 0%,var(--purple-light) 50%,#ff006e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block}
+
+.typing-wrap{font-size:clamp(.9rem,2vw,1.1rem);color:var(--muted);margin:16px 0 8px;min-height:1.6rem;opacity:0;animation:fadeUp .7s ease .6s forwards}
+.typing-cursor{display:inline-block;width:2px;height:1em;background:var(--pink);margin-left:2px;vertical-align:middle;animation:blink .8s infinite}
+
+.author-credit{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:rgba(247,37,133,.65);margin-bottom:36px;letter-spacing:1px;opacity:0;animation:fadeUp .7s ease .7s forwards}
+.author-credit span{color:var(--pink)}
+
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .7s ease .8s forwards}
+.btn-primary{background:linear-gradient(135deg,var(--pink),var(--purple));border:none;padding:13px 28px;border-radius:8px;color:white;font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700;cursor:none;box-shadow:0 0 26px rgba(247,37,133,.35);transition:all .3s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 42px rgba(247,37,133,.55)}
+.btn-outline{background:transparent;border:1px solid rgba(247,37,133,.35);padding:13px 28px;border-radius:8px;color:var(--pink-soft);font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:600;cursor:none;transition:all .3s}
+.btn-outline:hover{background:rgba(247,37,133,.08);border-color:var(--pink)}
+
+/* LIVE */
+.live-wrap{position:relative;z-index:10;display:flex;justify-content:center;margin-bottom:14px}
+.live-pill{display:flex;align-items:center;gap:8px;background:rgba(247,37,133,.06);border:1px solid rgba(247,37,133,.2);padding:7px 16px;border-radius:100px;font-size:.78rem;color:var(--muted)}
+.live-dot{width:7px;height:7px;background:#22c55e;border-radius:50%;animation:blink 1.2s infinite}
+.live-num{color:var(--pink);font-weight:700}
+
+/* STATS */
+.stats-wrap{position:relative;z-index:10;padding:0 20px;margin-bottom:70px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stats-wrap::-webkit-scrollbar{display:none}
+.stats-row{display:flex;min-width:max-content;margin:0 auto;max-width:700px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:rgba(8,0,16,.6);backdrop-filter:blur(10px);opacity:0;animation:fadeUp .7s ease 1s forwards}
+.stat-item{flex:0 0 auto;width:140px;padding:18px 12px;text-align:center;border-right:1px solid var(--border);transition:background .3s}
+.stat-item:last-child{border-right:none}
+.stat-item:hover{background:rgba(247,37,133,.06)}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--pink),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+.divider{position:relative;z-index:10;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 24px}
+
+section{position:relative;z-index:10;padding:64px 24px;max-width:1200px;margin:0 auto}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-1px;margin-bottom:36px}
+
+/* QUICK NAV SECTION — Home + Curriculum cards below hero */
+.quick-nav{position:relative;z-index:10;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:0 24px 60px}
+.quick-card{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:14px 22px;text-decoration:none;
+  color:var(--text);font-weight:600;font-size:.9rem;
+  transition:all .3s;
+}
+.quick-card:hover{border-color:var(--pink);color:var(--pink);transform:translateY(-2px)}
+.quick-card-icon{font-size:1.2rem}
+
+/* MODULES */
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.module-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 20px;transition:all .3s;position:relative;overflow:hidden}
+.module-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--purple-light));transform:scaleX(0);transition:transform .3s}
+.module-card:hover{border-color:rgba(247,37,133,.3);transform:translateY(-4px)}
+.module-card:hover::before{transform:scaleX(1)}
+.module-num{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.module-icon{font-size:1.6rem;margin-bottom:10px;display:block}
+.module-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:6px}
+.module-desc{font-size:.82rem;color:var(--muted);line-height:1.6}
+
+/* TECH */
+.tech-grid{display:flex;flex-wrap:wrap;gap:10px}
+.tech-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:100px;font-size:.8rem;font-weight:600;transition:all .3s;cursor:none}
+.tech-pill:hover{border-color:var(--pink);color:var(--pink);box-shadow:0 0 12px rgba(247,37,133,.2);transform:translateY(-2px)}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 16px;transition:all .3s}
+.feature-card:hover{border-color:rgba(247,37,133,.3);transform:translateY(-3px)}
+.feature-icon{font-size:1.3rem;margin-bottom:8px}
+.feature-title{font-weight:700;font-size:.9rem;margin-bottom:6px}
+.feature-desc{font-size:.78rem;color:var(--muted);line-height:1.6}
+
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:28px}
+.review-card{background:var(--review-bg);border:1px solid var(--border);border-radius:12px;padding:22px;transition:all .3s}
+.review-card:hover{border-color:rgba(247,37,133,.25);transform:translateY(-2px)}
+.review-stars{color:#f59e0b;font-size:.85rem;margin-bottom:8px;letter-spacing:2px}
+.review-text{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:14px;font-style:italic}
+.review-author{display:flex;align-items:center;gap:8px}
+.author-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:white;flex-shrink:0}
+.author-name{font-weight:700;font-size:.82rem}
+.author-role{font-size:.7rem;color:var(--muted)}
+
+.write-review{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.write-review h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:14px}
+.stars-select{display:flex;gap:6px;margin-bottom:14px}
+.star-btn{background:none;border:none;font-size:1.4rem;cursor:none;transition:transform .2s;opacity:.35}
+.star-btn.active{opacity:1}
+.star-btn:hover{transform:scale(1.2);opacity:1}
+.review-textarea{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.85rem;resize:vertical;min-height:80px;outline:none;margin-bottom:12px}
+.review-textarea:focus{border-color:rgba(247,37,133,.4)}
+.submit-review{background:linear-gradient(135deg,var(--pink),var(--purple));border:none;padding:9px 22px;border-radius:8px;color:white;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;cursor:none;transition:all .3s}
+.submit-review:hover{transform:translateY(-1px);box-shadow:0 0 18px rgba(247,37,133,.4)}
+.login-notice{font-size:.75rem;color:var(--muted);margin-top:8px;font-family:'JetBrains Mono',monospace}
+
+/* FOOTER */
+footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:48px 24px 36px;text-align:center}
+.footer-logo-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.footer-name{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--pink),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.footer-role{font-size:.82rem;color:var(--muted);margin-bottom:24px;line-height:1.6}
+.social-links{display:flex;justify-content:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.social-link{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border);border-radius:8px;color:var(--muted);text-decoration:none;font-size:.78rem;font-weight:500;transition:all .3s}
+.social-link:hover{border-color:var(--pink);color:var(--pink);background:rgba(247,37,133,.06);transform:translateY(-2px)}
+.footer-built{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:rgba(157,127,184,.45);margin-bottom:6px}
+.footer-copy{font-size:.72rem;color:rgba(157,127,184,.35)}
+
+/* ===== CHATBOT ===== */
+.chat-bubble{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple));border:none;cursor:none;z-index:600;box-shadow:0 0 20px rgba(247,37,133,.5);animation:chatPulse 2.5s infinite;display:flex;align-items:center;justify-content:center;transition:transform .3s;font-size:1.3rem}
+.chat-bubble:hover{transform:scale(1.1)}
+@keyframes chatPulse{0%,100%{box-shadow:0 0 20px rgba(247,37,133,.5)}50%{box-shadow:0 0 36px rgba(247,37,133,.8),0 0 52px rgba(168,85,247,.3)}}
+
+.chat-panel{
+  position:fixed;bottom:88px;right:24px;width:320px;
+  background:var(--chat-bg);
+  border:1px solid var(--border);
+  border-radius:18px;z-index:599;backdrop-filter:blur(24px);
+  display:none;flex-direction:column;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.chat-panel.open{display:flex;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Chat header — same pink gradient theme */
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;
+  background:linear-gradient(135deg,rgba(247,37,133,.15),rgba(123,45,139,.15));
+  border-bottom:1px solid var(--border);
+}
+.chat-head-left{display:flex;align-items:center;gap:10px}
+.chat-av{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;box-shadow:0 0 12px rgba(247,37,133,.4);
+}
+.chat-title{font-weight:700;font-size:.88rem;color:var(--text)}
+.chat-status{font-size:.68rem;color:#22c55e;display:flex;align-items:center;gap:4px;margin-top:2px}
+.chat-status::before{content:'';width:5px;height:5px;background:#22c55e;border-radius:50%}
+.chat-close{background:none;border:none;color:var(--muted);font-size:1rem;cursor:none;padding:4px;transition:color .2s;line-height:1}
+.chat-close:hover{color:var(--pink)}
+
+/* Messages area */
+.chat-messages{flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(247,37,133,.3);border-radius:10px}
+
+.msg{max-width:88%;font-size:.83rem;line-height:1.5}
+.msg.bot{align-self:flex-start}
+.msg.user{align-self:flex-end}
+.msg-bubble{padding:10px 14px;border-radius:14px}
+.msg.bot .msg-bubble{
+  background:rgba(247,37,133,.08);
+  border:1px solid rgba(247,37,133,.15);
+  border-bottom-left-radius:4px;color:var(--text);
+}
+.msg.user .msg-bubble{
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  border-bottom-right-radius:4px;color:white;
+}
+.msg-time{font-size:.62rem;color:var(--muted);margin-top:3px;padding:0 2px}
+.msg.user .msg-time{text-align:right}
+
+/* Author connect section */
+.author-connect{align-self:flex-start;width:100%}
+.connect-label{font-size:.7rem;color:var(--muted);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.linkedin-card{display:flex;align-items:center;gap:10px;background:rgba(0,119,181,.1);border:1px solid rgba(0,119,181,.25);border-radius:10px;padding:10px 12px;text-decoration:none;transition:all .3s;margin-bottom:6px}
+.linkedin-card:hover{background:rgba(0,119,181,.18);border-color:rgba(0,119,181,.4)}
+.li-icon{font-size:1.1rem;flex-shrink:0}
+.li-text{flex:1}
+.li-name{font-size:.8rem;font-weight:700;color:#60a5fa}
+.li-sub{font-size:.68rem;color:var(--muted)}
+.li-arrow{color:var(--muted);font-size:.75rem}
+.social-chips{display:flex;gap:6px;flex-wrap:wrap}
+.s-chip{display:flex;align-items:center;gap:4px;padding:5px 10px;border:1px solid var(--border);border-radius:20px;color:var(--muted);text-decoration:none;font-size:.72rem;font-weight:500;transition:all .3s}
+.s-chip:hover{border-color:var(--pink);color:var(--pink);background:rgba(247,37,133,.06)}
+
+/* Chat input */
+.chat-footer{padding:12px;border-top:1px solid var(--border);background:rgba(4,0,10,.2)}
+.chat-input-row{display:flex;gap:8px;align-items:center}
+.chat-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:.82rem;outline:none;transition:border-color .2s}
+.chat-input:focus{border-color:rgba(247,37,133,.4)}
+.chat-input::placeholder{color:var(--muted)}
+.chat-send{width:36px;height:36px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--pink),var(--purple));border:none;color:white;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:.9rem}
+.chat-send:hover{transform:scale(1.05);box-shadow:0 0 12px rgba(247,37,133,.4)}
+.chat-powered{text-align:center;font-size:.62rem;color:rgba(157,127,184,.4);padding:0 12px 10px;font-family:'JetBrains Mono',monospace}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<canvas id="bg"></canvas>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <a href="/" class="nav-logo">
+    <svg class="logo-svg" viewBox="0 0 40 40" fill="none">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f72585"/><stop offset="100%" stop-color="#a855f7"/></linearGradient>
+        <linearGradient id="g2" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f72585"/><stop offset="100%" stop-color="#7b2d8b"/></linearGradient>
+      </defs>
+      <rect x="12" y="4" width="16" height="14" rx="5" fill="url(#g2)"/>
+      <circle cx="16.5" cy="10" r="2" fill="white"/><circle cx="23.5" cy="10" r="2" fill="white"/>
+      <circle cx="17" cy="10.5" r="1" fill="#f72585"/><circle cx="24" cy="10.5" r="1" fill="#f72585"/>
+      <line x1="20" y1="4" x2="20" y2="1" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="20" cy="1" r="1.5" fill="#f72585"/>
+      <rect x="10" y="20" width="20" height="13" rx="4" fill="url(#g2)" opacity=".9"/>
+      <rect x="17" y="23" width="6" height="4" rx="2" fill="white" opacity=".3"/>
+      <rect x="3" y="21" width="6" height="10" rx="3" fill="url(#g1)" opacity=".8"/>
+      <rect x="31" y="21" width="6" height="10" rx="3" fill="url(#g1)" opacity=".8"/>
+      <rect x="12" y="34" width="6" height="5" rx="2" fill="url(#g1)" opacity=".7"/>
+      <rect x="22" y="34" width="6" height="5" rx="2" fill="url(#g1)" opacity=".7"/>
+    </svg>
+    <span class="logo-wordmark">PhysAI</span>
+  </a>
+
+  <div class="nav-right">
+    <!-- Language toggle -->
+    <button class="nav-icon-btn special hide-mobile">🌐 اردو</button>
+    <!-- Personalize -->
+    <button class="nav-icon-btn special hide-mobile">✨ Personalize</button>
+    <!-- Dark/Light -->
+    <button class="theme-btn" id="themeBtn" title="Toggle theme">🌙</button>
+    <!-- Auth -->
+    <button class="signin-btn">Sign In</button>
+    <button class="signup-btn">Sign Up</button>
+    <!-- Mobile hamburger -->
+    <button class="hamburger" id="hamburgerBtn">☰</button>
+  </div>
+</nav>
+
+<!-- MOBILE DROPDOWN -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" class="mob-link">🏠 Home</a>
+  <a href="#" class="mob-link">📚 Curriculum</a>
+  <a href="#" class="mob-link special">🌐 اردو — Urdu</a>
+  <a href="#" class="mob-link special">✨ Personalize Content</a>
+  <div class="mob-auth">
+    <button class="mob-signin">Sign In</button>
+    <button class="mob-signup">Sign Up</button>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-badge">AI-Native Textbook · Panaversity Hackathon I</div>
+  <h1>Master Physical AI<span class="grad">& Humanoid Robotics</span></h1>
+  <div class="typing-wrap"><span id="typing-text"></span><span class="typing-cursor"></span></div>
+  <p class="author-credit">Crafted with ❤️ by <span>Marium Afzal</span> · AI Engineer · PIAIC</p>
+  <div class="btn-row">
+    <button class="btn-primary">🚀 Start Learning</button>
+    <button class="btn-outline">📚 Explore Curriculum</button>
+  </div>
+</div>
+
+<!-- LIVE READERS -->
+<div class="live-wrap">
+  <div class="live-pill">
+    <div class="live-dot"></div>
+    <span class="live-num" id="liveCount">183</span>
+    <span>students currently reading</span>
+  </div>
+</div>
+
+<!-- STATS — "Free Always" removed, "By Marium Afzal" added -->
+<div class="stats-wrap">
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-val">14</div><div class="stat-label">Chapters</div></div>
+    <div class="stat-item"><div class="stat-val">4</div><div class="stat-label">Modules</div></div>
+    <div class="stat-item"><div class="stat-val">اردو</div><div class="stat-label">Urdu</div></div>
+    <div class="stat-item"><div class="stat-val">RAG</div><div class="stat-label">AI Chatbot</div></div>
+    <div class="stat-item"><div class="stat-val">🧕</div><div class="stat-label">By Marium Afzal</div></div>
+  </div>
+</div>
+
+<!-- QUICK NAV — Home + Curriculum below hero -->
+<div class="quick-nav">
+  <a href="#" class="quick-card"><span class="quick-card-icon">🏠</span> Home</a>
+  <a href="#" class="quick-card"><span class="quick-card-icon">📚</span> Curriculum</a>
+</div>
+
+<div class="divider"></div>
+
+<!-- MODULES -->
+<section>
+  <div class="section-tag">// curriculum</div>
+  <div class="section-title">4 Modules. One Complete Journey.</div>
+  <div class="modules-grid">
+    <div class="module-card"><div class="module-num">Module 01</div><span class="module-icon">🧠</span><div class="module-title">ROS 2 — The Robotic Nervous System</div><div class="module-desc">Nodes, Topics, Services & Actions. Build the communication backbone of any humanoid robot using Python rclpy & C++ rclcpp.</div></div>
+    <div class="module-card"><div class="module-num">Module 02</div><span class="module-icon">🌐</span><div class="module-title">Gazebo & Unity — The Digital Twin</div><div class="module-desc">Physics simulation, LiDAR & depth camera emulation. Test your robot safely before touching real hardware.</div></div>
+    <div class="module-card"><div class="module-num">Module 03</div><span class="module-icon">⚡</span><div class="module-title">NVIDIA Isaac — The AI Brain</div><div class="module-desc">Isaac Sim, hardware-accelerated VSLAM, Nav2 bipedal path planning, and sim-to-real transfer techniques.</div></div>
+    <div class="module-card"><div class="module-num">Module 04</div><span class="module-icon">🤖</span><div class="module-title">VLA — Vision Language Action</div><div class="module-desc">Whisper voice commands → LLM planning → ROS 2 execution. The complete autonomous humanoid stack.</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TECH STACK -->
+<section>
+  <div class="section-tag">// built with</div>
+  <div class="section-title">Real Tools. Real Stack.</div>
+  <div class="tech-grid">
+    <div class="tech-pill">🤖 ROS 2 Humble</div><div class="tech-pill">🔥 Gazebo Sim</div>
+    <div class="tech-pill">⚡ NVIDIA Isaac Sim</div><div class="tech-pill">🎮 Unity 3D</div>
+    <div class="tech-pill">🐍 Python / rclpy</div><div class="tech-pill">🗺️ Nav2</div>
+    <div class="tech-pill">👁️ OpenAI Whisper</div><div class="tech-pill">🧠 Groq LLM</div>
+    <div class="tech-pill">🗄️ Qdrant Vector DB</div><div class="tech-pill">🐘 Neon PostgreSQL</div>
+    <div class="tech-pill">🔐 BetterAuth</div><div class="tech-pill">⚙️ FastAPI</div>
+    <div class="tech-pill">📦 Docusaurus 3</div><div class="tech-pill">🤖 Claude Code</div>
+    <div class="tech-pill">📋 Spec-Kit Plus</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section>
+  <div class="section-tag">// why different</div>
+  <div class="section-title">Built Different.</div>
+  <div class="features-grid">
+    <div class="feature-card"><div class="feature-icon">💬</div><div class="feature-title">RAG AI Chatbot</div><div class="feature-desc">Ask anything about the textbook. Powered by Qdrant vector search + Groq LLM for accurate answers.</div></div>
+    <div class="feature-card"><div class="feature-icon">🌐</div><div class="feature-title">Urdu Translation</div><div class="feature-desc">Every chapter in Urdu via Groq AI. Technical terms like ROS2, SLAM stay in English.</div></div>
+    <div class="feature-card"><div class="feature-icon">✨</div><div class="feature-title">AI Personalization</div><div class="feature-desc">Content adapts to your background. Beginner to Advanced — your pace, your level.</div></div>
+    <div class="feature-card"><div class="feature-icon">🔐</div><div class="feature-title">Secure Auth</div><div class="feature-desc">Sign in with GitHub or Email via BetterAuth + Neon PostgreSQL.</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- REVIEWS -->
+<section>
+  <div class="section-tag">// from our readers</div>
+  <div class="section-title">Reader Feedback.</div>
+  <div class="reviews-grid">
+    <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">The ROS 2 module finally made it click. "Nodes as smartphone apps" — best analogy after weeks of confusion.</div><div class="review-author"><div class="author-av">AK</div><div><div class="author-name">Ahmed K.</div><div class="author-role">PIAIC Student</div></div></div></div>
+    <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">Urdu translation mid-chapter is genuinely useful. Switching between English and Urdu helps so much.</div><div class="review-author"><div class="author-av">SF</div><div><div class="author-name">Sara F.</div><div class="author-role">CS Student, Lahore</div></div></div></div>
+    <div class="review-card"><div class="review-stars">★★★★☆</div><div class="review-text">AI chatbot answers from actual book content. Would love more Isaac Sim hands-on examples.</div><div class="review-author"><div class="author-av">UR</div><div><div class="author-name">Usman R.</div><div class="author-role">Embedded Engineer</div></div></div></div>
+  </div>
+  <div class="write-review">
+    <h3>⭐ Share Your Feedback</h3>
+    <div class="stars-select" id="starsSelect">
+      <button class="star-btn" data-star="1">★</button>
+      <button class="star-btn" data-star="2">★</button>
+      <button class="star-btn" data-star="3">★</button>
+      <button class="star-btn" data-star="4">★</button>
+      <button class="star-btn" data-star="5">★</button>
+    </div>
+    <textarea class="review-textarea" placeholder="Share your experience with this textbook..."></textarea>
+    <button class="submit-review">Submit Feedback</button>
+    <p class="login-notice">// Login required to submit feedback</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo-row">
+    <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
+      <defs><linearGradient id="fg1" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f72585"/><stop offset="100%" stop-color="#a855f7"/></linearGradient><linearGradient id="fg2" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f72585"/><stop offset="100%" stop-color="#7b2d8b"/></linearGradient></defs>
+      <rect x="12" y="4" width="16" height="14" rx="5" fill="url(#fg2)"/><circle cx="16.5" cy="10" r="2" fill="white"/><circle cx="23.5" cy="10" r="2" fill="white"/><circle cx="17" cy="10.5" r="1" fill="#f72585"/><circle cx="24" cy="10.5" r="1" fill="#f72585"/><line x1="20" y1="4" x2="20" y2="1" stroke="url(#fg1)" stroke-width="1.5" stroke-linecap="round"/><circle cx="20" cy="1" r="1.5" fill="#f72585"/><rect x="10" y="20" width="20" height="13" rx="4" fill="url(#fg2)" opacity=".9"/><rect x="17" y="23" width="6" height="4" rx="2" fill="white" opacity=".3"/><rect x="3" y="21" width="6" height="10" rx="3" fill="url(#fg1)" opacity=".8"/><rect x="31" y="21" width="6" height="10" rx="3" fill="url(#fg1)" opacity=".8"/><rect x="12" y="34" width="6" height="5" rx="2" fill="url(#fg1)" opacity=".7"/><rect x="22" y="34" width="6" height="5" rx="2" fill="url(#fg1)" opacity=".7"/>
+    </svg>
+    <div class="footer-name">Marium Afzal</div>
+  </div>
+  <div class="footer-role">AI Engineer · CAARE Student · PIAIC · Aspiring Robotics Engineer · Free Palestine 🇵🇸</div>
+  <div class="social-links">
+    <a href="https://www.linkedin.com/in/marium-afzal23" class="social-link" target="_blank">💼 LinkedIn</a>
+    <a href="https://github.com/MariumAfzal2703" class="social-link" target="_blank">🐙 GitHub</a>
+    <a href="https://web.facebook.com/profile.php?id=61579044938516" class="social-link" target="_blank">📘 Facebook</a>
+    <a href="https://discord.gg/V3y73PRF" class="social-link" target="_blank">🎮 Discord</a>
+    <a href="mailto:mariumafzal.contact@gmail.com" class="social-link">✉️ Email</a>
+  </div>
+  <div class="footer-built">Built with Claude Code & Spec-Kit Plus · Panaversity Hackathon I · 2026</div>
+  <div class="footer-copy">© 2026 Marium Afzal. All rights reserved.</div>
+</footer>
+
+<!-- CHATBOT BUBBLE -->
+<button class="chat-bubble" id="chatBtn">💬</button>
+
+<!-- CHAT PANEL — same theme as site -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-left">
+      <div class="chat-av">🤖</div>
+      <div>
+        <div class="chat-title">PhysAI Assistant</div>
+        <div class="chat-status">Online · Ready to help</div>
+      </div>
+    </div>
+    <button class="chat-close" id="chatClose">✕</button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg bot">
+      <div class="msg-bubble">Hi! I'm the AI assistant for this Physical AI & Humanoid Robotics textbook 👋</div>
+      <div class="msg-time">Just now</div>
+    </div>
+    <div class="msg bot">
+      <div class="msg-bubble">📖 Made with ❤️ by <strong>Marium Afzal</strong> — AI Engineer & Aspiring Robotics Engineer · PIAIC</div>
+      <div class="msg-time">Just now</div>
+    </div>
+    <div class="msg bot">
+      <div class="msg-bubble">Ask me anything about ROS 2, Gazebo, NVIDIA Isaac, or VLA! 🚀</div>
+      <div class="msg-time">Just now</div>
+    </div>
+    <div class="author-connect">
+      <div class="connect-label">// Connect with the author</div>
+      <a href="https://www.linkedin.com/in/marium-afzal23" target="_blank" class="linkedin-card">
+        <div class="li-icon">💼</div>
+        <div class="li-text"><div class="li-name">Marium Afzal</div><div class="li-sub">AI Engineer · PIAIC · LinkedIn</div></div>
+        <div class="li-arrow">→</div>
+      </a>
+      <div class="social-chips">
+        <a href="https://github.com/MariumAfzal2703" target="_blank" class="s-chip">🐙 GitHub</a>
+        <a href="https://web.facebook.com/profile.php?id=61579044938516" target="_blank" class="s-chip">📘 FB</a>
+        <a href="https://discord.gg/V3y73PRF" target="_blank" class="s-chip">🎮 Discord</a>
+        <a href="mailto:mariumafzal.contact@gmail.com" class="s-chip">✉️ Email</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <div class="chat-input-row">
+      <input class="chat-input" placeholder="Ask about the textbook..." id="chatInput"/>
+      <button class="chat-send" id="chatSend">➤</button>
+    </div>
+  </div>
+  <div class="chat-powered">Powered by RAG + Qdrant + Groq LLM</div>
+</div>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;if(cur){cur.style.left=mx-5+'px';cur.style.top=my-5+'px';}});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;if(ring){ring.style.left=rx-16+'px';ring.style.top=ry-16+'px';}requestAnimationFrame(ar);})();
+
+// SCROLL PROGRESS
+window.addEventListener('scroll',()=>{const p=window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;document.getElementById('progress-bar').style.width=p+'%';});
+
+// DARK / LIGHT TOGGLE
+const html=document.documentElement;
+const themeBtn=document.getElementById('themeBtn');
+themeBtn.addEventListener('click',()=>{
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  themeBtn.textContent=isDark?'☀️':'🌙';
+});
+
+// HAMBURGER
+const hamburgerBtn=document.getElementById('hamburgerBtn');
+const mobileMenu=document.getElementById('mobileMenu');
+hamburgerBtn.addEventListener('click',()=>{
+  mobileMenu.classList.toggle('open');
+  hamburgerBtn.textContent=mobileMenu.classList.contains('open')?'✕':'☰';
+});
+
+// TYPING
+const phrases=[
+  'From Code to Motion — Intelligence Meets Reality',
+  'ROS 2 · Gazebo · NVIDIA Isaac · VLA Systems',
+  'Bridging Digital Minds with Physical Worlds',
+  'Theory → Simulation → Physical Deployment',
+];
+let pi=0,ci=0,del=false;
+const tel=document.getElementById('typing-text');
+function type(){
+  const p=phrases[pi];
+  if(!del){tel.textContent=p.slice(0,++ci);if(ci===p.length){del=true;setTimeout(type,2200);return;}}
+  else{tel.textContent=p.slice(0,--ci);if(ci===0){del=false;pi=(pi+1)%phrases.length;}}
+  setTimeout(type,del?36:56);
+}
+type();
+
+// LIVE COUNT
+let base=183;
+setInterval(()=>{base+=Math.floor(Math.random()*5)-2;base=Math.max(170,Math.min(215,base));document.getElementById('liveCount').textContent=base;},3500);
+
+// STARS
+let sel=0;
+document.querySelectorAll('.star-btn').forEach(b=>{
+  b.addEventListener('click',()=>{sel=+b.dataset.star;document.querySelectorAll('.star-btn').forEach((s,i)=>s.classList.toggle('active',i<sel));});
+  b.addEventListener('mouseenter',()=>{const s=+b.dataset.star;document.querySelectorAll('.star-btn').forEach((x,i)=>x.style.opacity=i<s?'1':'.35');});
+  b.addEventListener('mouseleave',()=>{document.querySelectorAll('.star-btn').forEach((x,i)=>x.style.opacity=i<sel?'1':'.35');});
+});
+
+// CHATBOT
+const chatBtn=document.getElementById('chatBtn');
+const chatPanel=document.getElementById('chatPanel');
+const chatClose=document.getElementById('chatClose');
+const chatInput=document.getElementById('chatInput');
+const chatSend=document.getElementById('chatSend');
+const chatMessages=document.getElementById('chatMessages');
+chatBtn.addEventListener('click',()=>chatPanel.classList.toggle('open'));
+chatClose.addEventListener('click',()=>chatPanel.classList.remove('open'));
+
+function addMsg(text,type){
+  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const div=document.createElement('div');
+  div.className=`msg ${type}`;
+  div.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-time">${now}</div>`;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop=chatMessages.scrollHeight;
+}
+function sendMsg(){
+  const val=chatInput.value.trim();if(!val)return;
+  addMsg(val,'user');chatInput.value='';
+  setTimeout(()=>{addMsg('Please login to use the full AI chatbot — I can search all 14 chapters to answer your question! 🚀','bot');},800);
+}
+chatSend.addEventListener('click',sendMsg);
+chatInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+
+// CANVAS
+const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+const stars=Array.from({length:200},()=>({
+  x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+  r:Math.random()*1.5+.3,a:Math.random(),
+  da:(Math.random()*.006+.002)*(Math.random()>.5?1:-1),
+  col:['#f72585','#a855f7','#ffffff','#ec4899'][Math.floor(Math.random()*4)]
+}));
+const nodes=Array.from({length:28},()=>({
+  x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+  vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45
+}));
+(function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{s.a+=s.da;if(s.a>1||s.a<0)s.da*=-1;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=s.col;ctx.globalAlpha=Math.max(0,Math.min(1,s.a))*.85;ctx.fill();});
+  ctx.globalAlpha=1;
+  nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>canvas.width)n.vx*=-1;if(n.y<0||n.y>canvas.height)n.vy*=-1;ctx.beginPath();ctx.arc(n.x,n.y,2.5,0,Math.PI*2);ctx.fillStyle='#f72585';ctx.globalAlpha=.4;ctx.fill();ctx.globalAlpha=1;});
+  for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+    const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<190){const a=(1-d/190)*.28,g=ctx.createLinearGradient(nodes[i].x,nodes[i].y,nodes[j].x,nodes[j].y);g.addColorStop(0,`rgba(247,37,133,${a})`);g.addColorStop(1,`rgba(168,85,247,${a})`);ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle=g;ctx.lineWidth=.7;ctx.stroke();}
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
