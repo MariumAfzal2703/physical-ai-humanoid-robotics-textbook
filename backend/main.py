@@ -34,7 +34,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
-    auth.create_tables()
+    try:
+        auth.create_tables()
+    except Exception as e:
+        print(f"Warning: Could not create tables during startup: {e}")
+        print("Database may not be available during initial startup")
+        # Continue starting the app even if database isn't available initially
 
 
 @api_router.get("/health")
