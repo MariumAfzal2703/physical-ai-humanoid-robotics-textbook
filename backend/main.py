@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import auth, chat_store, rag
+from . import chat_store, rag
 from .schemas import (
     AuthResponse,
     ChapterActionRequest,
@@ -32,14 +32,21 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-async def startup():
-    try:
-        auth.create_tables()
-    except Exception as e:
-        print(f"Warning: Could not create tables during startup: {e}")
-        print("Database may not be available during initial startup")
-        # Continue starting the app even if database isn't available initially
+# Temporarily disable startup event to avoid database issues
+# @app.on_event("startup")
+# async def startup():
+#     print("Startup event triggered")
+#     try:
+#         import time
+#         time.sleep(1)  # Small delay to ensure logging
+#         from . import auth
+#         auth.create_tables()
+#         print("Tables created successfully")
+#     except Exception as e:
+#         print(f"Warning: Could not create tables during startup: {e}")
+#         print("Database may not be available during initial startup")
+#         # Continue starting the app even if database isn't available initially
+#     print("Startup event completed")
 
 
 @api_router.get("/health")
