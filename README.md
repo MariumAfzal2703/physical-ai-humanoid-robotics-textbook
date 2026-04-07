@@ -31,16 +31,22 @@ Run this once after docs/content changes, or again when re-indexing is required.
 
 The frontend is deployed at: [https://physical-ai-humanoid-robotics-textb-sable.vercel.app](https://physical-ai-humanoid-robotics-textb-sable.vercel.app)
 
-### Backend deployment
+### Backend deployment (COMPLETED)
 
-The backend with full RAG functionality needs to be deployed separately. 
+The backend with full RAG functionality has been deployed and connected!
 
-1. Navigate to the `backend/` directory
-2. Deploy using the instructions in `BACKEND_RENDER_DEPLOYMENT.md` or `BACKEND_DEPLOYMENT.md`
-3. Update the `VITE_BACKEND_URL` in `.env` to point to your deployed backend
-4. Redeploy the frontend to Vercel
+- **Backend URL**: https://textbook-backend-phi.onrender.com
+- **Status**: LIVE and CONNECTED to frontend
 
-After connecting the backend, the AI chatbot, personalization, and translation features will be fully functional.
+The AI chatbot, personalization, and translation features are now fully functional:
+
+- ✅ RAG Chatbot answering from textbook content
+- ✅ User authentication with signup/signin
+- ✅ AI personalization adapting to user background  
+- ✅ Urdu translation for chapters
+- ✅ OAuth integration with GitHub
+
+For details on the complete deployment, see: `DEPLOYMENT_COMPLETE.md`
 - install: `npm install`
 - build: `npm run build`
 - output: `build/`
