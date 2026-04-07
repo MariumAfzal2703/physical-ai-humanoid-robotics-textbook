@@ -1,18 +1,6 @@
-from fastapi import APIRouter, FastAPI, HTTPException, Header
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import chat_store, rag
-from .schemas import (
-    AuthResponse,
-    ChapterActionRequest,
-    ChapterTransformResponse,
-    ChatRequest,
-    ChatResponse,
-    ForgotPasswordRequest,
-    ForgotPasswordResponse,
-    SigninRequest,
-    SignupRequest,
-)
 from .settings import get_settings
 
 app = FastAPI(title="Physical AI Textbook Backend")
@@ -32,26 +20,13 @@ app.add_middleware(
 )
 
 
-# Temporarily disable startup event to avoid database issues
-# @app.on_event("startup")
-# async def startup():
-#     print("Startup event triggered")
-#     try:
-#         import time
-#         time.sleep(1)  # Small delay to ensure logging
-#         from . import auth
-#         auth.create_tables()
-#         print("Tables created successfully")
-#     except Exception as e:
-#         print(f"Warning: Could not create tables during startup: {e}")
-#         print("Database may not be available during initial startup")
-#         # Continue starting the app even if database isn't available initially
-#     print("Startup event completed")
-
-
 @api_router.get("/health")
-def health() -> dict[str, str]:
+def health():
     return {"status": "ok"}
+
+
+# Mount the API router
+app.include_router(api_router)
 
 
 @api_router.post("/chat", response_model=ChatResponse)
