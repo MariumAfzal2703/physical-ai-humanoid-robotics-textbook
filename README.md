@@ -25,24 +25,26 @@ Run this once after docs/content changes, or again when re-indexing is required.
 
 ## Deployment instructions (T065)
 
-### Frontend deployment (Vercel)
+### Frontend deployment (Netlify - Recommended Due to Build Memory Issues)
 
-`vercel.json` is configured for static Docusaurus output:
+Due to memory constraints with complex animations, Netlify is recommended instead of Vercel for deployment.
 
-The frontend is deployed at: [https://physical-ai-humanoid-robotics-textb-sable.vercel.app](https://physical-ai-humanoid-robotics-textb-sable.vercel.app)
+- **Current working URL**: [https://physical-ai-humanoid-robotics-textb-sable.vercel.app](https://physical-ai-humanoid-robotics-textb-sable.vercel.app)
+- **Build Configuration**: `netlify.toml` with increased memory allocation (8GB)
+- **Recommended**: Deploy to Netlify using instructions in `NETLIFY_DEPLOYMENT.md`
 
 ### Backend deployment (NEEDS MANUAL DEPLOYMENT)
 
-The backend with full RAG functionality needs to be deployed manually:
+The backend with full RAG functionality needs to be deployed separately:
 
-- **Backend URL**: https://textbook-backend-phi.onrender.com (will be active after deployment)
-- **Status**: Requires manual deployment to Render
+- **Backend URL**: To be deployed to Render/other platform
+- **Status**: Requires manual deployment to Render or similar platform
 
 To activate the AI chatbot, personalization, and translation features:
 
 1. Deploy the backend using the instructions in `BACKEND_RENDER_DEPLOYMENT.md`
 2. Update `VITE_BACKEND_URL` in `.env` with your deployed backend URL
-3. Redeploy the frontend to Vercel
+3. Deploy the frontend to Netlify using instructions in `NETLIFY_DEPLOYMENT.md`
 
 Backend features include:
 - RAG Chatbot answering from textbook content
@@ -51,7 +53,7 @@ Backend features include:
 - Urdu translation for chapters
 - OAuth integration with GitHub
 
-For deployment instructions, see: `BACKEND_RENDER_DEPLOYMENT.md`
+For deployment instructions, see: `BACKEND_RENDER_DEPLOYMENT.md` and `NETLIFY_DEPLOYMENT.md`
 - install: `npm install`
 - build: `npm run build`
 - output: `build/`
