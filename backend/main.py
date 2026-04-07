@@ -1,27 +1,16 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-from .settings import get_settings
 
 app = FastAPI(title="Physical AI Textbook Backend")
-
-settings = get_settings()
-allowed_origins = [settings.frontend_origin]
-if settings.deployed_frontend_origin:
-    allowed_origins.append(settings.deployed_frontend_origin)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/")
+def root():
+    return {"message": "Backend is running"}
 
 
 @api_router.post("/chat", response_model=ChatResponse)
