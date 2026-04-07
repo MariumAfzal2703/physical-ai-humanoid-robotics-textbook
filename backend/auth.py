@@ -30,14 +30,22 @@ def _connect():
     if not settings.neon_database_url:
         raise RuntimeError("NEON_DATABASE_URL is not configured")
 
-    # Fix the connection string to remove problematic parameters
+    # Clean the connection string to remove problematic parameters
     conn_str = settings.neon_database_url
-    # Remove channel_binding parameter which is incompatible with some psycopg2 versions
-    if 'channel_binding=' in conn_str:
-        import re
-        conn_str = re.sub(r'[&?]channel_binding=\w+', '', conn_str)
-        # Remove any trailing & or ? that might be left
-        conn_str = conn_str.rstrip('&?')
+
+    # Remove problematic parameters for older psycopg2 versions
+    import re
+    # Remove channel_binding and sslmode parameters that can cause issues
+    conn_str = re.sub(r'[&?]channel_binding=[^&]*', '', conn_str)
+    conn_str = re.sub(r'[&?]sslmode=[^&]*', '', conn_str)
+
+    # Ensure the connection string ends properly
+    conn_str = conn_str.rstrip('&?')
+
+    # Add required SSL parameters for Neon
+    if '?sslmode=' not in conn_str and '&sslmode=' not in conn_str:
+        separator = '&' if '?' in conn_str else '?'
+        conn_str += f'{separator}sslmode=require'
 
     return psycopg2.connect(conn_str)
 
