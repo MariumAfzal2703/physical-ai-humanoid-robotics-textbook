@@ -6,7 +6,7 @@ google-generativeai
 qdrant-client
 python-dotenv
 pydantic[email]
-psycopg2-binary
+psycopg2-binary==2.9.7
 sqlalchemy
 alembic
 httpx

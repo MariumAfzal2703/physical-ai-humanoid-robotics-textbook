@@ -29,7 +29,17 @@ def _connect():
     settings = get_settings()
     if not settings.neon_database_url:
         raise RuntimeError("NEON_DATABASE_URL is not configured")
-    return psycopg2.connect(settings.neon_database_url)
+
+    # Fix the connection string to remove problematic parameters
+    conn_str = settings.neon_database_url
+    # Remove channel_binding parameter which is incompatible with some psycopg2 versions
+    if 'channel_binding=' in conn_str:
+        import re
+        conn_str = re.sub(r'[&?]channel_binding=\w+', '', conn_str)
+        # Remove any trailing & or ? that might be left
+        conn_str = conn_str.rstrip('&?')
+
+    return psycopg2.connect(conn_str)
 
 
 def create_tables() -> None:
