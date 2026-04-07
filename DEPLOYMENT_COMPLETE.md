@@ -1,6 +1,6 @@
-# Physical AI & Humanoid Robotics Textbook - Deployment Complete
+# Physical AI & Humanoid Robotics Textbook - Deployment Status
 
-## Status: ✅ FULLY DEPLOYED AND CONNECTED
+## Status: ✅ FRONTEND DEPLOYED | 🔄 BACKEND DEPLOYMENT IN PROGRESS
 
 ## Frontend
 - **URL**: https://physical-ai-humanoid-robotics-textb-sable.vercel.app
@@ -9,33 +9,44 @@
 
 ## Backend 
 - **URL**: https://textbook-backend-phi.onrender.com
-- **Status**: ✅ DEPLOYED and RUNNING
+- **Status**: 🔄 DEPLOYMENT IN PROGRESS (requires manual deployment)
 - **Features**: RAG (Qdrant + Groq), Authentication (Neon DB), Personalization, Translation
 
-## Full Feature Set Active ✅
+## Current Feature Set Active ✅
 
-### RAG Chatbot
-- ✅ Connected to textbook content
-- ✅ Powered by Qdrant vector database
-- ✅ Using Groq for LLM responses
-- ✅ Accessible from every page via floating chatbot
+### Frontend Features (✅ LIVE)
+- Animated galaxy background with canvas particles
+- Live readers counter
+- Module cards with hover effects
+- Tech stack pills and feature cards
+- Reader feedback section
+- Floating chatbot UI (not yet connected to backend)
+- Dark/light theme toggle
+- Responsive design
+- All 14 chapters across 4 modules
 
-### Authentication System
-- ✅ Signup with background questions
-- ✅ Signin with email/password
-- ✅ OAuth with GitHub/Google
-- ✅ Neon PostgreSQL database
-- ✅ User profiles stored
+### Backend Features (⏳ NEED TO BE DEPLOYED)
 
-### AI Personalization
-- ✅ Personalize button on each chapter
-- ✅ Content adapts to user background
-- ✅ Powered by Groq LLM
+#### RAG Chatbot
+- ⏳ UI ready but needs backend connection
+- ⏳ Powered by Qdrant vector database and Groq
+- ⏳ Will answer from textbook content when connected
 
-### Urdu Translation
-- ✅ Translate button on each chapter
-- ✅ Technical terms preserved in English
-- ✅ Powered by Groq LLM
+#### Authentication System
+- ⏳ Signup/signin forms ready
+- ⏳ OAuth with GitHub/Google ready
+- ⏳ Neon PostgreSQL integration ready
+- ⏳ Requires backend deployment to activate
+
+#### AI Personalization
+- ⏳ Personalize button ready on chapters
+- ⏳ Content adaptation logic ready
+- ⏳ Powered by Groq LLM when connected
+
+#### Urdu Translation
+- ⏳ Translate button ready on chapters
+- ⏳ Technical terms preservation ready
+- ⏳ Powered by Groq LLM when connected
 
 ## How to Reproduce This Deployment
 
