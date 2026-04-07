@@ -37,8 +37,9 @@ Due to memory constraints with complex animations, Netlify is recommended instea
 
 The backend with full RAG functionality needs to be deployed separately:
 
-- **Backend URL**: To be deployed to Render/other platform
-- **Status**: Requires manual deployment to Render or similar platform
+- **Recommended Platform**: Render (best for full API backends)
+- **Alternative**: Railway or Fly.io
+- **Not Recommended**: Hugging Face Spaces (limited for full backends)
 
 To activate the AI chatbot, personalization, and translation features:
 
@@ -53,6 +54,7 @@ Backend features include:
 - Urdu translation for chapters
 - OAuth integration with GitHub
 
+For platform recommendations, see: `BACKEND_DEPLOYMENT_OPTIONS.md`
 For deployment instructions, see: `BACKEND_RENDER_DEPLOYMENT.md` and `NETLIFY_DEPLOYMENT.md`
 - install: `npm install`
 - build: `npm run build`
