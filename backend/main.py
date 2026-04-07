@@ -1,10 +1,9 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .settings import get_settings
 
 app = FastAPI(title="Physical AI Textbook Backend")
-api_router = APIRouter()
 
 settings = get_settings()
 allowed_origins = [settings.frontend_origin]
@@ -20,13 +19,9 @@ app.add_middleware(
 )
 
 
-@api_router.get("/health")
+@app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-# Mount the API router
-app.include_router(api_router)
 
 
 @api_router.post("/chat", response_model=ChatResponse)
