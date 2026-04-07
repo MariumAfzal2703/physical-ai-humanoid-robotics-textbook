@@ -3,8 +3,8 @@
   publish = "build"
 
 [build.environment]
-  NODE_OPTIONS = "--max-old-space-size=4096"
   GENERATE_SOURCEMAP = "false"
+  NODE_OPTIONS = "--max-old-space-size=3072"
   NODE_ENV = "production"
 
 [[plugins]]
