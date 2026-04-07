@@ -1,7 +1,13 @@
 [build]
-  command = "npm run build"
+  command = "npm run build:netlify"
   publish = "build"
-  environment = { NODE_OPTIONS = "--max-old-space-size=4096" }
+  environment = {
+    NODE_OPTIONS = "--max-old-space-size=8192",
+    NODE_ENV = "production"
+  }
 
 [[plugins]]
   package = "@netlify/plugin-lighthouse"
+
+[template.environment]
+  NODE_VERSION = "20"

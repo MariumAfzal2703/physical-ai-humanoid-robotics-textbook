@@ -22,42 +22,33 @@ export default function GalaxyBackground() {
     resize();
     window.addEventListener('resize', resize);
 
-    // Very minimal GALAXY STARS — twinkling pink/purple/white
-    const stars = Array.from({ length: 10 }, () => ({  // Highly reduced for build efficiency
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 0.8 + 0.2,
-      a: Math.random(),
-      da: (Math.random() * 0.002 + 0.001) * (Math.random() > 0.5 ? 1 : -1),
-      col: ['#f72585', '#a855f7'][Math.floor(Math.random() * 2)],
+    // Minimal static stars - no animation during build for efficiency
+    const stars = Array.from({ length: 1 }, () => ({  // Just 1 star for minimal memory usage
+      x: window.innerWidth * 0.5,  // Centered
+      y: window.innerHeight * 0.5, // Centered
+      r: 0.2,  // Small size
+      col: '#f72585',  // Fixed color
     }));
 
-    let frame = 0;
-    let animId: number;
-
-    function draw() {
+    // Draw static stars only (no animation loop for build efficiency)
+    function drawStatic() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      frame++;
 
-      // Stars only - removed all other elements for build efficiency
+      // Draw static stars
       stars.forEach(s => {
-        s.a += s.da;
-        if (s.a > 1 || s.a < 0) s.da *= -1;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fillStyle = s.col;
-        ctx.globalAlpha = Math.max(0, Math.min(1, s.a)) * 0.5;
+        ctx.globalAlpha = 0.3;  // Low opacity for efficiency
         ctx.fill();
       });
       ctx.globalAlpha = 1;
-
-      animId = requestAnimationFrame(draw);
     }
 
-    draw();
+    drawStatic();
 
+    // Only set up resize listener, no animation loop for build efficiency
     return () => {
-      cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
     };
   }, []);
