@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - FRONTEND_ORIGIN=https://physical-ai-humanoid-robotics-textb-sable.vercel.app
+      - DEPLOYED_FRONTEND_ORIGIN=https://physical-ai-humanoid-robotics-textb-sable.vercel.app
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - NEON_DATABASE_URL=${NEON_DATABASE_URL}
+    volumes:
+      - ./docs:/app/docs
+    restart: unless-stopped

@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: textbook-backend
+    env: python
+    region: frankfurt  # or us-west
+    plan: starter
+    branch: master
+    rootDir: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: DEPLOYED_FRONTEND_ORIGIN
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: NEON_DATABASE_URL
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false

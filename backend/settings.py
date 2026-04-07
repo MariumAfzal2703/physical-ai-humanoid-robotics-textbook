@@ -26,9 +26,16 @@ def get_settings() -> Settings:
     global _cached_settings
 
     if _cached_settings is None:
+        frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+        deployed_frontend_origin = os.getenv("DEPLOYED_FRONTEND_ORIGIN", "")
+
+        # If running in production, ensure we have the deployed origin
+        if "localhost" not in frontend_origin and not deployed_frontend_origin:
+            deployed_frontend_origin = frontend_origin
+
         _cached_settings = Settings(
-            frontend_origin=os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"),
-            deployed_frontend_origin=os.getenv("DEPLOYED_FRONTEND_ORIGIN", ""),
+            frontend_origin=frontend_origin,
+            deployed_frontend_origin=deployed_frontend_origin,
             neon_database_url=os.getenv("NEON_DATABASE_URL"),
             qdrant_url=os.getenv("QDRANT_URL"),
             qdrant_api_key=os.getenv("QDRANT_API_KEY"),

@@ -28,6 +28,19 @@ Run this once after docs/content changes, or again when re-indexing is required.
 ### Frontend deployment (Vercel)
 
 `vercel.json` is configured for static Docusaurus output:
+
+The frontend is deployed at: [https://physical-ai-humanoid-robotics-textb-sable.vercel.app](https://physical-ai-humanoid-robotics-textb-sable.vercel.app)
+
+### Backend deployment
+
+The backend with full RAG functionality needs to be deployed separately. 
+
+1. Navigate to the `backend/` directory
+2. Deploy using the instructions in `BACKEND_RENDER_DEPLOYMENT.md` or `BACKEND_DEPLOYMENT.md`
+3. Update the `VITE_BACKEND_URL` in `.env` to point to your deployed backend
+4. Redeploy the frontend to Vercel
+
+After connecting the backend, the AI chatbot, personalization, and translation features will be fully functional.
 - install: `npm install`
 - build: `npm run build`
 - output: `build/`

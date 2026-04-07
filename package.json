@@ -16,7 +16,8 @@
     "typecheck": "tsc",
     "test": "vitest",
     "test:run": "vitest run",
-    "validate:lessons": "python3 scripts/validate_lessons.py"
+    "validate:lessons": "python3 scripts/validate_lessons.py",
+    "setup": "bash setup.sh"
   },
   "dependencies": {
     "@docusaurus/core": "3.9.2",
