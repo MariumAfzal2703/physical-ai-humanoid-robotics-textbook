@@ -37,13 +37,13 @@ Due to memory constraints with complex animations, Netlify is recommended instea
 
 The backend with full RAG functionality needs to be deployed separately:
 
-- **Recommended Platform**: Render (best for full API backends)
-- **Alternative**: Railway or Fly.io
+- **Recommended Platform**: Railway (best for free tier usage)
+- **Alternative**: Render or Fly.io
 - **Not Recommended**: Hugging Face Spaces (limited for full backends)
 
 To activate the AI chatbot, personalization, and translation features:
 
-1. Deploy the backend using the instructions in `BACKEND_RENDER_DEPLOYMENT.md`
+1. Deploy the backend using the instructions in `RAILWAY_DEPLOYMENT.md`
 2. Update `VITE_BACKEND_URL` in `.env` with your deployed backend URL
 3. Deploy the frontend to Netlify using instructions in `NETLIFY_DEPLOYMENT.md`
 
@@ -55,37 +55,39 @@ Backend features include:
 - OAuth integration with GitHub
 
 For platform recommendations, see: `BACKEND_DEPLOYMENT_OPTIONS.md`
-For deployment instructions, see: `BACKEND_RENDER_DEPLOYMENT.md` and `NETLIFY_DEPLOYMENT.md`
+For deployment instructions, see: `RAILWAY_DEPLOYMENT.md` and `NETLIFY_DEPLOYMENT.md`
 - install: `npm install`
-- build: `npm run build`
+- build: `npm run build:netlify`
 - output: `build/`
 
-Set frontend environment variable in Vercel:
-- `VITE_BACKEND_URL` = Render backend URL (e.g., `https://<your-render-service>.onrender.com`)
+Set frontend environment variable in Netlify:
+- `VITE_BACKEND_URL` = Railway backend URL (e.g., `https://<your-project-name>.up.railway.app`)
 
 Deploy steps:
-1. Import the repository in Vercel.
-2. Confirm framework/build settings from `vercel.json`.
+1. Import the repository in Netlify.
+2. Confirm framework/build settings from `netlify.toml`.
 3. Add `VITE_BACKEND_URL`.
 4. Deploy and verify textbook pages + chat widget rendering.
 
-### Backend deployment (Render)
+### Backend deployment (Railway)
 
-`render.yaml` defines service `textbook-rag-backend` with:
-- build command: `pip install -r backend/requirements.txt`
-- start command: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+`backend/Dockerfile` and `backend/Procfile` define the service with:
+- build: Containerized with Docker (uses `backend/requirements.txt`)
+- start command: `uvicorn main:app --host 0.0.0.0 --port ${PORT}`
 
-Set backend environment variables in Render:
+Set backend environment variables in Railway:
 - `FRONTEND_ORIGIN`
+- `DEPLOYED_FRONTEND_ORIGIN`
 - `QDRANT_URL`
 - `QDRANT_API_KEY`
-- `GOOGLE_API_KEY`
 - `GROQ_API_KEY`
 - `NEON_DATABASE_URL`
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
 
 Deploy steps:
-1. Create/import Render web service.
-2. Apply config from `render.yaml`.
+1. Create/import Railway service.
+2. Apply config from `backend/Dockerfile` and `backend/Procfile`.
 3. Set all required env vars.
 4. Deploy and verify `GET /health` returns `{ "status": "ok" }`.
 
@@ -115,3 +117,14 @@ Backend uses OpenAI-compatible `openai` SDK against Groq (`https://api.groq.com/
 - Governance traces in `history/prompts/constitution/`.
 
 This gives evaluators traceable implementation evidence for skill/agent workflow usage.
+
+## Deployment Quick Start
+
+For deployment instructions, see:
+- `STEP_BY_STEP_DEPLOYMENT.md` - Complete deployment walkthrough
+- `DEPLOYMENT_CHEATSHEET.md` - Quick reference card
+- `RAILWAY_DEPLOYMENT.md` - Backend deployment guide
+- `NETLIFY_DEPLOYMENT.md` - Frontend deployment guide
+- `TESTING_GUIDE.md` - Post-deployment verification
+
+The project is fully optimized and ready for deployment with both backend (Railway) and frontend (Netlify).

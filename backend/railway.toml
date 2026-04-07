@@ -1,0 +1,9 @@
+[build]
+  builder = "docker"
+  dockerfilePath = "./Dockerfile"
+
+[deploy]
+  numReplicas = 1
+  region = "us-west1"
+  healthcheckPath = "/health"
+  healthcheckTimeout = 30

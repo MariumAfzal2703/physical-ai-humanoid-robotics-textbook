@@ -1,4 +1,6 @@
-# Deploying the Backend to Render
+# Deploying the Backend to Railway (Recommended for Free Tier)
+
+Note: For free tier usage, we recommend deploying to Railway instead of Render. See RAILWAY_DEPLOYMENT.md for detailed instructions.
 
 ## Step 1: Prepare Your Repository
 

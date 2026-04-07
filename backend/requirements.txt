@@ -4,13 +4,11 @@ openai
 groq
 google-generativeai
 qdrant-client
-sentence-transformers
 python-dotenv
-pydantic
+pydantic[email]
 psycopg2-binary
 sqlalchemy
 alembic
-pytest
 httpx
 email-validator
 bcrypt
