@@ -1,0 +1,34 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run build:netlify
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+          GENERATE_SOURCEMAP: false
+          NODE_ENV: production
+          VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+          DEPLOYED_FRONTEND_ORIGIN: ${{ secrets.DEPLOYED_FRONTEND_ORIGIN }}
+          DOCS_SITE_URL: ${{ secrets.DOCS_SITE_URL }}
+
+      - uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=build --prod
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
