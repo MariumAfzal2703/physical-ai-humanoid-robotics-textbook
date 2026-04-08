@@ -7,8 +7,3 @@
   GENERATE_SOURCEMAP = "false"
   NODE_ENV = "production"
 
-[[plugins]]
-  package = "@netlify/plugin-lighthouse"
-
-[template.environment]
-  NODE_VERSION = "20"
