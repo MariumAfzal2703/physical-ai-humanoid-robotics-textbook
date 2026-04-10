@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import OriginalLayout from '@theme-original/Layout';
-import FloatingChatbot from '../../components/FloatingChatbot';
 
 const Layout = (props) => {
   const [progress, setProgress] = useState(0);
@@ -9,14 +8,19 @@ const Layout = (props) => {
   const [ringPosition, setRingPosition] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
   const [AnimatedCanvasComponent, setAnimatedCanvasComponent] = useState(null);
+  const [FloatingChatbotComponent, setFloatingChatbotComponent] = useState(null);
 
   // Only run effects on client side
   useEffect(() => {
     setMounted(true);
 
-    // Dynamically import AnimatedCanvas only on client
+    // Dynamically import heavy components only on client
     import('../../components/AnimatedCanvas').then((mod) => {
       setAnimatedCanvasComponent(() => mod.default);
+    });
+
+    import('../../components/FloatingChatbot').then((mod) => {
+      setFloatingChatbotComponent(() => mod.default);
     });
 
     // Scroll progress effect
@@ -97,8 +101,8 @@ const Layout = (props) => {
         </>
       )}
 
-      {/* Floating Chatbot */}
-      <FloatingChatbot />
+      {/* Floating Chatbot - only render on client side with dynamic import */}
+      {mounted && FloatingChatbotComponent && <FloatingChatbotComponent />}
     </>
   );
 };
