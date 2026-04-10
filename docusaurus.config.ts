@@ -21,7 +21,7 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
 
   plugins: [
-    './plugins/webpack-optimizer.js',
+    './plugins/aggressive-build-optimizer.js',
   ],
 
   url: 'https://physical-ai-humanoid-robotics-textb-sable.vercel.app',
