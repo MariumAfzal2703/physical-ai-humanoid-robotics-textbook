@@ -1,16 +1,16 @@
-// Docusaurus plugin to aggressively optimize memory during build
+// Docusaurus plugin to optimize memory during build
 // This plugin modifies how heavy modules are handled during SSR
 
-module.exports = function aggressiveBuildOptimizer() {
+module.exports = function buildOptimizer() {
   return {
-    name: 'aggressive-build-optimizer',
+    name: 'build-optimizer',
 
     configureWebpack(config, isServer) {
       if (!isServer || process.env.NODE_ENV !== 'production') {
         return {};
       }
 
-      // More aggressive externals for server build
+      // Selective externals for server build - only exclude specific heavy packages
       const externals = config.externals || [];
 
       // Add function-based external resolver
@@ -19,26 +19,20 @@ module.exports = function aggressiveBuildOptimizer() {
           return callback();
         }
 
-        // Patterns for heavy packages that should not be processed during SSR
-        const heavyPatterns = [
-          /mermaid/,
-          /vscode-languageserver/,
-          /langium/,
-          /@mermaid-js\/parser/,
-          /chevrotain/,
-          /cytoscape/,
-          /d3-/,
-          /plotly/,
-          /three/,
-          /babylon/,
-          /framer-motion/,
-          /gsap/,
-          /@emotion/,  // CSS-in-JS
-          /@mui/,       // Material UI
-          /react-syntax-highlighter/,
+        // Only exclude specific mermaid-related packages that cause memory issues
+        // Avoid catching CSS loaders, Babel, or other essential build tools
+        const heavyMermaidPackages = [
+          'mermaid',
+          'vscode-languageserver',
+          'vscode-languageserver-types',
+          'vscode-languageserver-protocol',
+          'vscode-languageserver-textdocument',
+          'langium',
+          '@mermaid-js/parser',
+          'chevrotain',
         ];
 
-        if (heavyPatterns.some(pattern => pattern.test(request))) {
+        if (heavyMermaidPackages.some(pkg => request.includes(pkg))) {
           return callback(null, `commonjs ${request}`);
         }
 
@@ -48,29 +42,18 @@ module.exports = function aggressiveBuildOptimizer() {
       return {
         ...config,
         externals,
-        // Reduce memory usage during build
+        // Reduce memory usage during build by disabling chunk splitting
         optimization: {
           ...config.optimization,
-          splitChunks: false, // Disable chunk splitting to save memory during build
+          splitChunks: {
+            chunks: 'async', // Only split async chunks, not all chunks
+          },
         },
-        // Disable expensive features during build
+        // Reduce memory pressure
         performance: {
           hints: false,
-          maxAssetSize: 512000,
-          maxEntrypointSize: 512000,
         },
       };
-    },
-
-    // Pre-load hook to set up memory management
-    async contentLoaded({ actions }) {
-      // This runs after content is loaded but before SSR
-      if (typeof process.env.NODE_ENV === 'production') {
-        // Increase GC frequency during build
-        if (global.gc) {
-          global.gc();
-        }
-      }
     },
   };
 };
