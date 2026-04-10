@@ -7,7 +7,6 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
-    experimental_faster: true, // Enable faster build optimizations
   },
   title: 'Physical AI & Humanoid Robotics Textbook | Marium Afzal',
   tagline: 'From Code to Motion — Intelligence Meets Reality',
