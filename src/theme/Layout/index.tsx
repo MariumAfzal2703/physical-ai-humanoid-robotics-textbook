@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import OriginalLayout from '@theme-original/Layout';
-import AnimatedCanvas from '../../components/AnimatedCanvas';
 import FloatingChatbot from '../../components/FloatingChatbot';
 
 const Layout = (props) => {
@@ -8,9 +7,19 @@ const Layout = (props) => {
   const [cursorVisible, setCursorVisible] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [ringPosition, setRingPosition] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+  const [AnimatedCanvasComponent, setAnimatedCanvasComponent] = useState(null);
 
-  // Scroll progress effect
+  // Only run effects on client side
   useEffect(() => {
+    setMounted(true);
+
+    // Dynamically import AnimatedCanvas only on client
+    import('../../components/AnimatedCanvas').then((mod) => {
+      setAnimatedCanvasComponent(() => mod.default);
+    });
+
+    // Scroll progress effect
     const handleScroll = () => {
       const scrollTop = document.documentElement.scrollTop;
       const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -24,6 +33,8 @@ const Layout = (props) => {
 
   // Custom cursor effect
   useEffect(() => {
+    if (!mounted) return;
+
     const handleMouseMove = (e) => {
       setCursorPosition({ x: e.clientX, y: e.clientY });
 
@@ -46,7 +57,7 @@ const Layout = (props) => {
       document.body.removeEventListener('mouseenter', handleMouseEnter);
       document.body.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, []);
+  }, [mounted]);
 
   return (
     <>
@@ -54,8 +65,8 @@ const Layout = (props) => {
         {props.children}
       </OriginalLayout>
 
-      {/* Animated Background Canvas */}
-      <AnimatedCanvas />
+      {/* Animated Background Canvas - only render on client side with dynamic import */}
+      {mounted && AnimatedCanvasComponent && <AnimatedCanvasComponent />}
 
       {/* Progress Bar */}
       <div
@@ -66,8 +77,8 @@ const Layout = (props) => {
         }}
       />
 
-      {/* Custom Cursor */}
-      {cursorVisible && (
+      {/* Custom Cursor - only render on client side */}
+      {mounted && cursorVisible && (
         <>
           <div
             className="custom-cursor-dot"
