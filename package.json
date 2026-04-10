@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "NODE_OPTIONS=--max-old-space-size=4096 docusaurus build",
-    "build:netlify": "NODE_OPTIONS=--max-old-space-size=6144 --no-compilation-cache docusaurus build",
+    "build:netlify": "NODE_OPTIONS=--max-old-space-size=6144 docusaurus build",
     "prebuild": "npm run clear",
     "build:prod": "docusaurus build",
     "swizzle": "docusaurus swizzle",
