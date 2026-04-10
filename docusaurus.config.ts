@@ -18,7 +18,9 @@ const config: Config = {
 
   themes: [],
 
-  plugins: [],
+  plugins: [
+    require.resolve('@docusaurus/faster'),
+  ],
 
   url: 'https://physical-ai-humanoid-robotics-textb-sable.vercel.app',
   baseUrl: '/',
