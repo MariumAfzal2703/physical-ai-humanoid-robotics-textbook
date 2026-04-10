@@ -23,7 +23,6 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
           GENERATE_SOURCEMAP: false
           NODE_ENV: production
-          SKIP_MERMAID_BUILD: 1
           VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
           DEPLOYED_FRONTEND_ORIGIN: ${{ secrets.DEPLOYED_FRONTEND_ORIGIN }}
           DOCS_SITE_URL: ${{ secrets.DOCS_SITE_URL }}
