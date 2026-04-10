@@ -18,10 +18,10 @@ const config: Config = {
   },
 
   markdown: {
-    mermaid: true,
+    mermaid: false,
   },
 
-  themes: ['@docusaurus/theme-mermaid'],
+  themes: [],
 
   plugins: [],
 
